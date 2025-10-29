@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ing_software_grupo4/handlers/report_handler.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/modelos/reporte.dart';
 import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
@@ -73,6 +74,8 @@ class _EditorDeReportesState extends State<EditorDeReportes> {
                               minLines: null,
                               maxLines: 100,
                               decoration: InputDecoration(
+                                hintText:
+                                    "Escribe una descripción del objeto perdido",
                                 border: OutlineInputBorder(
                                   borderSide: BorderSide(
                                     color: Colors.lightBlueAccent,
@@ -80,6 +83,9 @@ class _EditorDeReportesState extends State<EditorDeReportes> {
                                   ),
                                 ),
                               ),
+                              validator: (v) => v == null || v.isEmpty
+                                  ? "Escribe una descripción valida"
+                                  : null,
                             ),
                           ),
                           Expanded(
@@ -93,6 +99,19 @@ class _EditorDeReportesState extends State<EditorDeReportes> {
                                     onPressed: () {
                                       if (_formKey.currentState!.validate()) {
                                         Reporte r = _recolectarCambios();
+                                        ReportHandler.submitPeticion(
+                                          widget.uuid,
+                                          r,
+                                          true,
+                                        );
+
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text('${ReportHandler.getPeticiones().length}'),
+                                          ),
+                                        );
                                       }
                                     },
                                     child: const Text("Guardar y salir"),
@@ -122,7 +141,13 @@ class _EditorDeReportesState extends State<EditorDeReportes> {
   }
 
   Reporte _recolectarCambios() {
-    return Reporte(_titleController.text, _descriptionController.text, SessionHandler.nombreUsuario, "", widget.reporte.tipo);
+    return Reporte(
+      _titleController.text,
+      _descriptionController.text,
+      SessionHandler.uuid,
+      "",
+      widget.reporte.tipo,
+    );
   }
 }
 
