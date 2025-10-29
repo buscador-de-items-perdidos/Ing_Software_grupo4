@@ -18,76 +18,105 @@ class EditorDeReportes extends StatefulWidget {
 }
 
 class _EditorDeReportesState extends State<EditorDeReportes> {
-  late TextEditingController _titleController = TextEditingController(
+  late final TextEditingController _titleController = TextEditingController(
     text: widget.reporte.titulo,
   );
 
-  late TextEditingController _descriptionController = TextEditingController(
-    text: widget.reporte.descripcion,
-  );
+  late final TextEditingController _descriptionController =
+      TextEditingController(text: widget.reporte.descripcion);
+
   final _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("")),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 100.0),
-            child: TextFormField(
-              validator: (v) => v == "" ? "Ingresa un título" : null,
-              controller: _titleController,
-              decoration: InputDecoration(
-                hintText: "Ingresa un título",
-                enabledBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey, width: 0.0),
+      body: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 100.0),
+              child: TextFormField(
+                validator: (v) =>
+                    v == null || v.isEmpty ? "Ingresa un título" : null,
+                controller: _titleController,
+                decoration: InputDecoration(
+                  hintText: "Ingresa un título",
+                  enabledBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.grey, width: 0.0),
+                  ),
                 ),
               ),
             ),
-          ),
-          Text(
-            "Autor: ${SessionHandler.nombreUsuario}",
-            style: TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
-          ),
-          Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _ImagenDeObjeto(),
-                Expanded(
-                  child: Column(
-                    children: [
-                      Expanded(flex: 4, child: TextFormField()),
-                      Expanded(
-                        flex: 1,
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 3,
-                              child: ElevatedButton(
-                                onPressed: _formKey.currentState?.validate() ?? false
-                                    ? () => print("3")
-                                    : () {},
-                                child: const Text("Guardar y salir"),
-                              ),
-                            ),
-                            Flexible(
-                              flex: 1,
-                              child: ElevatedButton(
-                                onPressed: () {},
-                                child: Text("Guardar"),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+            Text(
+              "Autor: ${SessionHandler.nombreUsuario}",
+              style: TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
             ),
-          ),
-        ],
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _ImagenDeObjeto(),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 100.0),
+                      child: Column(
+                        children: [
+                          const Text(
+                            "Descripción",
+                            textScaler: TextScaler.linear(1.2),
+                          ),
+                          Expanded(
+                            flex: 4,
+                            child: TextFormField(
+                              minLines: null,
+                              maxLines: 100,
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Colors.lightBlueAccent,
+                                    width: 0.0,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Expanded(
+                                  flex: 3,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      if (_formKey.currentState!.validate()) {
+                                        print(3);
+                                      }
+                                    },
+                                    child: const Text("Guardar y salir"),
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 1,
+                                  child: ElevatedButton(
+                                    onPressed: () {},
+                                    child: Text("Guardar"),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -99,10 +128,19 @@ class _EditorDeReportesState extends State<EditorDeReportes> {
 }
 
 class _ImagenDeObjeto extends StatelessWidget {
-  const _ImagenDeObjeto({super.key});
+  const _ImagenDeObjeto();
 
   @override
   Widget build(BuildContext context) {
+    if (true) {
+      //Esta condición a futuro seria si el reporte tiene una imagen, por ahora asumimos que sí
+      return Expanded(
+        child: CircleAvatar(
+          backgroundImage: AssetImage('assets/trial.jpeg'),
+          maxRadius: 99999,
+        ),
+      );
+    }
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.all(70.0),
