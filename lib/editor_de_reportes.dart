@@ -36,20 +36,7 @@ class _EditorDeReportesState extends State<EditorDeReportes> {
         key: _formKey,
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 100.0),
-              child: TextFormField(
-                validator: (v) =>
-                    v == null || v.isEmpty ? "Ingresa un título" : null,
-                controller: _titleController,
-                decoration: InputDecoration(
-                  hintText: "Ingresa un título",
-                  enabledBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey, width: 0.0),
-                  ),
-                ),
-              ),
-            ),
+            _crearCampoTitulo(),
             Text(
               "Autor: ${SessionHandler.nombreUsuario}",
               style: TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
@@ -68,65 +55,8 @@ class _EditorDeReportesState extends State<EditorDeReportes> {
                             "Descripción",
                             textScaler: TextScaler.linear(1.2),
                           ),
-                          Expanded(
-                            flex: 4,
-                            child: TextFormField(
-                              minLines: null,
-                              maxLines: 100,
-                              decoration: InputDecoration(
-                                hintText:
-                                    "Escribe una descripción del objeto perdido",
-                                border: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Colors.lightBlueAccent,
-                                    width: 0.0,
-                                  ),
-                                ),
-                              ),
-                              validator: (v) => v == null || v.isEmpty
-                                  ? "Escribe una descripción valida"
-                                  : null,
-                            ),
-                          ),
-                          Expanded(
-                            flex: 1,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Expanded(
-                                  flex: 3,
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      if (_formKey.currentState!.validate()) {
-                                        Reporte r = _recolectarCambios();
-                                        ReportHandler.submitPeticion(
-                                          widget.uuid,
-                                          r,
-                                          true,
-                                        );
-
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(
-                                            content: Text('${ReportHandler.getPeticiones().length}'),
-                                          ),
-                                        );
-                                      }
-                                    },
-                                    child: const Text("Guardar y salir"),
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: ElevatedButton(
-                                    onPressed: () {},
-                                    child: Text("Guardar"),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                          _crearCampoDescripcion(),
+                          _crearBotonesGuardado(context),
                         ],
                       ),
                     ),
@@ -138,6 +68,81 @@ class _EditorDeReportesState extends State<EditorDeReportes> {
         ),
       ),
     );
+  }
+
+  Padding _crearCampoTitulo() {
+    return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 100.0),
+            child: TextFormField(
+              validator: (v) =>
+                  v == null || v.isEmpty ? "Ingresa un título" : null,
+              controller: _titleController,
+              decoration: InputDecoration(
+                hintText: "Ingresa un título",
+                enabledBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.grey, width: 0.0),
+                ),
+              ),
+            ),
+          );
+  }
+
+  Expanded _crearBotonesGuardado(BuildContext context) {
+    return Expanded(
+      flex: 1,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Expanded(
+            flex: 3,
+            child: ElevatedButton(
+              onPressed: () => _publicarYSalir(context),
+              child: const Text("Publicar y Salir"),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: ElevatedButton(
+              onPressed: () => _publicar(context),
+              child: Text("Publicar"),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Expanded _crearCampoDescripcion() {
+    return Expanded(
+      flex: 4,
+      child: TextFormField(
+        minLines: null,
+        maxLines: 100,
+        decoration: InputDecoration(
+          hintText: "Escribe una descripción del objeto perdido",
+          border: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.lightBlueAccent, width: 0.0),
+          ),
+        ),
+        validator: (v) =>
+            v == null || v.isEmpty ? "Escribe una descripción valida" : null,
+      ),
+    );
+  }
+
+  void _publicar(BuildContext context) {
+    if (!_formKey.currentState!.validate()) {}
+    Reporte r = _recolectarCambios();
+    if (!ReportHandler.submitPeticion(widget.uuid, r, true)) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: const Text("FAILED PUBLISH")));
+    }
+  }
+
+  void _publicarYSalir(BuildContext context) {
+    _publicar(context);
+    Navigator.pop(context);
   }
 
   Reporte _recolectarCambios() {
