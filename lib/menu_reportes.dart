@@ -37,7 +37,7 @@ class BotonCrear extends StatelessWidget {
           MaterialPageRoute(
             builder: (_) {
               final String uuid = uuidGen.v7();
-              return EditorDeReportes.vacio(uuid);
+              return EditorDeReportes.vacio(key: ValueKey(uuid),uuid);
             },
           ),
         );
