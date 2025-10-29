@@ -92,7 +92,7 @@ class _EditorDeReportesState extends State<EditorDeReportes> {
                                   child: ElevatedButton(
                                     onPressed: () {
                                       if (_formKey.currentState!.validate()) {
-                                        print(3);
+                                        Reporte r = _recolectarCambios();
                                       }
                                     },
                                     child: const Text("Guardar y salir"),
@@ -122,8 +122,7 @@ class _EditorDeReportesState extends State<EditorDeReportes> {
   }
 
   Reporte _recolectarCambios() {
-    //Este metodo obtendra la información entrada al widget y creara un nuevo reporte
-    throw UnimplementedError();
+    return Reporte(_titleController.text, _descriptionController.text, SessionHandler.nombreUsuario, "", widget.reporte.tipo);
   }
 }
 
