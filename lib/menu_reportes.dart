@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ing_software_grupo4/editor_de_reportes.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/menu_pendientes.dart';
+import 'package:ing_software_grupo4/modo.dart';
 
 import 'modelos/reporte.dart';
 import 'package:uuid/uuid.dart';
@@ -62,7 +63,8 @@ class BotonCrear extends StatelessWidget {
           MaterialPageRoute(
             builder: (_) {
               final String uuid = uuidGen.v7();
-              return EditorDeReportes.vacio(key: ValueKey(uuid), uuid);
+              return ReportDisplay.vacio(key: ValueKey(uuid), uuid, modo:
+                Modo.Editar);
             },
           ),
         );
