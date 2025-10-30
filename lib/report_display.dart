@@ -9,12 +9,7 @@ class ReportDisplay extends StatefulWidget {
   final Reporte reporte;
   final String uuid;
   final Modo modo;
-  const ReportDisplay(
-    this.reporte,
-    this.uuid, {
-    required this.modo,
-    super.key,
-  });
+  const ReportDisplay(this.reporte, this.uuid, {required this.modo, super.key});
   const ReportDisplay.vacio(this.uuid, {super.key, required this.modo})
     : reporte = const Reporte.vacio(TipoReporte.encontrado);
 
@@ -78,8 +73,8 @@ class _ReportDisplayState extends State<ReportDisplay> {
                             flex: 1,
                             child: switch (widget.modo) {
                               Modo.Ver => SizedBox.expand(),
-                              Modo.Revisar => _crearBotonesGuardado(context),
-                              Modo.Editar => _crearBotonesPublicacion(context),
+                              Modo.Editar => _crearBotonesGuardado(context),
+                              Modo.Revisar => _crearBotonesPublicacion(context),
                             },
                           ),
                         ],
@@ -202,6 +197,7 @@ class _DescripcionReporte extends StatelessWidget {
       minLines: null,
       maxLines: 100,
       enabled: editable,
+      controller: controller,
       decoration: InputDecoration(
         hintText: "Escribe una descripción del objeto perdido",
         border: OutlineInputBorder(
