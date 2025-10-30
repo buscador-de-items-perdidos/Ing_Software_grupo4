@@ -17,20 +17,22 @@ class MenuPendientes extends StatelessWidget {
         itemCount: pendientes.length,
         itemBuilder: (context, i) {
           Reporte r = ReportHandler.getPeticion(pendientes.elementAt(i))!;
-          return InkWell(
-            child: ListTile(title: Text(r.titulo)),
-            onTap: () => {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => ReportDisplay(
-                    r,
-                    pendientes.elementAt(i),
-                    modo: Modo.Revisar,
+          return Card(
+            child: ListTile(
+              title: Text(r.titulo),
+              onTap: () => {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ReportDisplay(
+                      r,
+                      pendientes.elementAt(i),
+                      modo: Modo.Revisar,
+                    ),
                   ),
                 ),
-              ),
-            },
+              },
+            ),
           );
         },
       ),
