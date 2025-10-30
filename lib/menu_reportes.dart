@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/menu_pendientes.dart';
-import 'package:ing_software_grupo4/modo.dart';
+import 'package:ing_software_grupo4/modelos/modo.dart';
 import 'package:ing_software_grupo4/report_display.dart';
 
 import 'modelos/reporte.dart';

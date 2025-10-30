@@ -3,7 +3,7 @@ import 'package:ing_software_grupo4/handlers/report_handler.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/modelos/reporte.dart';
 import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
-import 'package:ing_software_grupo4/modo.dart';
+import 'package:ing_software_grupo4/modelos/modo.dart';
 
 class ReportDisplay extends StatefulWidget {
   final Reporte reporte;
