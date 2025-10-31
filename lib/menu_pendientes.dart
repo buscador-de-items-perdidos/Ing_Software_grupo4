@@ -13,13 +13,22 @@ class MenuPendientes extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text("Menu de reportes pendientes")),
-      body: ListView.builder(
+      body: GridView.builder(
         itemCount: pendientes.length,
         itemBuilder: (context, i) {
           Reporte r = ReportHandler.getPeticion(pendientes.elementAt(i))!;
           return Card(
             child: ListTile(
-              title: Text(r.titulo),
+              tileColor: Colors.grey[200],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(20)),
+              ),
+              title: Column(
+                children: [
+                  Image.asset('assets/trial.jpeg', fit: BoxFit.fill),
+                  Text(r.titulo),
+                ],
+              ),
               onTap: () => {
                 Navigator.push(
                   context,
@@ -35,6 +44,9 @@ class MenuPendientes extends StatelessWidget {
             ),
           );
         },
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 6,
+        ),
       ),
     );
   }
