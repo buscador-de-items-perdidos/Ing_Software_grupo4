@@ -8,6 +8,7 @@ import 'package:ing_software_grupo4/modelos/modo.dart';
 part 'campo_titulo.dart';
 part 'imagen_de_objeto.dart';
 part 'descripcion_reporte.dart';
+
 class ReportDisplay extends StatefulWidget {
   final Reporte reporte;
   final String uuid;
@@ -75,7 +76,10 @@ class _ReportDisplayState extends State<ReportDisplay> {
                           Expanded(
                             flex: 1,
                             child: switch (widget.modo) {
-                              Modo.Ver => SizedBox.expand(),
+                              Modo.Ver =>
+                                SessionHandler.uuid == widget.reporte.autor
+                                    ? _crearBotonEditar(context)
+                                    : SizedBox.expand(),
                               Modo.Editar => _crearBotonesGuardado(context),
                               Modo.Revisar => _crearBotonesPublicacion(context),
                             },
@@ -115,19 +119,22 @@ class _ReportDisplayState extends State<ReportDisplay> {
     );
   }
 
-  void _publicar(BuildContext context) {
-    if (!_formKey.currentState!.validate()) {}
+  bool _publicar(BuildContext context) {
+    if (!_formKey.currentState!.validate()) {
+      return false;
+    }
     Reporte r = _recolectarCambios();
     if (!ReportHandler.submitPeticion(widget.uuid, r, true)) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: const Text("FAILED PUBLISH")));
+      return false;
     }
+    return true;
   }
 
   void _publicarYSalir(BuildContext context) {
-    _publicar(context);
-    Navigator.pop(context);
+    if (_publicar(context)) Navigator.pop(context);
   }
 
   Reporte _recolectarCambios() {
@@ -137,6 +144,21 @@ class _ReportDisplayState extends State<ReportDisplay> {
       SessionHandler.uuid,
       "",
       widget.reporte.tipo,
+    );
+  }
+
+  Widget _crearBotonEditar(BuildContext context) {
+    return ElevatedButton(
+      child: const Text("Editar"),
+      onPressed: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) =>
+                ReportDisplay(widget.reporte, widget.uuid, modo: Modo.Editar),
+          ),
+        );
+      },
     );
   }
 
