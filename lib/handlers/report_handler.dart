@@ -1,3 +1,4 @@
+import 'package:flutter/src/foundation/change_notifier.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/modelos/reporte.dart';
 
@@ -13,6 +14,8 @@ class ReportHandler {
   ///Guarda todos los reportes existentes y aprobados en el sistema
   static final Map<String, Reporte> _existentes = {};
 
+  static final ValueNotifier<bool> _reportNotifier = ValueNotifier(false); 
+  static ValueNotifier<bool> get reportNotifier => _reportNotifier;
   static bool canPublish = true;
 
   ///Aqui pondría mi metodo inicializador de base de datos, si tuviera una base de datos.
@@ -49,6 +52,7 @@ class ReportHandler {
     if (!_pendientes.containsKey(uuid)) return;
     _existentes[uuid] = _pendientes[uuid]!;
     _pendientes.remove(uuid);
+    _reportNotifier.value = !_reportNotifier.value;
   }
 
   static void rejectPeticion(String uuid) {

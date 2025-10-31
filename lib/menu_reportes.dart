@@ -18,45 +18,50 @@ class _MenuReportesState extends State<MenuReportes> {
   @override
   Widget build(BuildContext context) {
     List<String> reportes = ReportHandler.getReportes;
-    return Scaffold(
-      appBar: AppBar(
-        leading: SessionHandler.isAdmin ? BotonPendientes() : SizedBox.shrink(),
-        title: Text("Menu de reportes"),
-        centerTitle: true,
-      ),
-      body: GridView.builder(
-        itemCount: reportes.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 6,
-        ),
-        itemBuilder: (context, i) => Card(
-          child: ListTile(
-            title: Column(
-              children: [
-                Image.asset('assets/trial.jpeg'),
-                Text(ReportHandler.getReporte(reportes[i])!.titulo),
-              ],
-            ),
-            onTap: () async {
-              bool? changed = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => ReportDisplay(
-                    ReportHandler.getReporte(reportes[i])!,
-                    reportes[i],
-                    modo: Modo.Ver,
-                  ),
-                ),
-              );
-              if (changed ?? false) {
-                setState(() {});
-              }
-            },
+    return ValueListenableBuilder(
+      valueListenable: ReportHandler.reportNotifier,
+      builder: (_, _, _) {
+        return Scaffold(
+          appBar: AppBar(
+            leading: SessionHandler.isAdmin ? BotonPendientes() : SizedBox.shrink(),
+            title: Text("Menu de reportes"),
+            centerTitle: true,
           ),
-        ),
-      ),
-      floatingActionButton: BotonCrear(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+          body: GridView.builder(
+            itemCount: reportes.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 6,
+            ),
+            itemBuilder: (context, i) => Card(
+              child: ListTile(
+                title: Column(
+                  children: [
+                    Image.asset('assets/trial.jpeg'),
+                    Text(ReportHandler.getReporte(reportes[i])!.titulo),
+                  ],
+                ),
+                onTap: () async {
+                  bool? changed = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ReportDisplay(
+                        ReportHandler.getReporte(reportes[i])!,
+                        reportes[i],
+                        modo: Modo.Ver,
+                      ),
+                    ),
+                  );
+                  if (changed ?? false) {
+                    setState(() {});
+                  }
+                },
+              ),
+            ),
+          ),
+          floatingActionButton: BotonCrear(),
+          floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        );
+      }
     );
   }
 }
