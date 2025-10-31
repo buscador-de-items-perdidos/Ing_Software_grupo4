@@ -14,6 +14,7 @@ class ReportHandler {
   static final Map<String, Reporte> _existentes = {};
 
   static bool canPublish = true;
+
   ///Aqui pondría mi metodo inicializador de base de datos, si tuviera una base de datos.
   static void initialize() {
     throw UnimplementedError();
@@ -42,5 +43,15 @@ class ReportHandler {
     if (_pendientes.containsKey(key)) _pendientes.remove(key);
     _pendientes[key] = r;
     return canPublish; //La idea es que esto nos diria si logramos publicar la petición, pero no tenemos nada aun
+  }
+
+  static void acceptPeticion(String uuid) {
+    if (!_pendientes.containsKey(uuid)) return;
+    _existentes[uuid] = _pendientes[uuid]!;
+    _pendientes.remove(uuid);
+  }
+
+  static void rejectPeticion(String uuid) {
+    _pendientes.remove(uuid);
   }
 }

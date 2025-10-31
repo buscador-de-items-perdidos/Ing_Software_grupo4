@@ -169,7 +169,10 @@ class _ReportDisplayState extends State<ReportDisplay> {
           child: Tooltip(
             message: "Aprobar revisión",
             child: ElevatedButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                ReportHandler.acceptPeticion(widget.uuid);
+                Navigator.pop(context);
+              },
               label: Icon(Icons.check),
             ),
           ),
@@ -178,7 +181,10 @@ class _ReportDisplayState extends State<ReportDisplay> {
           child: Tooltip(
             message: "Rechazar y destruir revisión",
             child: ElevatedButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                ReportHandler.rejectPeticion(widget.uuid);
+                Navigator.pop(context, true);
+              },
               label: Icon(Icons.delete),
             ),
           ),

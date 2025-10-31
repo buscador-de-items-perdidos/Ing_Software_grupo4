@@ -4,9 +4,14 @@ import 'package:ing_software_grupo4/modelos/reporte.dart';
 import 'package:ing_software_grupo4/modelos/modo.dart';
 import 'package:ing_software_grupo4/report_display.dart';
 
-class MenuPendientes extends StatelessWidget {
+class MenuPendientes extends StatefulWidget {
   const MenuPendientes({super.key});
 
+  @override
+  State<MenuPendientes> createState() => _MenuPendientesState();
+}
+
+class _MenuPendientesState extends State<MenuPendientes> {
   @override
   Widget build(BuildContext context) {
     Iterable<String> pendientes = ReportHandler.getPeticiones();
@@ -29,8 +34,8 @@ class MenuPendientes extends StatelessWidget {
                   Text(r.titulo),
                 ],
               ),
-              onTap: () => {
-                Navigator.push(
+              onTap: () async {
+                bool? accepted = await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => ReportDisplay(
@@ -39,7 +44,10 @@ class MenuPendientes extends StatelessWidget {
                       modo: Modo.Revisar,
                     ),
                   ),
-                ),
+                );
+                if(accepted ?? false){
+                  setState((){});
+                }
               },
             ),
           );
