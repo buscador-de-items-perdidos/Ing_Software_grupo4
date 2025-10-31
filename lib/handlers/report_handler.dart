@@ -54,4 +54,10 @@ class ReportHandler {
   static void rejectPeticion(String uuid) {
     _pendientes.remove(uuid);
   }
+
+  static List<String> get getReportes => _existentes.keys.toList();
+
+  static Reporte? getReporte(String key) {
+    return _existentes[key];
+  }
 }

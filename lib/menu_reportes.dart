@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:ing_software_grupo4/handlers/report_handler.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/menu_pendientes.dart';
 import 'package:ing_software_grupo4/modelos/modo.dart';
 import 'package:ing_software_grupo4/report_display.dart';
 
-import 'modelos/reporte.dart';
 import 'package:uuid/uuid.dart';
 
 class MenuReportes extends StatefulWidget {
@@ -15,17 +15,46 @@ class MenuReportes extends StatefulWidget {
 }
 
 class _MenuReportesState extends State<MenuReportes> {
-  final Map<String, Reporte> reportes = {};
-
   @override
   Widget build(BuildContext context) {
+    List<String> reportes = ReportHandler.getReportes;
     return Scaffold(
       appBar: AppBar(
         leading: SessionHandler.isAdmin ? BotonPendientes() : SizedBox.shrink(),
         title: Text("Menu de reportes"),
         centerTitle: true,
       ),
-      body: ListView(),
+      body: GridView.builder(
+        itemCount: reportes.length,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 6,
+        ),
+        itemBuilder: (context, i) => Card(
+          child: ListTile(
+            title: Column(
+              children: [
+                Image.asset('assets/trial.jpeg'),
+                Text(ReportHandler.getReporte(reportes[i])!.titulo),
+              ],
+            ),
+            onTap: () async {
+              bool? changed = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ReportDisplay(
+                    ReportHandler.getReporte(reportes[i])!,
+                    reportes[i],
+                    modo: Modo.Ver,
+                  ),
+                ),
+              );
+              if (changed ?? false) {
+                setState(() {});
+              }
+            },
+          ),
+        ),
+      ),
       floatingActionButton: BotonCrear(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
@@ -41,9 +70,7 @@ class BotonPendientes extends StatelessWidget {
       onPressed: () {
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (_) => MenuPendientes(),
-          ),
+          MaterialPageRoute(builder: (_) => MenuPendientes()),
         );
       },
       icon: Icon(Icons.timer),
@@ -63,8 +90,11 @@ class BotonCrear extends StatelessWidget {
           MaterialPageRoute(
             builder: (_) {
               final String uuid = uuidGen.v7();
-              return ReportDisplay.vacio(key: ValueKey(uuid), uuid, modo:
-                Modo.Editar);
+              return ReportDisplay.vacio(
+                key: ValueKey(uuid),
+                uuid,
+                modo: Modo.Editar,
+              );
             },
           ),
         );
