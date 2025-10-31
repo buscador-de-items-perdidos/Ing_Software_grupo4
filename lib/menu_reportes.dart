@@ -17,17 +17,17 @@ class MenuReportes extends StatefulWidget {
 class _MenuReportesState extends State<MenuReportes> {
   @override
   Widget build(BuildContext context) {
-    List<String> reportes = ReportHandler.getReportes;
-    return ValueListenableBuilder(
-      valueListenable: ReportHandler.reportNotifier,
-      builder: (_, _, _) {
-        return Scaffold(
-          appBar: AppBar(
-            leading: SessionHandler.isAdmin ? BotonPendientes() : SizedBox.shrink(),
-            title: Text("Menu de reportes"),
-            centerTitle: true,
-          ),
-          body: GridView.builder(
+    return Scaffold(
+      appBar: AppBar(
+        leading: SessionHandler.isAdmin ? BotonPendientes() : SizedBox.shrink(),
+        title: Text("Menu de reportes"),
+        centerTitle: true,
+      ),
+      body: ValueListenableBuilder(
+        valueListenable: ReportHandler.reportNotifier,
+        builder: (context, value, child) {
+          List<String> reportes = ReportHandler.getReportes;
+          return GridView.builder(
             itemCount: reportes.length,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 6,
@@ -57,11 +57,11 @@ class _MenuReportesState extends State<MenuReportes> {
                 },
               ),
             ),
-          ),
-          floatingActionButton: BotonCrear(),
-          floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        );
-      }
+          );
+        },
+      ),
+      floatingActionButton: BotonCrear(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }
