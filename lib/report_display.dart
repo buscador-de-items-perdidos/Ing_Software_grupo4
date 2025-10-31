@@ -5,6 +5,10 @@ import 'package:ing_software_grupo4/modelos/reporte.dart';
 import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
 import 'package:ing_software_grupo4/modelos/modo.dart';
 
+part 'campo_titulo.dart';
+part 'imagen_de_objeto.dart';
+part 'descripcion_reporte.dart';
+
 class ReportDisplay extends StatefulWidget {
   final Reporte reporte;
   final String uuid;
@@ -72,7 +76,10 @@ class _ReportDisplayState extends State<ReportDisplay> {
                           Expanded(
                             flex: 1,
                             child: switch (widget.modo) {
-                              Modo.Ver => SizedBox.expand(),
+                              Modo.Ver =>
+                                SessionHandler.uuid == widget.reporte.autor
+                                    ? _crearBotonEditar(context)
+                                    : SizedBox.expand(),
                               Modo.Editar => _crearBotonesGuardado(context),
                               Modo.Revisar => _crearBotonesPublicacion(context),
                             },
@@ -112,19 +119,22 @@ class _ReportDisplayState extends State<ReportDisplay> {
     );
   }
 
-  void _publicar(BuildContext context) {
-    if (!_formKey.currentState!.validate()) {}
+  bool _publicar(BuildContext context) {
+    if (!_formKey.currentState!.validate()) {
+      return false;
+    }
     Reporte r = _recolectarCambios();
     if (!ReportHandler.submitPeticion(widget.uuid, r, true)) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: const Text("FAILED PUBLISH")));
+      return false;
     }
+    return true;
   }
 
   void _publicarYSalir(BuildContext context) {
-    _publicar(context);
-    Navigator.pop(context);
+    if (_publicar(context)) Navigator.pop(context);
   }
 
   Reporte _recolectarCambios() {
@@ -137,6 +147,48 @@ class _ReportDisplayState extends State<ReportDisplay> {
     );
   }
 
+  Widget _crearBotonEditar(BuildContext context) {
+    return ElevatedButton(
+      child: const Text("Editar"),
+      onPressed: () async {
+        bool editarRevisionEnCola = false;
+        if (ReportHandler.getPeticion(widget.uuid) != null) {
+          editarRevisionEnCola = await showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text("Revisión en cola"),
+              content: const Text(
+                "Se ha detectado que tienes una revisión de este reporte en cola. ¿Deseas editar aquella revisión en vez de la versión aceptada?",
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: const Text("Sí"),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text("No"),
+                ),
+              ],
+            ),
+          );
+        }
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ReportDisplay(
+              editarRevisionEnCola
+                  ? ReportHandler.getPeticion(widget.uuid)!
+                  : widget.reporte,
+              widget.uuid,
+              modo: Modo.Editar,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _crearBotonesPublicacion(BuildContext context) {
     return Row(
       children: [
@@ -144,7 +196,10 @@ class _ReportDisplayState extends State<ReportDisplay> {
           child: Tooltip(
             message: "Aprobar revisión",
             child: ElevatedButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                ReportHandler.acceptPeticion(widget.uuid);
+                Navigator.pop(context);
+              },
               label: Icon(Icons.check),
             ),
           ),
@@ -153,89 +208,15 @@ class _ReportDisplayState extends State<ReportDisplay> {
           child: Tooltip(
             message: "Rechazar y destruir revisión",
             child: ElevatedButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                ReportHandler.rejectPeticion(widget.uuid);
+                Navigator.pop(context, true);
+              },
               label: Icon(Icons.delete),
             ),
           ),
         ),
       ],
-    );
-  }
-}
-
-class _CampoTitulo extends StatelessWidget {
-  const _CampoTitulo({required this.controller, required this.editable});
-
-  final TextEditingController controller;
-
-  final bool editable;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      validator: (v) => v == null || v.isEmpty ? "Ingresa un título" : null,
-      controller: controller,
-      enabled: editable,
-      decoration: InputDecoration(
-        hintText: "Ingresa un título",
-        enabledBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey, width: 0.0),
-        ),
-      ),
-    );
-  }
-}
-
-class _DescripcionReporte extends StatelessWidget {
-  const _DescripcionReporte({required this.controller, required this.editable});
-  final TextEditingController controller;
-
-  final bool editable;
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      minLines: null,
-      maxLines: 100,
-      enabled: editable,
-      controller: controller,
-      decoration: InputDecoration(
-        hintText: "Escribe una descripción del objeto perdido",
-        border: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.lightBlueAccent, width: 0.0),
-        ),
-      ),
-      validator: (v) =>
-          v == null || v.isEmpty ? "Escribe una descripción valida" : null,
-    );
-  }
-}
-
-//TODO: agregar modo editable cuando se puedan subir imagenes
-class _ImagenDeObjeto extends StatelessWidget {
-  const _ImagenDeObjeto();
-
-  @override
-  Widget build(BuildContext context) {
-    if (true) {
-      //Esta condición a futuro seria si el reporte tiene una imagen, por ahora asumimos que sí
-      return Expanded(
-        child: CircleAvatar(
-          backgroundImage: AssetImage('assets/trial.jpeg'),
-          maxRadius: 99999,
-        ),
-      );
-    }
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.all(70.0),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: BoxBorder.all(color: Colors.deepPurpleAccent, width: 1),
-          ),
-          child: SizedBox.expand(),
-        ),
-      ),
     );
   }
 }
