@@ -75,6 +75,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
                             child: _DescripcionReporte(
                               controller: _descriptionController,
                               editable: widget.modo == Modo.Editar,
+                              tipo: widget.reporte.tipo
                             ),
                           ),
                           Expanded(
