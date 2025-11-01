@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ing_software_grupo4/tarjeta_reporte.dart';
 import 'package:ing_software_grupo4/handlers/report_handler.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/menu_pendientes.dart';
@@ -32,31 +33,7 @@ class _MenuReportesState extends State<MenuReportes> {
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 6,
             ),
-            itemBuilder: (context, i) => Card(
-              child: ListTile(
-                title: Column(
-                  children: [
-                    Image.asset('assets/trial.jpeg'),
-                    Text(ReportHandler.getReporte(reportes[i])!.titulo),
-                  ],
-                ),
-                onTap: () async {
-                  bool? changed = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => ReportDisplay(
-                        ReportHandler.getReporte(reportes[i])!,
-                        reportes[i],
-                        modo: Modo.Ver,
-                      ),
-                    ),
-                  );
-                  if (changed ?? false) {
-                    setState(() {});
-                  }
-                },
-              ),
-            ),
+            itemBuilder: (context, i) => TarjetaReporte(nombre: reportes[i], modo: Modo.Ver, pendiente: false,),
           );
         },
       ),
