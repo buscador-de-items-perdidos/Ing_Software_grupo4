@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:ing_software_grupo4/modelos/reporte.dart';
+import 'package:ing_software_grupo4/tarjeta_reporte.dart';
 import 'package:ing_software_grupo4/handlers/report_handler.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/menu_pendientes.dart';
@@ -15,6 +17,7 @@ class MenuReportes extends StatefulWidget {
 }
 
 class _MenuReportesState extends State<MenuReportes> {
+  String input = "";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,42 +26,56 @@ class _MenuReportesState extends State<MenuReportes> {
         title: Text("Menu de reportes"),
         centerTitle: true,
       ),
-      body: ValueListenableBuilder(
-        valueListenable: ReportHandler.reportNotifier,
-        builder: (context, value, child) {
-          List<String> reportes = ReportHandler.getReportes;
-          return GridView.builder(
-            itemCount: reportes.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 6,
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 28.0, left: 50, right: 50),
+            child: TextField(
+              onChanged: (text) => setState(() {
+                input = text;
+              }),
             ),
-            itemBuilder: (context, i) => Card(
-              child: ListTile(
-                title: Column(
-                  children: [
-                    Image.asset('assets/trial.jpeg'),
-                    Text(ReportHandler.getReporte(reportes[i])!.titulo),
-                  ],
-                ),
-                onTap: () async {
-                  bool? changed = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => ReportDisplay(
-                        ReportHandler.getReporte(reportes[i])!,
-                        reportes[i],
-                        modo: Modo.Ver,
-                      ),
-                    ),
-                  );
-                  if (changed ?? false) {
-                    setState(() {});
-                  }
-                },
-              ),
+          ),
+          Expanded(
+            flex: 5,
+            child: ValueListenableBuilder(
+              valueListenable: ReportHandler.reportNotifier,
+              builder: (context, value, child) {
+                List<String> reportes = ReportHandler.getReportes;
+                List<String> filtrados = reportes
+                    .where(
+                      (x) =>
+                          ReportHandler.getReporte(x)?.titulo
+                              .toLowerCase()
+                              .contains(input.toLowerCase()) ??
+                          false,
+                    )
+                    .toList();
+                return GridView.builder(
+                  itemCount: filtrados.length,
+                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 200,
+                    mainAxisExtent: 200,
+                  ),
+                  itemBuilder: (context, i) {
+                    Reporte? reporte = ReportHandler.getReporte(filtrados[i]);
+                    if (reporte == null) return Card();
+                    if (!reporte.titulo.toLowerCase().contains(
+                      input.toLowerCase(),
+                    ))
+                      return SizedBox.shrink();
+                    return TarjetaReporte(
+                      key: ValueKey(filtrados[i]),
+                      nombre: filtrados[i],
+                      modo: Modo.Ver,
+                      pendiente: false,
+                    );
+                  },
+                );
+              },
             ),
-          );
-        },
+          ),
+        ],
       ),
       floatingActionButton: BotonCrear(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
