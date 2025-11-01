@@ -14,8 +14,12 @@ class ReportDisplay extends StatefulWidget {
   final String uuid;
   final Modo modo;
   const ReportDisplay(this.reporte, this.uuid, {required this.modo, super.key});
-  const ReportDisplay.vacio(this.uuid, {super.key, required this.modo})
-    : reporte = const Reporte.vacio(TipoReporte.encontrado);
+  ReportDisplay.vacio(
+    this.uuid, {
+    super.key,
+    required this.modo,
+    required TipoReporte tipo,
+  }) : reporte = Reporte.vacio(tipo);
 
   @override
   State<StatefulWidget> createState() {
@@ -71,6 +75,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
                             child: _DescripcionReporte(
                               controller: _descriptionController,
                               editable: widget.modo == Modo.Editar,
+                              tipo: widget.reporte.tipo
                             ),
                           ),
                           Expanded(

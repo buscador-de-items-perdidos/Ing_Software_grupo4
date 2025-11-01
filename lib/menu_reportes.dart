@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ing_software_grupo4/modelos/reporte.dart';
+import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
 import 'package:ing_software_grupo4/tarjeta_reporte.dart';
 import 'package:ing_software_grupo4/handlers/report_handler.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
@@ -77,7 +78,13 @@ class _MenuReportesState extends State<MenuReportes> {
           ),
         ],
       ),
-      floatingActionButton: BotonCrear(),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          BotonCrear(TipoReporte.perdido),
+          BotonCrear(TipoReporte.encontrado),
+        ],
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
@@ -101,30 +108,47 @@ class BotonPendientes extends StatelessWidget {
 }
 
 class BotonCrear extends StatelessWidget {
-  const BotonCrear({super.key});
+  const BotonCrear(this.tipo, {super.key});
   final Uuid uuidGen = const Uuid();
+
+  final TipoReporte tipo;
   @override
   Widget build(BuildContext context) {
-    return FloatingActionButton.extended(
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) {
-              final String uuid = uuidGen.v7();
-              return ReportDisplay.vacio(
-                key: ValueKey(uuid),
-                uuid,
-                modo: Modo.Editar,
-              );
-            },
+    return Tooltip(
+      message: tipo == TipoReporte.encontrado
+          ? "Reporta un objeto que has encontrado"
+          : "Reporta un objeto que has perdido",
+      child: FloatingActionButton.extended(
+        heroTag: tipo,
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) {
+                final String uuid = uuidGen.v7();
+                return ReportDisplay.vacio(
+                  key: ValueKey(uuid),
+                  uuid,
+                  modo: Modo.Editar,
+                  tipo: tipo,
+                );
+              },
+            ),
+          );
+        },
+        elevation: 3,
+        label: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          child: Row(
+            children: [
+              Icon(
+                tipo == TipoReporte.encontrado
+                    ? Icons.downloading
+                    : Icons.search,
+              ),
+            ],
           ),
-        );
-      },
-      elevation: 3,
-      label: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 30.0),
-        child: Row(children: [Icon(Icons.add), const Text("Crear")]),
+        ), //TODO: cambiar los iconos
       ),
     );
   }
