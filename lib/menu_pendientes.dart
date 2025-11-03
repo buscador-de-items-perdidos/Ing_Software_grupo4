@@ -16,7 +16,6 @@ class _MenuPendientesState extends State<MenuPendientes> {
     Iterable<String> pendientes = ReportHandler.getPeticiones();
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Menu de reportes pendientes")),
       body: ValueListenableBuilder(
         valueListenable: ReportHandler.pendingNotifier,
         builder: (context, value, child) {

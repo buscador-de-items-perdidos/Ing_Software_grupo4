@@ -40,63 +40,67 @@ class _ReportDisplayState extends State<ReportDisplay> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("")),
       body: Form(
         key: _formKey,
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 100.0),
-              child: _CampoTitulo(
-                controller: _titleController,
-                editable: widget.modo == Modo.Editar,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 8.0),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 100.0),
+                child: _CampoTitulo(
+                  controller: _titleController,
+                  editable: widget.modo == Modo.Editar,
+                ),
               ),
-            ),
-            Text(
-              "Autor: ${SessionHandler.nombreUsuario}",
-              style: TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
-            ),
-            Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _ImagenDeObjeto(),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 100.0),
-                      child: Column(
-                        children: [
-                          const Text(
-                            "Descripción",
-                            textScaler: TextScaler.linear(1.2),
-                          ),
-                          Expanded(
-                            flex: 4,
-                            child: _DescripcionReporte(
-                              controller: _descriptionController,
-                              editable: widget.modo == Modo.Editar,
-                              tipo: widget.reporte.tipo
+              Text(
+                "Autor: ${SessionHandler.nombreUsuario}",
+                style: TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
+              ),
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _ImagenDeObjeto(),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 100.0),
+                        child: Column(
+                          children: [
+                            const Text(
+                              "Descripción",
+                              textScaler: TextScaler.linear(1.2),
                             ),
-                          ),
-                          Expanded(
-                            flex: 1,
-                            child: switch (widget.modo) {
-                              Modo.Ver =>
-                                SessionHandler.uuid == widget.reporte.autor
-                                    ? _crearBotonEditar(context)
-                                    : SizedBox.expand(),
-                              Modo.Editar => _crearBotonesGuardado(context),
-                              Modo.Revisar => _crearBotonesPublicacion(context),
-                            },
-                          ),
-                        ],
+                            Expanded(
+                              flex: 4,
+                              child: _DescripcionReporte(
+                                controller: _descriptionController,
+                                editable: widget.modo == Modo.Editar,
+                                tipo: widget.reporte.tipo,
+                              ),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: switch (widget.modo) {
+                                Modo.Ver =>
+                                  SessionHandler.uuid == widget.reporte.autor
+                                      ? _crearBotonEditar(context)
+                                      : SizedBox.expand(),
+                                Modo.Editar => _crearBotonesGuardado(context),
+                                Modo.Revisar => _crearBotonesPublicacion(
+                                  context,
+                                ),
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
