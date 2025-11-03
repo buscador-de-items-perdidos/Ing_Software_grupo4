@@ -23,10 +23,42 @@ class _MenuReportesState extends State<MenuReportes> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "Brr Brr Patapim",
+              style: TextStyle(color: Theme.of(context).scaffoldBackgroundColor, fontWeight: FontWeight.w900),
+            ),
+            SizedBox.shrink(),
+            ElevatedButton(
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty<Color>.fromMap(
+                  <WidgetStatesConstraint, Color>{
+                    WidgetState.any: Theme.of(context).scaffoldBackgroundColor,
+                  },
+                ),
+              ),
+              onPressed: () {},
+              child: Row(
+                children: [
+                  Icon(Icons.add, color: Theme.of(context).primaryColor),
+                  Text(
+                    "Publicar",
+                    style: TextStyle(color: Theme.of(context).primaryColor),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: Theme.of(context).primaryColor,
+      ),
+      /*appBar: AppBar(
         leading: SessionHandler.isAdmin ? BotonPendientes() : SizedBox.shrink(),
         title: Text("Menu de reportes"),
         centerTitle: true,
-      ),
+      ),*/
       body: Column(
         children: [
           Padding(
