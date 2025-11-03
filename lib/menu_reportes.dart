@@ -57,24 +57,39 @@ class _MenuReportesState extends State<MenuReportes> {
                           false,
                     )
                     .toList();
-                return GridView.builder(
+                // Mostrar los reportes en una lista vertical con scroll.
+                // Cada tarjeta está centrada horizontalmente 
+                return ListView.separated(
+                  padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
                   itemCount: filtrados.length,
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 200,
-                    mainAxisExtent: 200,
+                  separatorBuilder: (context, index) => Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Container(),
                   ),
                   itemBuilder: (context, i) {
                     Reporte? reporte = ReportHandler.getReporte(filtrados[i]);
-                    if (reporte == null) return Card();
+                    if (reporte == null) return const SizedBox.shrink();
                     if (!reporte.titulo.toLowerCase().contains(
                       input.toLowerCase(),
-                    ))
-                      return SizedBox.shrink();
-                    return TarjetaReporte(
-                      key: ValueKey(filtrados[i]),
-                      nombre: filtrados[i],
-                      modo: Modo.Ver,
-                      pendiente: false,
+                    )) return const SizedBox.shrink();
+
+                    final double width = MediaQuery.of(context).size.width * 0.4;
+                    const double height = 670;
+
+                    return Center(
+                      child: Padding(
+                        padding: EdgeInsets.zero,
+                        child: Container(
+                          width: width,
+                          height: height,
+                          child: TarjetaReporte(
+                            key: ValueKey(filtrados[i]),
+                            nombre: filtrados[i],
+                            modo: Modo.Ver,
+                            pendiente: false,
+                          ),
+                        ),
+                      ),
                     );
                   },
                 );
@@ -99,16 +114,17 @@ class BotonPendientes extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton.outlined(
+    return FloatingActionButton.extended(
+      heroTag: 'pendientes',
       onPressed: () {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => MenuPendientes()),
         );
       },
-      // Mostrar tooltip solo para admins según la sesión.
       tooltip: SessionHandler.isAdmin ? 'Aceptar reportes (solo admin)' : null,
-      icon: Icon(Icons.timer),
+      icon: const Icon(Icons.timer),
+      label: const Text('Pendientes'),
     );
   }
 }
