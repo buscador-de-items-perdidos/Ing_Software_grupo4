@@ -3,8 +3,8 @@ import 'package:ing_software_grupo4/modelos/reporte.dart';
 import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
 import 'package:ing_software_grupo4/tarjeta_reporte.dart';
 import 'package:ing_software_grupo4/handlers/report_handler.dart';
-import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/menu_pendientes.dart';
+import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/modelos/modo.dart';
 import 'package:ing_software_grupo4/report_display.dart';
 
@@ -22,19 +22,24 @@ class _MenuReportesState extends State<MenuReportes> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: SessionHandler.isAdmin ? BotonPendientes() : SizedBox.shrink(),
-        title: Text("Menu de reportes"),
-        centerTitle: true,
-      ),
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.only(bottom: 28.0, left: 50, right: 50),
-            child: TextField(
-              onChanged: (text) => setState(() {
-                input = text;
-              }),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    onChanged: (text) => setState(() {
+                      input = text;
+                    }),
+                    decoration: const InputDecoration(
+                      hintText: 'Que estas buscando?',
+                      prefixIcon: Icon(Icons.search),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           Expanded(
@@ -52,24 +57,39 @@ class _MenuReportesState extends State<MenuReportes> {
                           false,
                     )
                     .toList();
-                return GridView.builder(
+                // Mostrar los reportes en una lista vertical con scroll.
+                // Cada tarjeta está centrada horizontalmente 
+                return ListView.separated(
+                  padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
                   itemCount: filtrados.length,
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 200,
-                    mainAxisExtent: 200,
+                  separatorBuilder: (context, index) => Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Container(),
                   ),
                   itemBuilder: (context, i) {
                     Reporte? reporte = ReportHandler.getReporte(filtrados[i]);
-                    if (reporte == null) return Card();
+                    if (reporte == null) return const SizedBox.shrink();
                     if (!reporte.titulo.toLowerCase().contains(
                       input.toLowerCase(),
-                    ))
-                      return SizedBox.shrink();
-                    return TarjetaReporte(
-                      key: ValueKey(filtrados[i]),
-                      nombre: filtrados[i],
-                      modo: Modo.Ver,
-                      pendiente: false,
+                    )) return const SizedBox.shrink();
+
+                    final double width = MediaQuery.of(context).size.width * 0.4;
+                    const double height = 670;
+
+                    return Center(
+                      child: Padding(
+                        padding: EdgeInsets.zero,
+                        child: Container(
+                          width: width,
+                          height: height,
+                          child: TarjetaReporte(
+                            key: ValueKey(filtrados[i]),
+                            nombre: filtrados[i],
+                            modo: Modo.Ver,
+                            pendiente: false,
+                          ),
+                        ),
+                      ),
                     );
                   },
                 );
@@ -81,8 +101,7 @@ class _MenuReportesState extends State<MenuReportes> {
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          BotonCrear(TipoReporte.perdido),
-          BotonCrear(TipoReporte.encontrado),
+          BotonPendientes(),
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -95,14 +114,17 @@ class BotonPendientes extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton.outlined(
+    return FloatingActionButton.extended(
+      heroTag: 'pendientes',
       onPressed: () {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => MenuPendientes()),
         );
       },
-      icon: Icon(Icons.timer),
+      tooltip: SessionHandler.isAdmin ? 'Aceptar reportes (solo admin)' : null,
+      icon: const Icon(Icons.timer),
+      label: const Text('Pendientes'),
     );
   }
 }
