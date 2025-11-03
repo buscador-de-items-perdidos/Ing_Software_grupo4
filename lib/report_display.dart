@@ -43,59 +43,61 @@ class _ReportDisplayState extends State<ReportDisplay> {
       body: Form(
         key: _formKey,
         child: Padding(
-          padding: const EdgeInsets.only(top: 8.0),
-          child: Column(
+          padding: const EdgeInsets.all(24.0),
+          child: Row(
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 100.0),
-                child: _CampoTitulo(
-                  controller: _titleController,
-                  editable: widget.modo == Modo.Editar,
-                ),
-              ),
-              Text(
-                "Autor: ${SessionHandler.nombreUsuario}",
-                style: TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
-              ),
               Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                flex: 1,
+                child: Column(
                   children: [
-                    _ImagenDeObjeto(),
                     Expanded(
+                      flex: 3,
                       child: Padding(
-                        padding: const EdgeInsets.only(right: 100.0),
-                        child: Column(
-                          children: [
-                            const Text(
-                              "Descripción",
-                              textScaler: TextScaler.linear(1.2),
-                            ),
-                            Expanded(
-                              flex: 4,
-                              child: _DescripcionReporte(
-                                controller: _descriptionController,
-                                editable: widget.modo == Modo.Editar,
-                                tipo: widget.reporte.tipo,
-                              ),
-                            ),
-                            Expanded(
-                              flex: 1,
-                              child: switch (widget.modo) {
-                                Modo.Ver =>
-                                  SessionHandler.uuid == widget.reporte.autor
-                                      ? _crearBotonEditar(context)
-                                      : SizedBox.expand(),
-                                Modo.Editar => _crearBotonesGuardado(context),
-                                Modo.Revisar => _crearBotonesPublicacion(
-                                  context,
-                                ),
-                              },
-                            ),
-                          ],
+                        padding: const EdgeInsets.all(8.0),
+                        child: SizedBox.expand(
+                          child: Image.asset(
+                            'assets/trial.jpeg',
+                            fit: BoxFit.fitWidth,
+                          ),
                         ),
                       ),
                     ),
+                    Expanded(
+                      flex: 1,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: TextFormField(
+                          controller: _titleController,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.black),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 4,
+                      child: TextFormField(
+                        maxLines: 100,
+                        controller: _descriptionController,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.black),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                flex: 1,
+                child: Column(
+                  children: [
+                    Expanded(flex: 4, child: Container(color: Colors.grey)),
+                    Expanded(flex: 2, child: Container()),
+                    Expanded(flex: 2, child: Container(color: Colors.blue)),
                   ],
                 ),
               ),
