@@ -48,12 +48,12 @@ class _ReportDisplayState extends State<ReportDisplay> {
             children: [
               Expanded(
                 flex: 1,
-                child: Column(
-                  children: [
-                    Expanded(
-                      flex: 3,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      Expanded(
+                        flex: 3,
                         child: SizedBox.expand(
                           child: Image.asset(
                             'assets/trial.jpeg',
@@ -61,44 +61,60 @@ class _ReportDisplayState extends State<ReportDisplay> {
                           ),
                         ),
                       ),
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: TextFormField(
-                          controller: _titleController,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black),
-                            ),
+                      Expanded(
+                        flex: 1,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 16),
+                          child: _CampoTitulo(
+                            controller: _titleController,
+                            editable: widget.modo == Modo.Editar,
                           ),
                         ),
                       ),
-                    ),
-                    Expanded(
-                      flex: 4,
-                      child: TextFormField(
-                        maxLines: 100,
-                        controller: _descriptionController,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.black),
-                          ),
+                      Expanded(
+                        flex: 4,
+                        child: _DescripcionReporte(
+                          controller: _descriptionController,
+                          tipo: widget.reporte.tipo,
+                          editable: widget.modo == Modo.Editar,
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               Expanded(
                 flex: 1,
-                child: Column(
-                  children: [
-                    Expanded(flex: 4, child: Container(color: Colors.grey)),
-                    Expanded(flex: 2, child: Container()),
-                    Expanded(flex: 2, child: Container(color: Colors.blue)),
-                  ],
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      Expanded(
+                        flex: 4,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 1,
+                              child: Align(
+                                alignment: Alignment.topCenter,
+                                child: Text(
+                                  "Autor \n\n${SessionHandler.nombreUsuario}",
+                                  style: TextStyle(fontSize: 24),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: Container(color: Colors.grey),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(flex: 2, child: Container()),
+                      Expanded(flex: 2, child: Container(color: Colors.blue)),
+                    ],
+                  ),
                 ),
               ),
             ],

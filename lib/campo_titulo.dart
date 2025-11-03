@@ -12,7 +12,7 @@ class _CampoTitulo extends StatelessWidget {
     return TextFormField(
       validator: (v) => v == null || v.isEmpty ? "Ingresa un título" : null,
       controller: controller,
-      readOnly: !editable,
+      readOnly:!editable,
       decoration: InputDecoration(
         hintText: "Ingresa un título",
         enabledBorder: const OutlineInputBorder(
@@ -22,3 +22,4 @@ class _CampoTitulo extends StatelessWidget {
     );
   }
 }
+
