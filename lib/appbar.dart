@@ -3,14 +3,18 @@ import 'package:ing_software_grupo4/handlers/session_handler.dart';
 
 AppBar appbar(BuildContext context, GlobalKey<NavigatorState> navKey) {
   return AppBar(
+    iconTheme: Theme.of(context).iconTheme,
     title: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         GestureDetector(
-          onTap: () => navKey.currentState?.popUntil((route) => route.isFirst) ,
+          onTap: () => navKey.currentState?.popUntil((route) => route.isFirst),
           child: Row(
             children: [
-              Icon(Icons.cast_outlined, color: Theme.of(context).scaffoldBackgroundColor,),
+              Icon(
+                Icons.cast_outlined,
+                color: Theme.of(context).scaffoldBackgroundColor,
+              ),
               Text(
                 "Brr Brr Patapim",
                 style: TextStyle(
@@ -22,7 +26,12 @@ AppBar appbar(BuildContext context, GlobalKey<NavigatorState> navKey) {
           ),
         ),
         !SessionHandler.isAdmin ? SizedBox.shrink() : SizedBox.shrink(),
-        BotonPublicar(),
+        Row(
+          children: [
+            BotonPublicar(),
+            IconButton.filled(onPressed: () {}, icon: Icon(Icons.person)),
+          ],
+        ),
       ],
     ),
     backgroundColor: Theme.of(context).primaryColor,
