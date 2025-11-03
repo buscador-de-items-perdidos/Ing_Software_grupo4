@@ -1,19 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
 
-AppBar appbar(BuildContext context) {
+AppBar appbar(BuildContext context, GlobalKey<NavigatorState> navKey) {
   return AppBar(
     title: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          "Brr Brr Patapim",
-          style: TextStyle(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            fontWeight: FontWeight.w900,
+        GestureDetector(
+          onTap: () => navKey.currentState?.popUntil((route) => route.isFirst) ,
+          child: Row(
+            children: [
+              Icon(Icons.cast_outlined, color: Theme.of(context).scaffoldBackgroundColor,),
+              Text(
+                "Brr Brr Patapim",
+                style: TextStyle(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ],
           ),
         ),
-        !SessionHandler.isAdmin ? SizedBox.shrink() :SizedBox.shrink(),
+        !SessionHandler.isAdmin ? SizedBox.shrink() : SizedBox.shrink(),
         BotonPublicar(),
       ],
     ),
@@ -22,9 +30,7 @@ AppBar appbar(BuildContext context) {
 }
 
 class BotonPublicar extends StatelessWidget {
-  const BotonPublicar({
-    super.key,
-  });
+  const BotonPublicar({super.key});
 
   @override
   Widget build(BuildContext context) {
