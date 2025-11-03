@@ -49,7 +49,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
               Expanded(
                 flex: 1,
                 child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.only(right: 4.0),
                   child: Column(
                     children: [
                       Expanded(
@@ -86,7 +86,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
               Expanded(
                 flex: 1,
                 child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.only(left: 4.0),
                   child: Column(
                     children: [
                       Expanded(
@@ -95,14 +95,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
                           children: [
                             Expanded(
                               flex: 1,
-                              child: Align(
-                                alignment: Alignment.topCenter,
-                                child: Text(
-                                  "Autor \n\n${SessionHandler.nombreUsuario}",
-                                  style: TextStyle(fontSize: 24),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
+                              child: DetallesReporte(reporte: widget.reporte),
                             ),
                             Expanded(
                               flex: 2,
@@ -241,6 +234,57 @@ class _ReportDisplayState extends State<ReportDisplay> {
               },
               label: Icon(Icons.delete),
             ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class DetallesReporte extends StatelessWidget {
+  const DetallesReporte({super.key, required this.reporte});
+
+  final Reporte reporte;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Detalles del reporte",
+                style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
+                textAlign: TextAlign.center,
+              ),
+              Text(
+                "Autor: ${SessionHandler.nombreUsuario}",
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
+                textAlign: TextAlign.left,
+              ),
+              Text(
+                "Tipo: Objeto ${reporte.tipo.name}",
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
+                textAlign: TextAlign.left,
+              ),
+              Text(
+                "Fecha: 04/11/2025", //TODO: Incluir fecha en reporte
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
+              ),
+              SizedBox.shrink(),
+            ],
+          ),
+        ),
+        Expanded(
+          child: Column(
+            children: [
+              Text(
+                "Datos",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+              ),
+            ],
           ),
         ),
       ],
