@@ -4,6 +4,7 @@ import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
 import 'package:ing_software_grupo4/tarjeta_reporte.dart';
 import 'package:ing_software_grupo4/handlers/report_handler.dart';
 import 'package:ing_software_grupo4/menu_pendientes.dart';
+import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/modelos/modo.dart';
 import 'package:ing_software_grupo4/report_display.dart';
 
@@ -25,10 +26,20 @@ class _MenuReportesState extends State<MenuReportes> {
         children: [
           Padding(
             padding: const EdgeInsets.only(bottom: 28.0, left: 50, right: 50),
-            child: TextField(
-              onChanged: (text) => setState(() {
-                input = text;
-              }),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    onChanged: (text) => setState(() {
+                      input = text;
+                    }),
+                    decoration: const InputDecoration(
+                      hintText: 'Que estas buscando?',
+                      prefixIcon: Icon(Icons.search),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           Expanded(
@@ -76,10 +87,6 @@ class _MenuReportesState extends State<MenuReportes> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           BotonPendientes(),
-          const SizedBox(width: 8),
-          BotonCrear(TipoReporte.perdido),
-          const SizedBox(width: 8),
-          BotonCrear(TipoReporte.encontrado),
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -99,6 +106,8 @@ class BotonPendientes extends StatelessWidget {
           MaterialPageRoute(builder: (_) => MenuPendientes()),
         );
       },
+      // Mostrar tooltip solo para admins según la sesión.
+      tooltip: SessionHandler.isAdmin ? 'Aceptar reportes (solo admin)' : null,
       icon: Icon(Icons.timer),
     );
   }
