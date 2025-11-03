@@ -94,18 +94,25 @@ class _ReportDisplayState extends State<ReportDisplay> {
                         child: Row(
                           children: [
                             Expanded(
-                              flex: 1,
+                              flex: 2,
                               child: DetallesReporte(reporte: widget.reporte),
                             ),
                             Expanded(
-                              flex: 2,
+                              flex: 3,
                               child: Container(color: Colors.grey),
                             ),
                           ],
                         ),
                       ),
-                      Expanded(flex: 2, child: Container()),
-                      Expanded(flex: 2, child: Container(color: Colors.blue)),
+                      Expanded(flex: 3, child: Container()),
+                      Expanded(
+                        flex: 1,
+                        child: switch (widget.modo) {
+                          Modo.Editar => _crearBotonesGuardado(context),
+                          Modo.Ver => _crearBotonEditar(context),
+                          Modo.Revisar => _crearBotonesPublicacion(context)
+                        },
+                      ),
                     ],
                   ),
                 ),
