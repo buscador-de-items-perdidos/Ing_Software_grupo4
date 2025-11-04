@@ -6,7 +6,6 @@ import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
 import 'package:ing_software_grupo4/modelos/modo.dart';
 
 part 'campo_titulo.dart';
-part 'imagen_de_objeto.dart';
 part 'descripcion_reporte.dart';
 
 class ReportDisplay extends StatefulWidget {
