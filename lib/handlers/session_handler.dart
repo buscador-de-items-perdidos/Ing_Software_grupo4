@@ -18,7 +18,6 @@ abstract class SessionHandler {
   //NUNCA guardes los nombres de usuario en cosas que requieran identificación, guarden UUID
   static String uuid = '019a2e2f-d31c-7441-8355-62c252a55cc6';
   static bool get isAdmin => usuarioActual?.isAdmin ?? false;
-
   static String get correo =>
       usuarioActual?.correo ??
       ""; //Aca vendría bien un enum, si es que pusieramos distintos niveles de privilegio
@@ -38,5 +37,8 @@ abstract class SessionHandler {
 
   static String getUsername(String autor) {
     return usuarios[autor]?.nombreUsuario ?? "";
+  }
+  static Usuario getUsuario(String uuid){
+    return usuarios[uuid]!; 
   }
 }
