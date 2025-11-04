@@ -90,7 +90,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
                   child: Column(
                     children: [
                       Expanded(
-                        flex: 4,
+                        flex: 3,
                         child: Row(
                           children: [
                             Expanded(
@@ -99,18 +99,44 @@ class _ReportDisplayState extends State<ReportDisplay> {
                             ),
                             Expanded(
                               flex: 3,
-                              child: Container(color: Colors.grey),
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text(
+                                    "Datos de contacto",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  Text("Correo Electronico: jvidal@udec.cl"),
+                                  Text("Numero de telefono: +56 9 6600 6681"),
+                                  Text(
+                                    "Detalles adicionales",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  Text(
+                                    "Mi rut es 20.481.591-4",
+                                    textAlign: TextAlign.justify,
+                                  ),
+                                  SizedBox.shrink(),
+                                ],
+                              ),
                             ),
                           ],
                         ),
                       ),
-                      Expanded(flex: 3, child: Container()),
+                      Expanded(flex: 4, child: Container(color: Colors.redAccent,)),
                       Expanded(
                         flex: 1,
                         child: switch (widget.modo) {
                           Modo.Editar => _crearBotonesGuardado(context),
                           Modo.Ver => _crearBotonEditar(context),
-                          Modo.Revisar => _crearBotonesPublicacion(context)
+                          Modo.Revisar => _crearBotonesPublicacion(context),
                         },
                       ),
                     ],
@@ -200,6 +226,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
             ),
           );
         }
+        if (!context.mounted) return;
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -281,16 +308,6 @@ class DetallesReporte extends StatelessWidget {
                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
               ),
               SizedBox.shrink(),
-            ],
-          ),
-        ),
-        Expanded(
-          child: Column(
-            children: [
-              Text(
-                "Datos",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-              ),
             ],
           ),
         ),
