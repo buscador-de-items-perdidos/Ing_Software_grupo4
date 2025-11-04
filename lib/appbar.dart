@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ing_software_grupo4/cambio_contactos.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/report_display.dart';
 import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
@@ -33,7 +34,12 @@ AppBar appbar(BuildContext context, GlobalKey<NavigatorState> navKey) {
         Row(
           children: [
             BotonPublicar(navKey),
-            IconButton.filled(onPressed: () {}, icon: Icon(Icons.person)),
+            IconButton.filled(
+              onPressed: () => navKey.currentState!.push(
+                MaterialPageRoute(builder: (_) => const CambioContactos()),
+              ),
+              icon: Icon(Icons.person),
+            ),
           ],
         ),
       ],
@@ -58,7 +64,7 @@ class BotonPublicar extends StatelessWidget {
         ),
       ),
       onPressed: () {
-        // Abrir directamente el formulario de creación 
+        // Abrir directamente el formulario de creación
         final String uuid = const Uuid().v7();
         if (navKey?.currentState != null) {
           navKey!.currentState!.push(

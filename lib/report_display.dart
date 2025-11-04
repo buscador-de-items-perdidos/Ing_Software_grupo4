@@ -4,6 +4,7 @@ import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/modelos/reporte.dart';
 import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
 import 'package:ing_software_grupo4/modelos/modo.dart';
+import 'package:ing_software_grupo4/modelos/usuario.dart';
 
 part 'campo_titulo.dart';
 part 'descripcion_reporte.dart';
@@ -12,13 +13,14 @@ class ReportDisplay extends StatefulWidget {
   final Reporte reporte;
   final String uuid;
   final Modo modo;
+  Usuario get usuario => SessionHandler.getUsuario(reporte.autor);
   const ReportDisplay(this.reporte, this.uuid, {required this.modo, super.key});
   ReportDisplay.vacio(
     this.uuid, {
     super.key,
     required this.modo,
     required TipoReporte tipo,
-  }) : reporte = Reporte.vacio(tipo);
+  }) : reporte = Reporte.vacio(tipo, SessionHandler.uuid);
 
   @override
   State<StatefulWidget> createState() {
@@ -98,38 +100,15 @@ class _ReportDisplayState extends State<ReportDisplay> {
                             ),
                             Expanded(
                               flex: 3,
-                              child: Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text(
-                                    "Datos de contacto",
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                  Text("Correo Electronico: jvidal@udec.cl"),
-                                  Text("Numero de telefono: +56 9 6600 6681"),
-                                  Text(
-                                    "Detalles adicionales",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  Text(
-                                    "Mi rut es 20.481.591-4",
-                                    textAlign: TextAlign.justify,
-                                  ),
-                                  SizedBox.shrink(),
-                                ],
-                              ),
+                              child: _DatosContacto(usuario: widget.usuario),
                             ),
                           ],
                         ),
                       ),
-                      Expanded(flex: 4, child: Container(color: Colors.redAccent,)),
+                      Expanded(
+                        flex: 4,
+                        child: Container(color: Colors.redAccent),
+                      ),
                       Expanded(
                         flex: 1,
                         child: switch (widget.modo) {
@@ -269,6 +248,34 @@ class _ReportDisplayState extends State<ReportDisplay> {
             ),
           ),
         ),
+      ],
+    );
+  }
+}
+
+class _DatosContacto extends StatelessWidget {
+  const _DatosContacto({super.key, required this.usuario});
+
+  final Usuario usuario;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const Text(
+          "Datos de contacto",
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+        ),
+        Text("Correo Electronico: ${usuario.correo}"),
+        Text("Numero de telefono: ${usuario.numero}"),
+        Text(
+          "Detalles adicionales",
+          textAlign: TextAlign.center,
+          style: TextStyle(fontWeight: FontWeight.w500),
+        ),
+        Text(usuario.miscelaneo, textAlign: TextAlign.justify),
+        SizedBox.shrink(),
       ],
     );
   }
