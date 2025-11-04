@@ -3,11 +3,13 @@ class Usuario {
   final String correo;
   final String numero;
   final String miscelaneo;
+  final bool isAdmin;
 
   const Usuario({
     required this.nombreUsuario,
     required this.correo,
     required this.numero,
     required this.miscelaneo,
+    required this.isAdmin
   });
 }
