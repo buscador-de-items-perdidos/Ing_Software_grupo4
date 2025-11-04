@@ -5,6 +5,8 @@ import 'package:ing_software_grupo4/modelos/reporte.dart';
 import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
 import 'package:ing_software_grupo4/modelos/modo.dart';
 import 'package:ing_software_grupo4/modelos/usuario.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 part 'campo_titulo.dart';
 part 'descripcion_reporte.dart';
@@ -14,13 +16,17 @@ class ReportDisplay extends StatefulWidget {
   final String uuid;
   final Modo modo;
   Usuario get usuario => SessionHandler.getUsuario(reporte.autor);
-  const ReportDisplay(this.reporte, this.uuid, {required this.modo, super.key});
+  final bool selected;
+  const ReportDisplay(this.reporte, this.uuid, {required this.modo, super.key})
+    : selected = true;
+
   ReportDisplay.vacio(
     this.uuid, {
     super.key,
     required this.modo,
     required TipoReporte tipo,
-  }) : reporte = Reporte.vacio(tipo, SessionHandler.uuid);
+  }) : reporte = Reporte.vacio(tipo, SessionHandler.uuid),
+       selected = false;
 
   @override
   State<StatefulWidget> createState() {
@@ -105,10 +111,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
                           ],
                         ),
                       ),
-                      Expanded(
-                        flex: 4,
-                        child: Container(color: Colors.redAccent),
-                      ),
+                      Expanded(flex: 4, child: mapaUdec()),
                       Expanded(
                         flex: 1,
                         child: switch (widget.modo) {
@@ -125,6 +128,21 @@ class _ReportDisplayState extends State<ReportDisplay> {
           ),
         ),
       ),
+    );
+  }
+
+  FlutterMap mapaUdec() {
+    return FlutterMap(
+      options: MapOptions(
+        initialCenter: LatLng(-36.8288323, -73.0372646),
+        initialZoom: 16,
+      ),
+      children: [
+        TileLayer(
+          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          userAgentPackageName: 'com.perdidoudec.app',
+        ),
+      ],
     );
   }
 
