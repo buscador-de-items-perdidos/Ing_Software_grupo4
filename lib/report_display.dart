@@ -5,6 +5,8 @@ import 'package:ing_software_grupo4/modelos/reporte.dart';
 import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
 import 'package:ing_software_grupo4/modelos/modo.dart';
 import 'package:ing_software_grupo4/modelos/usuario.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 part 'campo_titulo.dart';
 part 'descripcion_reporte.dart';
@@ -15,6 +17,7 @@ class ReportDisplay extends StatefulWidget {
   final Modo modo;
   Usuario get usuario => SessionHandler.getUsuario(reporte.autor);
   const ReportDisplay(this.reporte, this.uuid, {required this.modo, super.key});
+
   ReportDisplay.vacio(
     this.uuid, {
     super.key,
@@ -37,6 +40,10 @@ class _ReportDisplayState extends State<ReportDisplay> {
       TextEditingController(text: widget.reporte.descripcion);
 
   final _formKey = GlobalKey<FormState>();
+
+  late LatLng _loc =
+      widget.reporte.ubicacion ?? LatLng(-36.8288323, -73.0372646);
+  LatLng? _finalLoc;
 
   @override
   Widget build(BuildContext context) {
@@ -105,10 +112,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
                           ],
                         ),
                       ),
-                      Expanded(
-                        flex: 4,
-                        child: Container(color: Colors.redAccent),
-                      ),
+                      Expanded(flex: 4, child: mapaUdec()),
                       Expanded(
                         flex: 1,
                         child: switch (widget.modo) {
@@ -125,6 +129,66 @@ class _ReportDisplayState extends State<ReportDisplay> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget mapaUdec() {
+    return Stack(
+      children: [
+        FlutterMap(
+          options: MapOptions(
+            initialCenter: _loc,
+            initialZoom: 16,
+            onTap: (_, pos) {
+              if (widget.modo == Modo.Editar) {
+                setState(() {
+                  _loc = pos;
+                });
+              }
+            },
+          ),
+          children: [
+            TileLayer(
+              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              userAgentPackageName: 'com.perdidoudec.app',
+            ),
+            MarkerLayer(
+              markers: [
+                if (_finalLoc != null)
+                  Marker(
+                    point: _finalLoc!,
+                    child: const Icon(
+                      Icons.location_on_outlined,
+                      color: Colors.green,
+                    ),
+                  ),
+                Marker(
+                  point: _loc,
+                  child: const Icon(
+                    Icons.location_on,
+                    color: Color.fromARGB(255, 255, 29, 33),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        if (widget.modo == Modo.Editar)
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Tooltip(
+              message: "Confirmar selección",
+              child: IconButton.filled(
+                onPressed: () {
+                  setState(() {
+                    _finalLoc = LatLng(_loc.latitude, _loc.longitude);
+                  });
+                },
+                icon: Icon(Icons.read_more),
+              ),
+            ),
+          ),
+      ],
     );
   }
 
@@ -151,7 +215,15 @@ class _ReportDisplayState extends State<ReportDisplay> {
   }
 
   bool _publicar(BuildContext context) {
-    if (!_formKey.currentState!.validate()) {
+    if (!_formKey.currentState!.validate() || _finalLoc == null) {
+      if (_finalLoc == null)
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text(
+              "Recuerda que tienes que confirmar una ubicación antes de publicar",
+            ),
+          ),
+        );
       return false;
     }
     Reporte r = _recolectarCambios();
@@ -175,6 +247,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
       SessionHandler.uuid,
       "",
       widget.reporte.tipo,
+      _finalLoc!,
     );
   }
 
