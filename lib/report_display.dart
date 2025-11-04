@@ -6,7 +6,6 @@ import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
 import 'package:ing_software_grupo4/modelos/modo.dart';
 
 part 'campo_titulo.dart';
-part 'imagen_de_objeto.dart';
 part 'descripcion_reporte.dart';
 
 class ReportDisplay extends StatefulWidget {
@@ -43,60 +42,104 @@ class _ReportDisplayState extends State<ReportDisplay> {
       body: Form(
         key: _formKey,
         child: Padding(
-          padding: const EdgeInsets.only(top: 8.0),
-          child: Column(
+          padding: const EdgeInsets.all(24.0),
+          child: Row(
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 100.0),
-                child: _CampoTitulo(
-                  controller: _titleController,
-                  editable: widget.modo == Modo.Editar,
+              Expanded(
+                flex: 1,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 4.0),
+                  child: Column(
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: SizedBox.expand(
+                          child: Image.asset(
+                            'assets/trial.jpeg',
+                            fit: BoxFit.fitWidth,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 16),
+                          child: _CampoTitulo(
+                            controller: _titleController,
+                            editable: widget.modo == Modo.Editar,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 4,
+                        child: _DescripcionReporte(
+                          controller: _descriptionController,
+                          tipo: widget.reporte.tipo,
+                          editable: widget.modo == Modo.Editar,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              Text(
-                "Autor: ${SessionHandler.nombreUsuario}",
-                style: TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
-              ),
               Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _ImagenDeObjeto(),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 100.0),
-                        child: Column(
+                flex: 1,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 4.0),
+                  child: Column(
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: Row(
                           children: [
-                            const Text(
-                              "Descripción",
-                              textScaler: TextScaler.linear(1.2),
+                            Expanded(
+                              flex: 2,
+                              child: DetallesReporte(reporte: widget.reporte),
                             ),
                             Expanded(
-                              flex: 4,
-                              child: _DescripcionReporte(
-                                controller: _descriptionController,
-                                editable: widget.modo == Modo.Editar,
-                                tipo: widget.reporte.tipo,
+                              flex: 3,
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text(
+                                    "Datos de contacto",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  Text("Correo Electronico: jvidal@udec.cl"),
+                                  Text("Numero de telefono: +56 9 6600 6681"),
+                                  Text(
+                                    "Detalles adicionales",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  Text(
+                                    "Mi rut es 20.481.591-4",
+                                    textAlign: TextAlign.justify,
+                                  ),
+                                  SizedBox.shrink(),
+                                ],
                               ),
-                            ),
-                            Expanded(
-                              flex: 1,
-                              child: switch (widget.modo) {
-                                Modo.Ver =>
-                                  SessionHandler.uuid == widget.reporte.autor
-                                      ? _crearBotonEditar(context)
-                                      : SizedBox.expand(),
-                                Modo.Editar => _crearBotonesGuardado(context),
-                                Modo.Revisar => _crearBotonesPublicacion(
-                                  context,
-                                ),
-                              },
                             ),
                           ],
                         ),
                       ),
-                    ),
-                  ],
+                      Expanded(flex: 4, child: Container(color: Colors.redAccent,)),
+                      Expanded(
+                        flex: 1,
+                        child: switch (widget.modo) {
+                          Modo.Editar => _crearBotonesGuardado(context),
+                          Modo.Ver => _crearBotonEditar(context),
+                          Modo.Revisar => _crearBotonesPublicacion(context),
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -182,6 +225,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
             ),
           );
         }
+        if (!context.mounted) return;
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -223,6 +267,47 @@ class _ReportDisplayState extends State<ReportDisplay> {
               },
               label: Icon(Icons.delete),
             ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class DetallesReporte extends StatelessWidget {
+  const DetallesReporte({super.key, required this.reporte});
+
+  final Reporte reporte;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Detalles del reporte",
+                style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
+                textAlign: TextAlign.center,
+              ),
+              Text(
+                "Autor: ${SessionHandler.nombreUsuario}",
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
+                textAlign: TextAlign.left,
+              ),
+              Text(
+                "Tipo: Objeto ${reporte.tipo.name}",
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
+                textAlign: TextAlign.left,
+              ),
+              Text(
+                "Fecha: 04/11/2025", //TODO: Incluir fecha en reporte
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
+              ),
+              SizedBox.shrink(),
+            ],
           ),
         ),
       ],
