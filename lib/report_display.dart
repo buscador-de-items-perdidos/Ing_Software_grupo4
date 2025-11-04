@@ -18,7 +18,7 @@ class ReportDisplay extends StatefulWidget {
     super.key,
     required this.modo,
     required TipoReporte tipo,
-  }) : reporte = Reporte.vacio(tipo);
+  }) : reporte = Reporte.vacio(tipo,SessionHandler.uuid);
 
   @override
   State<StatefulWidget> createState() {

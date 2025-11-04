@@ -9,10 +9,9 @@ class Reporte {
     this.tipo,
   );
 
-  const Reporte.vacio(this.tipo)
+  const Reporte.vacio(this.tipo,this.autor)
     : titulo = "",
       descripcion = "",
-      autor = "",
       objeto = "";
 
   final String titulo;

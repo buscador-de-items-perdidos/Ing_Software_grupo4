@@ -35,4 +35,8 @@ abstract class SessionHandler {
     //Este metodo deberia pedir las sesiones que tiene el sistema a una base de datos, en teoria obvio
     throw UnimplementedError();
   }
+
+  static String getUsername(String autor) {
+    return usuarios[autor]?.nombreUsuario ?? "";
+  }
 }
