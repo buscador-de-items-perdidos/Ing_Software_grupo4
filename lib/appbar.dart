@@ -21,7 +21,7 @@ AppBar appbar(BuildContext context, GlobalKey<NavigatorState> navKey) {
                 color: Theme.of(context).scaffoldBackgroundColor,
               ),
               Text(
-                "Brr Brr Patapim",
+                "Objetos Perdidos",
                 style: TextStyle(
                   color: Theme.of(context).scaffoldBackgroundColor,
                   fontWeight: FontWeight.w900,
