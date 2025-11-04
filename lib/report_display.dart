@@ -16,17 +16,14 @@ class ReportDisplay extends StatefulWidget {
   final String uuid;
   final Modo modo;
   Usuario get usuario => SessionHandler.getUsuario(reporte.autor);
-  final bool selected;
-  const ReportDisplay(this.reporte, this.uuid, {required this.modo, super.key})
-    : selected = true;
+  const ReportDisplay(this.reporte, this.uuid, {required this.modo, super.key});
 
   ReportDisplay.vacio(
     this.uuid, {
     super.key,
     required this.modo,
     required TipoReporte tipo,
-  }) : reporte = Reporte.vacio(tipo, SessionHandler.uuid),
-       selected = false;
+  }) : reporte = Reporte.vacio(tipo, SessionHandler.uuid);
 
   @override
   State<StatefulWidget> createState() {
@@ -43,6 +40,10 @@ class _ReportDisplayState extends State<ReportDisplay> {
       TextEditingController(text: widget.reporte.descripcion);
 
   final _formKey = GlobalKey<FormState>();
+
+  late LatLng _loc =
+      widget.reporte.ubicacion ?? LatLng(-36.8288323, -73.0372646);
+  LatLng? _finalLoc;
 
   @override
   Widget build(BuildContext context) {
@@ -131,17 +132,62 @@ class _ReportDisplayState extends State<ReportDisplay> {
     );
   }
 
-  FlutterMap mapaUdec() {
-    return FlutterMap(
-      options: MapOptions(
-        initialCenter: LatLng(-36.8288323, -73.0372646),
-        initialZoom: 16,
-      ),
+  Widget mapaUdec() {
+    return Stack(
       children: [
-        TileLayer(
-          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-          userAgentPackageName: 'com.perdidoudec.app',
+        FlutterMap(
+          options: MapOptions(
+            initialCenter: _loc,
+            initialZoom: 16,
+            onTap: (_, pos) {
+              if (widget.modo == Modo.Editar) {
+                setState(() {
+                  _loc = pos;
+                });
+              }
+            },
+          ),
+          children: [
+            TileLayer(
+              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              userAgentPackageName: 'com.perdidoudec.app',
+            ),
+            MarkerLayer(
+              markers: [
+                if (_finalLoc != null)
+                  Marker(
+                    point: _finalLoc!,
+                    child: const Icon(
+                      Icons.location_on_outlined,
+                      color: Colors.green,
+                    ),
+                  ),
+                Marker(
+                  point: _loc,
+                  child: const Icon(
+                    Icons.location_on,
+                    color: Color.fromARGB(255, 255, 29, 33),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
+        if (widget.modo == Modo.Editar)
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Tooltip(
+              message: "Confirmar selección",
+              child: IconButton.filled(
+                onPressed: () {
+                  setState(() {
+                    _finalLoc = LatLng(_loc.latitude, _loc.longitude);
+                  });
+                },
+                icon: Icon(Icons.read_more),
+              ),
+            ),
+          ),
       ],
     );
   }
@@ -169,7 +215,15 @@ class _ReportDisplayState extends State<ReportDisplay> {
   }
 
   bool _publicar(BuildContext context) {
-    if (!_formKey.currentState!.validate()) {
+    if (!_formKey.currentState!.validate() || _finalLoc == null) {
+      if (_finalLoc == null)
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text(
+              "Recuerda que tienes que confirmar una ubicación antes de publicar",
+            ),
+          ),
+        );
       return false;
     }
     Reporte r = _recolectarCambios();
@@ -193,6 +247,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
       SessionHandler.uuid,
       "",
       widget.reporte.tipo,
+      _finalLoc!,
     );
   }
 
