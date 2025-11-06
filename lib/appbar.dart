@@ -80,9 +80,16 @@ class BotonPublicar extends StatelessWidget {
               Expanded(
                 child: Column(
                   children: [
-                    ...TipoReporte.values.map(
-                      (x) => Expanded(
-                        child: _BotonMenu(navKey: navKey, tipo: x),
+                    Expanded(
+                      child: _BotonMenu(
+                        navKey: navKey,
+                        tipo: TipoReporte.perdido,
+                      ),
+                    ),
+                    Expanded(
+                      child: _BotonMenu(
+                        navKey: navKey,
+                        tipo: TipoReporte.encontrado,
                       ),
                     ),
                   ],
