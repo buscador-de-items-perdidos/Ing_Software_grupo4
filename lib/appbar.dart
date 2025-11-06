@@ -154,11 +154,7 @@ class _BotonMenu extends StatelessWidget {
           MaterialPageRoute(
             builder: (_) {
               final uuid = Uuid().v7();
-              return ReportDisplay.vacio(
-                uuid,
-                modo: Modo.Editar,
-                tipo: TipoReporte.encontrado,
-              );
+              return ReportDisplay.vacio(uuid, modo: Modo.Editar, tipo: tipo);
             },
           ),
         ),
