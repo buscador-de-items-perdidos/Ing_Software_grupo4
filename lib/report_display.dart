@@ -237,7 +237,8 @@ class _ReportDisplayState extends State<ReportDisplay> {
   }
 
   void _publicarYSalir(BuildContext context) {
-    if (_publicar(context)) Navigator.pop(context);
+    if (_publicar(context))
+      Navigator.of(context, rootNavigator: true).pop();
   }
 
   Reporte _recolectarCambios() {

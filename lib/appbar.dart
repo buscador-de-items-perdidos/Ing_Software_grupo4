@@ -150,14 +150,18 @@ class _BotonMenu extends StatelessWidget {
             Text(descripcion!),
           ],
         ),
-        onTap: () => navKey.currentState!.push(
-          MaterialPageRoute(
-            builder: (_) {
-              final uuid = Uuid().v7();
-              return ReportDisplay.vacio(uuid, modo: Modo.Editar, tipo: tipo);
-            },
-          ),
-        ),
+        onTap: () {
+          Navigator.pop(context);
+          navKey.currentState!.push(
+            MaterialPageRoute(
+              builder: (_) {
+                final uuid = Uuid().v7();
+
+                return ReportDisplay.vacio(uuid, modo: Modo.Editar, tipo: tipo);
+              },
+            ),
+          );
+        },
       ),
     );
   }
