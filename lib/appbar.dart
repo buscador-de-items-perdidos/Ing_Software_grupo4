@@ -51,7 +51,7 @@ AppBar appbar(BuildContext context, GlobalKey<NavigatorState> navKey) {
 class BotonPublicar extends StatelessWidget {
   const BotonPublicar(this.navKey, {super.key});
 
-  final GlobalKey<NavigatorState>? navKey;
+  final GlobalKey<NavigatorState> navKey;
 
   @override
   Widget build(BuildContext context) {
@@ -63,35 +63,43 @@ class BotonPublicar extends StatelessWidget {
           },
         ),
       ),
-      onPressed: () {
-        // Abrir directamente el formulario de creación
-        final String uuid = const Uuid().v7();
-        if (navKey?.currentState != null) {
-          navKey!.currentState!.push(
-            MaterialPageRoute(
-              builder: (_) => ReportDisplay.vacio(
-                key: ValueKey(uuid),
-                uuid,
-                modo: Modo.Editar,
-                tipo: TipoReporte.perdido,
+      onPressed: () => showDialog(
+        barrierColor: Colors.transparent,
+        context: navKey.currentContext!,
+        builder: (context) => Dialog(
+          constraints: BoxConstraints.loose(Size.square(250)),
+          alignment: Alignment.topRight,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Selecciona el tipo de reporte",
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
               ),
-            ),
-          );
-          return;
-        }
-
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ReportDisplay.vacio(
-              key: ValueKey(uuid),
-              uuid,
-              modo: Modo.Editar,
-              tipo: TipoReporte.perdido,
-            ),
+              Divider(),
+              Expanded(
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: _BotonMenu(
+                        navKey: navKey,
+                        tipo: TipoReporte.perdido,
+                      ),
+                    ),
+                    Expanded(
+                      child: _BotonMenu(
+                        navKey: navKey,
+                        tipo: TipoReporte.encontrado,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        );
-      },
+        ),
+      ),
+
       child: Row(
         children: [
           Icon(Icons.add, color: Theme.of(context).primaryColor),
@@ -100,6 +108,60 @@ class BotonPublicar extends StatelessWidget {
             style: TextStyle(color: Theme.of(context).primaryColor),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _BotonMenu extends StatelessWidget {
+  _BotonMenu({required this.navKey, required this.tipo});
+
+  final GlobalKey<NavigatorState> navKey;
+
+  final TipoReporte tipo;
+  String? titulo;
+  String? descripcion;
+  @override
+  Widget build(BuildContext context) {
+    switch (tipo) {
+      case TipoReporte.perdido:
+        titulo = "Perdido";
+        descripcion = "Publica un objeto que has perdido.";
+      case TipoReporte.encontrado:
+        titulo = "Encontrado";
+        descripcion = "Publica un objeto que has encontrado.";
+      case TipoReporte.administracion:
+        titulo = "Anuncio";
+        descripcion = "Publica anuncios de administración.";
+    }
+    return SizedBox(
+      width: double.infinity,
+      child: InkWell(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                titulo!,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              ),
+            ),
+            Text(descripcion!),
+          ],
+        ),
+        onTap: () {
+          Navigator.pop(context);
+          navKey.currentState!.push(
+            MaterialPageRoute(
+              builder: (_) {
+                final uuid = Uuid().v7();
+
+                return ReportDisplay.vacio(uuid, modo: Modo.Editar, tipo: tipo);
+              },
+            ),
+          );
+        },
       ),
     );
   }
