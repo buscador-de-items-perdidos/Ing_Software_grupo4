@@ -1,3 +1,4 @@
+```plantuml
 @startuml
 class Reporte {
 titulo : String
@@ -31,3 +32,4 @@ Usuario *-- "0.." [uuid: UUID]  SessionHandler
 
 class Usuario
 @enduml
+```
