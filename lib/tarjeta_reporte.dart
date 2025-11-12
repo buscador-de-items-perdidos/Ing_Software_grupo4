@@ -5,7 +5,12 @@ import 'package:ing_software_grupo4/modelos/reporte.dart';
 import 'package:ing_software_grupo4/report_display.dart';
 
 class TarjetaReporte extends StatelessWidget {
-  const TarjetaReporte({super.key, required this.nombre, required this.modo, required this.pendiente});
+  const TarjetaReporte({
+    super.key,
+    required this.nombre,
+    required this.modo,
+    required this.pendiente,
+  });
 
   final String nombre;
 
@@ -15,12 +20,17 @@ class TarjetaReporte extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Reporte reporte = pendiente ? ReportHandler.getPeticion(nombre)! : ReportHandler.getReporte(nombre)!;
+    Reporte reporte = pendiente
+        ? ReportHandler.getPeticion(nombre)!
+        : ReportHandler.getReporte(nombre)!;
     return Card(
       child: ListTile(
         title: Column(
           children: [
-            Image.asset('assets/trial.jpeg'),
+            if (reporte.imagenesBytes.isNotEmpty)
+              Image.memory(reporte.imagenesBytes.first)
+            else
+              Image.asset('assets/trial.jpeg'),
             Expanded(child: Text(reporte.titulo)),
           ],
         ),
@@ -28,11 +38,7 @@ class TarjetaReporte extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => ReportDisplay(
-                reporte,
-                nombre,
-                modo: modo,
-              ),
+              builder: (_) => ReportDisplay(reporte, nombre, modo: modo),
             ),
           );
         },
@@ -40,4 +46,3 @@ class TarjetaReporte extends StatelessWidget {
     );
   }
 }
-
