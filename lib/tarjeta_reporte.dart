@@ -24,16 +24,9 @@ class TarjetaReporte extends StatelessWidget {
         ? ReportHandler.getPeticion(nombre)!
         : ReportHandler.getReporte(nombre)!;
     return Card(
-      child: ListTile(
-        title: Column(
-          children: [
-            if (reporte.imagenesBytes.isNotEmpty)
-              Image.memory(reporte.imagenesBytes.first)
-            else
-              Image.asset('assets/trial.jpeg'),
-            Expanded(child: Text(reporte.titulo)),
-          ],
-        ),
+      clipBehavior: Clip.antiAlias,
+      elevation: 3,
+      child: InkWell(
         onTap: () {
           Navigator.push(
             context,
@@ -42,6 +35,25 @@ class TarjetaReporte extends StatelessWidget {
             ),
           );
         },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: reporte.imagenesBytes.isNotEmpty
+                  ? Image.memory(reporte.imagenesBytes.first, fit: BoxFit.cover)
+                  : Image.asset('assets/trial.jpeg', fit: BoxFit.cover),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Text(
+                reporte.titulo,
+                style: Theme.of(context).textTheme.titleMedium,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
