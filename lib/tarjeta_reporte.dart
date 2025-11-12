@@ -40,8 +40,13 @@ class TarjetaReporte extends StatelessWidget {
           children: [
             Expanded(
               child: reporte.imagenesBytes.isNotEmpty
-                  ? Image.memory(reporte.imagenesBytes.first, fit: BoxFit.cover)
-                  : Image.asset('assets/trial.jpeg', fit: BoxFit.cover),
+                  ? Image.memory(
+                      reporte.imagenesBytes.first,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stack) =>
+                          Image.asset('assets/trial.png', fit: BoxFit.cover),
+                    )
+                  : Image.asset('assets/trial.png', fit: BoxFit.cover),
             ),
             Padding(
               padding: const EdgeInsets.all(12.0),

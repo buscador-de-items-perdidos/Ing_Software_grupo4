@@ -33,6 +33,24 @@ class ReportDisplay extends StatefulWidget {
   }
 }
 
+class _MemoryImageWithFallback extends StatelessWidget {
+  const _MemoryImageWithFallback(this.bytes, {this.fit = BoxFit.cover});
+
+  final Uint8List bytes;
+  final BoxFit fit;
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.memory(
+      bytes,
+      fit: fit,
+      errorBuilder: (context, error, stackTrace) {
+        return Image.asset('assets/trial.png', fit: fit);
+      },
+    );
+  }
+}
+
 class _ReportDisplayState extends State<ReportDisplay> {
   late final TextEditingController _titleController = TextEditingController(
     text: widget.reporte.titulo,
@@ -260,7 +278,9 @@ class _ReportDisplayState extends State<ReportDisplay> {
   }
 
   bool _publicar(BuildContext context) {
-    if (!_formKey.currentState!.validate() || _finalLoc == null || _imagenesBytes.isEmpty) {
+    if (!_formKey.currentState!.validate() ||
+        _finalLoc == null ||
+        _imagenesBytes.isEmpty) {
       if (_finalLoc == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -428,7 +448,10 @@ class _GaleriaImagenesState extends State<_GaleriaImagenes> {
           itemCount: count,
           itemBuilder: (context, i) => GestureDetector(
             onTap: () => _openFullScreen(i),
-            child: Image.memory(widget.imagenesBytes[i], fit: BoxFit.cover),
+            child: _MemoryImageWithFallback(
+              widget.imagenesBytes[i],
+              fit: BoxFit.cover,
+            ),
           ),
         ),
         if (widget.editable && widget.onDelete != null)
@@ -438,7 +461,9 @@ class _GaleriaImagenesState extends State<_GaleriaImagenes> {
             child: Tooltip(
               message: 'Eliminar imagen',
               child: IconButton.filled(
-                style: const ButtonStyle(backgroundColor: MaterialStatePropertyAll(Colors.black54)),
+                style: const ButtonStyle(
+                  backgroundColor: MaterialStatePropertyAll(Colors.black54),
+                ),
                 onPressed: () => widget.onDelete!(index),
                 icon: const Icon(Icons.delete_outline, color: Colors.white),
               ),
@@ -530,7 +555,10 @@ class _FullscreenGalleryState extends State<_FullscreenGallery> {
               child: InteractiveViewer(
                 minScale: 0.5,
                 maxScale: 5,
-                child: Image.memory(widget.images[i], fit: BoxFit.contain),
+                child: _MemoryImageWithFallback(
+                  widget.images[i],
+                  fit: BoxFit.contain,
+                ),
               ),
             ),
           ),
