@@ -260,15 +260,22 @@ class _ReportDisplayState extends State<ReportDisplay> {
   }
 
   bool _publicar(BuildContext context) {
-    if (!_formKey.currentState!.validate() || _finalLoc == null) {
-      if (_finalLoc == null)
+    if (!_formKey.currentState!.validate() || _finalLoc == null || _imagenesBytes.isEmpty) {
+      if (_finalLoc == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text(
+          const SnackBar(
+            content: Text(
               "Recuerda que tienes que confirmar una ubicación antes de publicar",
             ),
           ),
         );
+      } else if (_imagenesBytes.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Debes seleccionar al menos una imagen"),
+          ),
+        );
+      }
       return false;
     }
     Reporte r = _recolectarCambios();
