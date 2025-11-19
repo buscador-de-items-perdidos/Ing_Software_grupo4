@@ -49,7 +49,7 @@ class _CambioContactosState extends State<CambioContactos> {
                           child: Padding(
                             padding: const EdgeInsets.only(top: 8.0),
                             child: Image.asset(
-                              "assets/trial.jpeg",
+                              "assets/trial.png",
                               fit: BoxFit.scaleDown,
                             ),
                           ),
@@ -130,7 +130,9 @@ class _CambioContactosState extends State<CambioContactos> {
                             child: TextFormField(
                               controller: _numeroController,
                               validator: (v) =>
-                                  v == null || v.isEmpty //TODO: poner un validador en esto
+                                  v == null ||
+                                      v
+                                          .isEmpty //TODO: poner un validador en esto
                                   ? "Ingresa un numero valido"
                                   : null,
                             ),

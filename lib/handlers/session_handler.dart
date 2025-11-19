@@ -6,7 +6,7 @@ abstract class SessionHandler {
   static final Map<String, Usuario> usuarios = {
     "019a2e2f-d31c-7441-8355-62c252a55cc6": const Usuario(
       nombreUsuario: "pandita_45",
-      correo: "jvidal@udec.cl",
+      correo: "javcastillo@udec.cl",
       numero: "+56 9 8417 9674",
       miscelaneo: "Discord : pandita_45",
       isAdmin: true,
@@ -38,7 +38,8 @@ abstract class SessionHandler {
   static String getUsername(String autor) {
     return usuarios[autor]?.nombreUsuario ?? "";
   }
-  static Usuario getUsuario(String uuid){
-    return usuarios[uuid]!; 
+
+  static Usuario getUsuario(String uuid) {
+    return usuarios[uuid]!;
   }
 }
