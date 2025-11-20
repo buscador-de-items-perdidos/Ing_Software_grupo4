@@ -14,6 +14,9 @@ class ReportHandler {
   ///Guarda todos los reportes existentes y aprobados en el sistema
   static final Map<String, Reporte> _existentes = {};
 
+  ///Guarda reportes encontrados
+  static final Map<String, Reporte> _encontrados = {};
+
   static final ValueNotifier<bool> _reportNotifier = ValueNotifier(false);
   static ValueNotifier<bool> get reportNotifier => _reportNotifier;
 
@@ -70,8 +73,25 @@ class ReportHandler {
   }
 
   static void eliminarReporte(String uuid) {
-    _existentes.remove(uuid);
-    SessionHandler.getAceptados.remove(uuid);
+    // Eliminar de existentes (aceptados)
+    if (_existentes.containsKey(uuid)) {
+      _existentes.remove(uuid);
+      SessionHandler.getAceptados.remove(uuid);
+    }
+
+    // Eliminar de pendientes
+    if (_pendientes.containsKey(uuid)) {
+      _pendientes.remove(uuid);
+      SessionHandler.getPendientes.remove(uuid);
+      _pendingNotifier.value = !_pendingNotifier.value;
+    }
+
+    // Eliminar de encontrados
+    if (_encontrados.containsKey(uuid)) {
+      _encontrados.remove(uuid);
+      SessionHandler.getAceptados.remove(uuid);
+    }
+
     _reportNotifier.value = !_reportNotifier.value;
   }
 
@@ -79,5 +99,21 @@ class ReportHandler {
 
   static Reporte? getReporte(String key) {
     return _existentes[key];
+  }
+
+  static Reporte? getEncontrado(String key) {
+    return _encontrados[key];
+  }
+
+  static void estadoObjeto(String uuid, bool encontrado) {
+    if (encontrado) {
+      _existentes[uuid]?.encontrado = true;
+      _encontrados[uuid] = _existentes[uuid]!;
+      _existentes.remove(uuid);
+    } else {
+      _existentes[uuid] = _encontrados[uuid]!;
+      _encontrados.remove(uuid);
+    }
+    _reportNotifier.value = !_reportNotifier.value;
   }
 }

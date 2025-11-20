@@ -60,6 +60,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
       TextEditingController(text: widget.reporte.descripcion);
 
   final _formKey = GlobalKey<FormState>();
+  late bool _encontrado = widget.reporte.encontrado;
 
   late LatLng _loc =
       widget.reporte.ubicacion ?? LatLng(-36.8288323, -73.0372646);
@@ -175,6 +176,22 @@ class _ReportDisplayState extends State<ReportDisplay> {
                           ],
                         ),
                       ),
+                      if (widget.modo == Modo.Ver &&
+                          widget.reporte.autor == SessionHandler.uuid)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: SwitchListTile(
+                            title: const Text('Marcar como encontrado'),
+                            subtitle: Text(
+                              _encontrado ? 'Encontrado' : 'Pendiente',
+                            ),
+                            value: _encontrado,
+                            onChanged: (bool value) {
+                              setState(() => _encontrado = value);
+                              _actualizarEstadoEncontrado(value);
+                            },
+                          ),
+                        ),
                       Expanded(flex: 4, child: mapaUdec()),
                       Expanded(
                         flex: 1,
@@ -318,9 +335,24 @@ class _ReportDisplayState extends State<ReportDisplay> {
       _descriptionController.text,
       SessionHandler.uuid,
       "",
+      _encontrado,
       widget.reporte.tipo,
       _finalLoc!,
       imagenesBytes: _imagenesBytes,
+    );
+  }
+
+  void _actualizarEstadoEncontrado(bool encontrado) {
+    ReportHandler.estadoObjeto(widget.uuid, encontrado);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          encontrado
+              ? 'Reporte marcado como encontrado'
+              : 'Reporte marcado como pendiente',
+        ),
+      ),
     );
   }
 

@@ -21,9 +21,15 @@ class TarjetaReporte extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Reporte reporte = pendiente
-        ? ReportHandler.getPeticion(nombre)!
-        : ReportHandler.getReporte(nombre)!;
+    Reporte? reporte = pendiente
+        ? ReportHandler.getPeticion(nombre)
+        : (ReportHandler.getReporte(nombre) ??
+              ReportHandler.getEncontrado(nombre));
+
+    if (reporte == null) {
+      return const SizedBox.shrink();
+    }
+
     final esAutor = reporte.autor == SessionHandler.uuid;
 
     return Card(
