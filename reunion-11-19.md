@@ -6,12 +6,12 @@
 
 ## Historias
 
-- [ ] Filtros y tags.
-- [ ] Barra lateral para opciones y config de usuario.
-- [ ] Android.
+- [x] Filtros y tags.
+- [x] Barra lateral para opciones y config de usuario.
+- [X] Android.
 - [ ] Bugs visuales
-- [ ] Seleccion de usuario.
-- [ ] Que el usuario que encuentre pueda indicarle a un usuario que perdio algo.
+- [x] Seleccion de usuario.
+- [x] Que el usuario que encuentre pueda indicarle a un usuario que perdio algo.
 
 ## Acuerdos llegados
 
