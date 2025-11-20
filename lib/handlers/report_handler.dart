@@ -47,6 +47,7 @@ class ReportHandler {
 
   static bool submitPeticion(String key, Reporte r, bool nuevo) {
     if (_pendientes.containsKey(key)) _pendientes.remove(key);
+    SessionHandler.getPendientes.add(key);
     _pendientes[key] = r;
     _pendingNotifier.value = !_pendingNotifier.value;
     return canPublish; //La idea es que esto nos diria si logramos publicar la petición, pero no tenemos nada aun
@@ -55,6 +56,8 @@ class ReportHandler {
   static void acceptPeticion(String uuid) {
     if (!_pendientes.containsKey(uuid)) return;
     _existentes[uuid] = _pendientes[uuid]!;
+    SessionHandler.getAceptados.add(uuid);
+    SessionHandler.getPendientes.remove(uuid);
     _pendientes.remove(uuid);
     _reportNotifier.value = !_reportNotifier.value;
     _pendingNotifier.value = !_pendingNotifier.value;
@@ -62,7 +65,14 @@ class ReportHandler {
 
   static void rejectPeticion(String uuid) {
     _pendientes.remove(uuid);
+    SessionHandler.getPendientes.remove(uuid);
     _pendingNotifier.value = !pendingNotifier.value;
+  }
+
+  static void eliminarReporte(String uuid) {
+    _existentes.remove(uuid);
+    SessionHandler.getAceptados.remove(uuid);
+    _reportNotifier.value = !_reportNotifier.value;
   }
 
   static List<String> get getReportes => _existentes.keys.toList();
