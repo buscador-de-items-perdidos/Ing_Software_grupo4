@@ -8,26 +8,24 @@ import 'package:uuid/uuid.dart';
 
 AppBar appbar(BuildContext context, GlobalKey<NavigatorState> navKey) {
   return AppBar(
-    iconTheme: Theme.of(context).iconTheme,
+    iconTheme: IconThemeData(color: Theme.of(context).scaffoldBackgroundColor),
+    leading: Builder(
+      builder: (context) => IconButton(
+        icon: Icon(Icons.menu),
+        onPressed: () => Scaffold.of(context).openDrawer(),
+      ),
+    ),
     title: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         GestureDetector(
           onTap: () => navKey.currentState?.popUntil((route) => route.isFirst),
-          child: Row(
-            children: [
-              Icon(
-                Icons.cast_outlined,
-                color: Theme.of(context).scaffoldBackgroundColor,
-              ),
-              Text(
-                "Objetos Perdidos",
-                style: TextStyle(
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-            ],
+          child: Text(
+            "Objetos Perdidos",
+            style: TextStyle(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              fontWeight: FontWeight.w900,
+            ),
           ),
         ),
         !SessionHandler.isAdmin ? SizedBox.shrink() : SizedBox.shrink(),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ing_software_grupo4/menu_reportes.dart';
 import 'package:ing_software_grupo4/appbar.dart';
+import 'package:ing_software_grupo4/menu_lateral.dart';
 
 void main() {
   runApp(const MyApp());
@@ -25,7 +26,11 @@ class _MyAppState extends State<MyApp> {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
       ),
       builder: (context, child) {
-        return Scaffold(appBar: appbar(context, navigatorKey), body: child);
+        return Scaffold(
+          appBar: appbar(context, navigatorKey),
+          drawer: MenuLateral(navKey: navigatorKey),
+          body: child,
+        );
       },
       home: const MenuReportes(),
       debugShowCheckedModeBanner: false,
