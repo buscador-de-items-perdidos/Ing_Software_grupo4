@@ -1,55 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:ing_software_grupo4/cambio_contactos.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/report_display.dart';
 import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
 import 'package:ing_software_grupo4/modelos/modo.dart';
 import 'package:uuid/uuid.dart';
 
-AppBar appbar(BuildContext context, GlobalKey<NavigatorState> navKey) {
-  return AppBar(
-    iconTheme: IconThemeData(color: Theme.of(context).scaffoldBackgroundColor),
-    leading: Builder(
-      builder: (context) => IconButton(
-        icon: Icon(Icons.menu),
-        onPressed: () => Scaffold.of(context).openDrawer(),
-      ),
+AppBar appbar(BuildContext context) => AppBar(
+  iconTheme: IconThemeData(color: Theme.of(context).scaffoldBackgroundColor),
+  leading: Builder(
+    builder: (context) => IconButton(
+      icon: Icon(Icons.menu),
+      onPressed: () => Scaffold.of(context).openDrawer(),
     ),
-    title: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        GestureDetector(
-          onTap: () => navKey.currentState?.popUntil((route) => route.isFirst),
-          child: Text(
-            "Objetos Perdidos",
-            style: TextStyle(
-              color: Theme.of(context).scaffoldBackgroundColor,
-              fontWeight: FontWeight.w900,
-            ),
+  ),
+  title: Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      GestureDetector(
+        onTap: () {},
+        child: Text(
+          "Objetos Perdidos",
+          style: TextStyle(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            fontWeight: FontWeight.w900,
           ),
         ),
-        !SessionHandler.isAdmin ? SizedBox.shrink() : SizedBox.shrink(),
-        Row(
-          children: [
-            BotonPublicar(navKey),
-            IconButton.filled(
-              onPressed: () => navKey.currentState!.push(
-                MaterialPageRoute(builder: (_) => const CambioContactos()),
-              ),
-              icon: Icon(Icons.person),
-            ),
-          ],
-        ),
-      ],
-    ),
-    backgroundColor: Theme.of(context).primaryColor,
-  );
-}
+      ),
+      !SessionHandler.isAdmin ? SizedBox.shrink() : SizedBox.shrink(),
+      Row(
+        children: [
+          BotonPublicar(),
+          IconButton.filled(onPressed: () {}, icon: Icon(Icons.person)),
+        ],
+      ),
+    ],
+  ),
+  backgroundColor: Theme.of(context).primaryColor,
+);
 
 class BotonPublicar extends StatelessWidget {
-  const BotonPublicar(this.navKey, {super.key});
-
-  final GlobalKey<NavigatorState> navKey;
+  const BotonPublicar({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +53,7 @@ class BotonPublicar extends StatelessWidget {
       ),
       onPressed: () => showDialog(
         barrierColor: Colors.transparent,
-        context: navKey.currentContext!,
+        context: context,
         builder: (context) => Dialog(
           constraints: BoxConstraints.loose(Size.square(250)),
           alignment: Alignment.topRight,
@@ -78,18 +68,8 @@ class BotonPublicar extends StatelessWidget {
               Expanded(
                 child: Column(
                   children: [
-                    Expanded(
-                      child: _BotonMenu(
-                        navKey: navKey,
-                        tipo: TipoReporte.perdido,
-                      ),
-                    ),
-                    Expanded(
-                      child: _BotonMenu(
-                        navKey: navKey,
-                        tipo: TipoReporte.encontrado,
-                      ),
-                    ),
+                    Expanded(child: _BotonMenu(tipo: TipoReporte.perdido)),
+                    Expanded(child: _BotonMenu(tipo: TipoReporte.encontrado)),
                   ],
                 ),
               ),
@@ -112,9 +92,7 @@ class BotonPublicar extends StatelessWidget {
 }
 
 class _BotonMenu extends StatelessWidget {
-  _BotonMenu({required this.navKey, required this.tipo});
-
-  final GlobalKey<NavigatorState> navKey;
+  _BotonMenu({required this.tipo});
 
   final TipoReporte tipo;
   String? titulo;
@@ -150,7 +128,8 @@ class _BotonMenu extends StatelessWidget {
         ),
         onTap: () {
           Navigator.pop(context);
-          navKey.currentState!.push(
+          Navigator.push(
+            context,
             MaterialPageRoute(
               builder: (_) {
                 final uuid = Uuid().v7();

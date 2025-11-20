@@ -87,6 +87,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(),
       body: Form(
         key: _formKey,
         child: Padding(
