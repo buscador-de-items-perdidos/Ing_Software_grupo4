@@ -19,6 +19,8 @@ class MenuReportes extends StatefulWidget {
 
 class _MenuReportesState extends State<MenuReportes> {
   String input = "";
+  bool soloMisReportes = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,6 +41,27 @@ class _MenuReportesState extends State<MenuReportes> {
                     ),
                   ),
                 ),
+                const SizedBox(width: 16),
+                SegmentedButton<bool>(
+                  segments: const [
+                    ButtonSegment(
+                      value: false,
+                      label: Text('Todos'),
+                      icon: Icon(Icons.list),
+                    ),
+                    ButtonSegment(
+                      value: true,
+                      label: Text('Mis reportes'),
+                      icon: Icon(Icons.person),
+                    ),
+                  ],
+                  selected: {soloMisReportes},
+                  onSelectionChanged: (Set<bool> newSelection) {
+                    setState(() {
+                      soloMisReportes = newSelection.first;
+                    });
+                  },
+                ),
               ],
             ),
           ),
@@ -47,34 +70,62 @@ class _MenuReportesState extends State<MenuReportes> {
             child: ValueListenableBuilder(
               valueListenable: ReportHandler.reportNotifier,
               builder: (context, value, child) {
-                List<String> reportes = ReportHandler.getReportes;
-                List<String> filtrados = reportes
-                    .where(
-                      (x) =>
-                          ReportHandler.getReporte(x)?.titulo
-                              .toLowerCase()
-                              .contains(input.toLowerCase()) ??
-                          false,
-                    )
-                    .toList();
+                List<String> reportes;
+
+                if (soloMisReportes) {
+                  // Obtener UUIDs del usuario desde SessionHandler
+                  Set<String> misReportesUUIDs = {
+                    ...SessionHandler.getPendientes,
+                    ...SessionHandler.getAceptados,
+                  };
+                  reportes = misReportesUUIDs.toList();
+                } else {
+                  reportes = ReportHandler.getReportes;
+                }
+
+                List<String> filtrados = reportes.where((uuid) {
+                  // Buscar el reporte usando buscarReporte que busca en los 3 maps
+                  Reporte? reporte = ReportHandler.buscarReporte(uuid);
+
+                  if (reporte == null) return false;
+
+                  // Filtrar por búsqueda
+                  return reporte.titulo.toLowerCase().contains(
+                    input.toLowerCase(),
+                  );
+                }).toList();
                 // Mostrar los reportes en una lista vertical con scroll.
-                // Cada tarjeta está centrada horizontalmente 
+                // Cada tarjeta está centrada horizontalmente
                 return ListView.separated(
-                  padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12.0,
+                    horizontal: 8.0,
+                  ),
                   itemCount: filtrados.length,
                   separatorBuilder: (context, index) => Padding(
                     padding: const EdgeInsets.only(top: 16),
                     child: Container(),
                   ),
                   itemBuilder: (context, i) {
-                    Reporte? reporte = ReportHandler.getReporte(filtrados[i]);
+                    // Buscar el reporte usando buscarReporte
+                    Reporte? reporte = ReportHandler.buscarReporte(
+                      filtrados[i],
+                    );
+
                     if (reporte == null) return const SizedBox.shrink();
                     if (!reporte.titulo.toLowerCase().contains(
                       input.toLowerCase(),
-                    )) return const SizedBox.shrink();
+                    ))
+                      return const SizedBox.shrink();
 
-                    final double width = MediaQuery.of(context).size.width * 0.4;
+                    final double width =
+                        MediaQuery.of(context).size.width * 0.4;
                     const double height = 670;
+
+                    // Determinar si es pendiente o no
+                    bool esPendiente = SessionHandler.getPendientes.contains(
+                      filtrados[i],
+                    );
 
                     return Center(
                       child: Padding(
@@ -86,7 +137,7 @@ class _MenuReportesState extends State<MenuReportes> {
                             key: ValueKey(filtrados[i]),
                             nombre: filtrados[i],
                             modo: Modo.Ver,
-                            pendiente: false,
+                            pendiente: esPendiente,
                           ),
                         ),
                       ),
@@ -100,9 +151,7 @@ class _MenuReportesState extends State<MenuReportes> {
       ),
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          BotonPendientes(),
-        ],
+        children: [BotonPendientes()],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );

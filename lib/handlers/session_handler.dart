@@ -4,11 +4,13 @@ abstract class SessionHandler {
   //En teoria estos campos deberian empezar vacios y ser inicializados desde
   //nuestra base de datos, pero para probar lo dejaremos así
   static final Map<String, Usuario> usuarios = {
-    "019a2e2f-d31c-7441-8355-62c252a55cc6": const Usuario(
+    "019a2e2f-d31c-7441-8355-62c252a55cc6": Usuario(
       nombreUsuario: "pandita_45",
       correo: "javcastillo@udec.cl",
       numero: "+56 9 8417 9674",
       miscelaneo: "Discord : pandita_45",
+      reportes_pendientes: {},
+      reportes_aceptados: {},
       isAdmin: true,
     ),
   };
@@ -41,5 +43,13 @@ abstract class SessionHandler {
 
   static Usuario getUsuario(String uuid) {
     return usuarios[uuid]!;
+  }
+
+  static Set<String> get getPendientes {
+    return usuarioActual?.reportes_pendientes ?? {};
+  }
+
+  static Set<String> get getAceptados {
+    return usuarioActual?.reportes_aceptados ?? {};
   }
 }

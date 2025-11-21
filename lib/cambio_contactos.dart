@@ -75,6 +75,10 @@ class _CambioContactosState extends State<CambioContactos> {
                                         correo: _correoController.text,
                                         numero: _numeroController.text,
                                         miscelaneo: _miscelaneoController.text,
+                                        reportes_pendientes:
+                                            SessionHandler.getPendientes,
+                                        reportes_aceptados:
+                                            SessionHandler.getAceptados,
                                         isAdmin: SessionHandler.isAdmin,
                                       ),
                                     );
