@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ing_software_grupo4/modelos/reporte.dart';
+import 'package:ing_software_grupo4/modelos/tag.dart';
 import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
 import 'package:ing_software_grupo4/tarjeta_reporte.dart';
 import 'package:ing_software_grupo4/handlers/report_handler.dart';
@@ -19,6 +20,9 @@ class MenuReportes extends StatefulWidget {
 
 class _MenuReportesState extends State<MenuReportes> {
   String input = "";
+  final Set<String> _activeTagFilters = {};
+  final Set<String> _activeColorFilters = {};
+  final Set<String> _activeTipoFilters = {};
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,6 +43,17 @@ class _MenuReportesState extends State<MenuReportes> {
                     ),
                   ),
                 ),
+                const SizedBox(width: 12),
+                Tooltip(
+                  message: 'Filtrar por etiquetas, colores o tipos',
+                  child: TextButton.icon(
+                    onPressed: _openFilterDialog,
+                    icon: const Icon(Icons.filter_list),
+                    label: Text((_activeTagFilters.length + _activeColorFilters.length + _activeTipoFilters.length) == 0
+                        ? 'Filtros'
+                        : 'Filtros (${_activeTagFilters.length + _activeColorFilters.length + _activeTipoFilters.length})'),
+                  ),
+                ),
               ],
             ),
           ),
@@ -48,15 +63,26 @@ class _MenuReportesState extends State<MenuReportes> {
               valueListenable: ReportHandler.reportNotifier,
               builder: (context, value, child) {
                 List<String> reportes = ReportHandler.getReportes;
-                List<String> filtrados = reportes
-                    .where(
-                      (x) =>
-                          ReportHandler.getReporte(x)?.titulo
-                              .toLowerCase()
-                              .contains(input.toLowerCase()) ??
-                          false,
-                    )
-                    .toList();
+                List<String> filtrados = reportes.where((x) {
+                  final rep = ReportHandler.getReporte(x);
+                  if (rep == null) return false;
+                  final matchesText = rep.titulo.toLowerCase().contains(input.toLowerCase());
+
+                  // If no filters selected, only filter by text
+                  bool matchesFilters = true;
+
+                  if (_activeTagFilters.isNotEmpty) {
+                    matchesFilters = matchesFilters && rep.etiquetas.any((Tag t) => _activeTagFilters.contains(t.nombre));
+                  }
+                  if (_activeColorFilters.isNotEmpty) {
+                    matchesFilters = matchesFilters && rep.etiquetas.any((Tag t) => _activeColorFilters.contains(t.colorName));
+                  }
+                  if (_activeTipoFilters.isNotEmpty) {
+                    matchesFilters = matchesFilters && _activeTipoFilters.contains(rep.tipo.name);
+                  }
+
+                  return matchesText && matchesFilters;
+                }).toList();
                 // Mostrar los reportes en una lista vertical con scroll.
                 // Cada tarjeta está centrada horizontalmente 
                 return ListView.separated(
@@ -106,6 +132,138 @@ class _MenuReportesState extends State<MenuReportes> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
+  }
+
+  Future<void> _openFilterDialog() async {
+    // collect all tag names from existing reports
+    final reports = ReportHandler.getReportes;
+    final Set<String> availableTags = {};
+    final Set<String> availableColorsFromReports = {};
+    final Set<String> availableTiposFromReports = {};
+    for (var k in reports) {
+      final r = ReportHandler.getReporte(k);
+      if (r == null) continue;
+      for (var tag in r.etiquetas) {
+        availableTags.add(tag.nombre);
+        availableColorsFromReports.add(tag.colorName);
+      }
+      availableTiposFromReports.add(r.tipo.name);
+    }
+
+    // Also include global color list from report_display if available
+    final Set<String> availableColors = {};
+    try {
+      availableColors.addAll(colorNameToHex.keys);
+    } catch (_) {
+      // ignore if symbol not accessible
+    }
+    availableColors.addAll(availableColorsFromReports);
+
+    // Tipos: use enum values for TipoReporte as base
+    final Set<String> availableTipos = {};
+    try {
+      availableTipos.addAll(TipoReporte.values.map((t) => t.name));
+    } catch (_) {}
+    availableTipos.addAll(availableTiposFromReports);
+
+    final tempTags = Set<String>.from(_activeTagFilters);
+    final tempColors = Set<String>.from(_activeColorFilters);
+    final tempTipos = Set<String>.from(_activeTipoFilters);
+
+    final result = await showDialog<Map<String, Set<String>>>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Filtros'),
+          content: SingleChildScrollView(
+            child: SizedBox(
+              width: double.maxFinite,
+              child: StatefulBuilder(
+                builder: (context, setState) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Categorías', style: TextStyle(fontWeight: FontWeight.w700)),
+                      const SizedBox(height: 6),
+                      ...availableTags.map((name) {
+                        return CheckboxListTile(
+                          title: Text(name),
+                          value: tempTags.contains(name),
+                          onChanged: (v) => setState(() {
+                            if (v == true) {
+                              tempTags.add(name);
+                            } else {
+                              tempTags.remove(name);
+                            }
+                          }),
+                        );
+                      }),
+                      const Divider(),
+                      const Text('Colores', style: TextStyle(fontWeight: FontWeight.w700)),
+                      const SizedBox(height: 6),
+                      ...availableColors.map((name) {
+                        return CheckboxListTile(
+                          title: Text(prettifyColorName(name)),
+                          value: tempColors.contains(name),
+                          onChanged: (v) => setState(() {
+                            if (v == true) {
+                              tempColors.add(name);
+                            } else {
+                              tempColors.remove(name);
+                            }
+                          }),
+                        );
+                      }),
+                      const Divider(),
+                      const Text('Tipos', style: TextStyle(fontWeight: FontWeight.w700)),
+                      const SizedBox(height: 6),
+                      ...availableTipos.map((name) {
+                        return CheckboxListTile(
+                          title: Text(name[0].toUpperCase() + name.substring(1)),
+                          value: tempTipos.contains(name),
+                          onChanged: (v) => setState(() {
+                            if (v == true) {
+                              tempTipos.add(name);
+                            } else {
+                              tempTipos.remove(name);
+                            }
+                          }),
+                        );
+                      }),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
+            TextButton(
+                onPressed: () => Navigator.pop(context, {
+                      'tags': tempTags,
+                      'colors': tempColors,
+                      'tipos': tempTipos,
+                    }),
+                child: const Text('Aplicar')),
+          ],
+        );
+      },
+    );
+
+    if (result != null) {
+      setState(() {
+        _activeTagFilters
+          ..clear()
+          ..addAll(result['tags'] ?? {});
+        _activeColorFilters
+          ..clear()
+          ..addAll(result['colors'] ?? {});
+        _activeTipoFilters
+          ..clear()
+          ..addAll(result['tipos'] ?? {});
+      });
+    }
   }
 }
 
