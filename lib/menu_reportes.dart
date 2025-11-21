@@ -84,11 +84,8 @@ class _MenuReportesState extends State<MenuReportes> {
                 }
 
                 List<String> filtrados = reportes.where((uuid) {
-                  // Buscar el reporte usando el UUID en los 3 maps
-                  Reporte? reporte =
-                      ReportHandler.getReporte(uuid) ??
-                      ReportHandler.getPeticion(uuid) ??
-                      ReportHandler.getEncontrado(uuid);
+                  // Buscar el reporte usando buscarReporte que busca en los 3 maps
+                  Reporte? reporte = ReportHandler.buscarReporte(uuid);
 
                   if (reporte == null) return false;
 
@@ -110,11 +107,10 @@ class _MenuReportesState extends State<MenuReportes> {
                     child: Container(),
                   ),
                   itemBuilder: (context, i) {
-                    // Buscar el reporte en los 3 maps
-                    Reporte? reporte =
-                        ReportHandler.getReporte(filtrados[i]) ??
-                        ReportHandler.getPeticion(filtrados[i]) ??
-                        ReportHandler.getEncontrado(filtrados[i]);
+                    // Buscar el reporte usando buscarReporte
+                    Reporte? reporte = ReportHandler.buscarReporte(
+                      filtrados[i],
+                    );
 
                     if (reporte == null) return const SizedBox.shrink();
                     if (!reporte.titulo.toLowerCase().contains(

@@ -73,25 +73,30 @@ class ReportHandler {
   }
 
   static void eliminarReporte(String uuid) {
+    // Obtener el reporte para saber quién es el autor
+    Reporte? reporte =
+        _existentes[uuid] ?? _pendientes[uuid] ?? _encontrados[uuid];
+
+    if (reporte == null) return;
+
+    // Obtener el usuario autor del reporte
+    final autorUsuario = SessionHandler.getUsuario(reporte.autor);
+
     // Eliminar de existentes (aceptados)
     if (_existentes.containsKey(uuid)) {
       _existentes.remove(uuid);
-      SessionHandler.getAceptados.remove(uuid);
+      autorUsuario.reportes_aceptados.remove(uuid);
     }
-
     // Eliminar de pendientes
     if (_pendientes.containsKey(uuid)) {
       _pendientes.remove(uuid);
-      SessionHandler.getPendientes.remove(uuid);
-      _pendingNotifier.value = !_pendingNotifier.value;
+      autorUsuario.reportes_pendientes.remove(uuid);
     }
-
     // Eliminar de encontrados
     if (_encontrados.containsKey(uuid)) {
       _encontrados.remove(uuid);
-      SessionHandler.getAceptados.remove(uuid);
+      autorUsuario.reportes_aceptados.remove(uuid);
     }
-
     _reportNotifier.value = !_reportNotifier.value;
   }
 
@@ -103,6 +108,11 @@ class ReportHandler {
 
   static Reporte? getEncontrado(String key) {
     return _encontrados[key];
+  }
+
+  /// Busca un reporte por UUID en los 3 maps: pendientes, existentes y encontrados
+  static Reporte? buscarReporte(String uuid) {
+    return _pendientes[uuid] ?? _existentes[uuid] ?? _encontrados[uuid];
   }
 
   static void estadoObjeto(String uuid, bool encontrado) {

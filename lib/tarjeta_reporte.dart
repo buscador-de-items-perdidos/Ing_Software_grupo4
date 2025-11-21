@@ -72,7 +72,7 @@ class TarjetaReporte extends StatelessWidget {
                 ),
               ],
             ),
-            if (esAutor && modo != Modo.Revisar)
+            if ((esAutor || SessionHandler.isAdmin) && modo != Modo.Revisar)
               Positioned(
                 top: 4,
                 right: 4,
