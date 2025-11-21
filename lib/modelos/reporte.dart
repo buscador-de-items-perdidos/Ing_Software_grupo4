@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
+import 'package:ing_software_grupo4/modelos/tag.dart';
 import 'package:latlong2/latlong.dart';
 
 class Reporte {
@@ -12,6 +13,7 @@ class Reporte {
     LatLng this.ubicacion, {
     this.imagenes = const [],
     this.imagenesBytes = const [],
+    this.etiquetas = const [],
   });
 
   const Reporte.vacio(this.tipo, this.autor)
@@ -20,7 +22,8 @@ class Reporte {
       objeto = "",
       ubicacion = null,
       imagenes = const [],
-      imagenesBytes = const [];
+      imagenesBytes = const [],
+      etiquetas = const [];
 
   final String titulo;
   final String descripcion;
@@ -30,4 +33,5 @@ class Reporte {
   final TipoReporte tipo;
   final List<String> imagenes; // rutas absolutas de archivos de imagen
   final List<Uint8List> imagenesBytes; // imágenes en memoria (web/desktop)
+  final List<Tag> etiquetas; // etiquetas asociadas al reporte (nombre + color)
 }

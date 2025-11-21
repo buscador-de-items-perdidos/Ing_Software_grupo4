@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:ing_software_grupo4/handlers/report_handler.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/modelos/reporte.dart';
+import 'package:ing_software_grupo4/modelos/tag.dart';
 import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
 import 'package:ing_software_grupo4/modelos/modo.dart';
 import 'package:ing_software_grupo4/modelos/usuario.dart';
@@ -12,6 +13,44 @@ import 'package:latlong2/latlong.dart';
 
 part 'campo_titulo.dart';
 part 'descripcion_reporte.dart';
+
+Color hexToColor(String hex) {
+  final cleaned = hex.replaceAll('#', '');
+  final value = int.parse(cleaned.length == 6 ? 'FF$cleaned' : cleaned, radix: 16);
+  return Color(value);
+}
+
+const Map<String, String> colorNameToHex = {
+  'blanco': '#FFFFFF',
+  'negro': '#000000',
+  'rojo': '#FF0000',
+  'verde': '#00FF00',
+  'azul': '#0000FF',
+  'amarillo': '#FFFF00',
+  'naranja': '#FFA500',
+  'morado': '#800080',
+  'rosa': '#FFC0CB',
+  'celeste': '#87CEEB',
+  'café': '#8B4513',
+  'gris': '#808080',
+  'turquesa': '#40E0D0',
+  'lima': '#00FF7F',
+  'cian': '#00FFFF',
+  'fucsia': '#FF00FF',
+  'beige': '#F5F5DC',
+  'chocolate': '#D2691E',
+  'dorado': '#FFD700',
+  'plateado': '#C0C0C0',
+  'azul_marino': '#000080',
+  'burdeos': '#800020',
+};
+
+String prettifyColorName(String key) {
+  return key
+      .split('_')
+      .map((s) => s.isEmpty ? s : (s[0].toUpperCase() + s.substring(1)))
+      .join(' ');
+}
 
 class ReportDisplay extends StatefulWidget {
   final Reporte reporte;
@@ -67,6 +106,39 @@ class _ReportDisplayState extends State<ReportDisplay> {
   late List<Uint8List> _imagenesBytes = List<Uint8List>.from(
     widget.reporte.imagenesBytes,
   );
+  late List<Tag> _selectedTags = List<Tag>.from(widget.reporte.etiquetas);
+
+  final List<String> _availableTags = [
+    'Celular',
+    'Notebook / Laptop',
+    'Tablet',
+    'Audífonos',
+    'Cargador / Cable',
+    'Reloj inteligente',
+    'Lentes',
+    'Llaves',
+    'Billetera',
+    'Cartera',
+    'Paraguas',
+    'Mochila',
+    'Estuche',
+    'Documentos',
+    'Cédula',
+    'Pasaporte',
+    'Tarjeta bancaria',
+    'Licencia de conducir',
+    'Credencial universitaria / laboral',
+    'Polerón / Chaqueta',
+    'Gorro',
+    'Polera',
+    'Pantalones',
+    'Zapatos / Zapatillas',
+    'Guantes',
+    'Botella',
+    'Termo',
+    'Llaveros',
+    'Cuadernos / Libretas',
+  ];
   final PageController _pageController = PageController();
   Future<void> _pickOneImage() async {
     final res = await FilePicker.platform.pickFiles(
@@ -82,7 +154,8 @@ class _ReportDisplayState extends State<ReportDisplay> {
     });
   }
 
-  // Eliminado menú y selección múltiple para dejar sólo selección individual
+  
+
 
   @override
   Widget build(BuildContext context) {
@@ -150,6 +223,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
                           editable: widget.modo == Modo.Editar,
                         ),
                       ),
+                      // etiquetas moved to DetallesReporte (derecha) to preserve layout
                     ],
                   ),
                 ),
@@ -166,7 +240,13 @@ class _ReportDisplayState extends State<ReportDisplay> {
                           children: [
                             Expanded(
                               flex: 2,
-                              child: DetallesReporte(reporte: widget.reporte),
+                              child: DetallesReporte(
+                                reporte: widget.reporte,
+                                selectedTags: _selectedTags,
+                                editable: widget.modo == Modo.Editar,
+                                onEditTags: _openTagEditor,
+                                onEditColors: _openColorEditor,
+                              ),
                             ),
                             Expanded(
                               flex: 3,
@@ -321,7 +401,158 @@ class _ReportDisplayState extends State<ReportDisplay> {
       widget.reporte.tipo,
       _finalLoc!,
       imagenesBytes: _imagenesBytes,
+      etiquetas: _selectedTags,
     );
+  }
+
+  Future<void> _openTagEditor() async {
+    final temp = Set<String>.from(_selectedTags.map((t) => t.nombre));
+    final Map<String, String> currentColors = {for (var t in _selectedTags) t.nombre: t.colorName};
+
+    final result = await showDialog<List<Tag>>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Seleccionar etiquetas'),
+          content: SingleChildScrollView(
+            child: StatefulBuilder(
+              builder: (context, setState) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: _availableTags.map((t) {
+                    return CheckboxListTile(
+                      title: Text(t),
+                      value: temp.contains(t),
+                      onChanged: (v) => setState(() {
+                        if (v == true) {
+                          temp.add(t);
+                        } else {
+                          temp.remove(t);
+                        }
+                      }),
+                    );
+                  }).toList(),
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                final List<Tag> out = temp.map((n) => Tag(n, currentColors[n] ?? 'blanco')).toList();
+                Navigator.pop(context, out);
+              },
+              child: const Text('Guardar'),
+            ),
+          ],
+        );
+      },
+    );
+    if (result != null) {
+      setState(() {
+        _selectedTags = result;
+      });
+    }
+  }
+
+  Future<void> _openColorEditor() async {
+    if (_selectedTags.isEmpty) {
+      await showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('No hay etiquetas'),
+          content: const Text('Selecciona primero las categorías y luego asigna colores.'),
+          actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))],
+        ),
+      );
+      return;
+    }
+
+    final Map<String, String> colors = {for (var t in _selectedTags) t.nombre: t.colorName};
+    final List<String> presetColorNames = colorNameToHex.keys.toList();
+
+    Future<String?> _pickColor(BuildContext ctx, String tag) async {
+      final res = await showDialog<String>(
+        context: ctx,
+        builder: (ctx) {
+          return AlertDialog(
+            title: Text('Elegir color para "$tag"'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                  children: presetColorNames.map((name) {
+                  return ListTile(
+                    title: Text(prettifyColorName(name)),
+                    onTap: () => Navigator.pop(ctx, name),
+                  );
+                }).toList(),
+              ),
+            ),
+            actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancelar'))],
+          );
+        },
+      );
+      return res;
+    }
+
+    final result = await showDialog<List<Tag>>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Asignar colores a etiquetas'),
+          content: SingleChildScrollView(
+            child: StatefulBuilder(
+              builder: (context, setState) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: _selectedTags.map((t) {
+                    return ListTile(
+                      title: Text(t.nombre),
+                      leading: Container(
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          color: hexToColor(colorNameToHex[colors[t.nombre]!] ?? colorNameToHex['blanco']!),
+                          border: Border.all(color: Colors.black26),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      trailing: TextButton(
+                        onPressed: () async {
+                          final chosen = await _pickColor(context, t.nombre);
+                          if (chosen != null) setState(() => colors[t.nombre] = chosen);
+                        },
+                        child: const Text('Cambiar color'),
+                      ),
+                    );
+                  }).toList(),
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
+            TextButton(
+              onPressed: () {
+                final out = _selectedTags.map((t) => Tag(t.nombre, colors[t.nombre] ?? t.colorName)).toList();
+                Navigator.pop(context, out);
+              },
+              child: const Text('Guardar'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result != null) {
+      setState(() {
+        _selectedTags = result;
+      });
+    }
   }
 
   Widget _crearBotonEditar(BuildContext context) {
@@ -630,9 +861,20 @@ class _DatosContacto extends StatelessWidget {
 }
 
 class DetallesReporte extends StatelessWidget {
-  const DetallesReporte({super.key, required this.reporte});
+  const DetallesReporte({
+    super.key,
+    required this.reporte,
+    this.selectedTags = const [],
+    this.editable = false,
+    this.onEditTags,
+    this.onEditColors,
+  });
 
   final Reporte reporte;
+  final List<Tag> selectedTags;
+  final bool editable;
+  final VoidCallback? onEditTags;
+  final VoidCallback? onEditColors;
 
   @override
   Widget build(BuildContext context) {
@@ -640,7 +882,7 @@ class DetallesReporte extends StatelessWidget {
       children: [
         Expanded(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Text(
                 "Detalles del reporte",
@@ -661,7 +903,30 @@ class DetallesReporte extends StatelessWidget {
                 "Fecha: 04/11/2025", //TODO: Incluir fecha en reporte
                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
               ),
-              SizedBox.shrink(),
+              const SizedBox(height: 8),
+              if (editable)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12.0),
+                  child: Wrap(
+                    alignment: WrapAlignment.end,
+                    spacing: 8,
+                    runSpacing: 6,
+                    children: [
+                      TextButton.icon(
+                        style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6)),
+                        onPressed: onEditTags,
+                        icon: const Icon(Icons.label_outline, size: 18),
+                        label: const Text('Seleccionar Categoria'),
+                      ),
+                      TextButton.icon(
+                        style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6)),
+                        onPressed: onEditColors,
+                        icon: const Icon(Icons.color_lens_outlined, size: 18),
+                        label: const Text('Seleccionar Color'),
+                      ),
+                    ],
+                  ),
+                ),
             ],
           ),
         ),
