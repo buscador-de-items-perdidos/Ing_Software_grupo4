@@ -73,6 +73,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
       type: FileType.image,
       allowMultiple: false,
       withData: true,
+      allowCompression: false,
     );
     if (res == null || res.files.isEmpty) return;
     final file = res.files.first;
