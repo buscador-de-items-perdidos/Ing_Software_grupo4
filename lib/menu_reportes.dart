@@ -68,7 +68,6 @@ class _MenuReportesState extends State<MenuReportes> {
                   if (rep == null) return false;
                   final matchesText = rep.titulo.toLowerCase().contains(input.toLowerCase());
 
-                  // If no filters selected, only filter by text
                   bool matchesFilters = true;
 
                   if (_activeTagFilters.isNotEmpty) {
@@ -135,7 +134,6 @@ class _MenuReportesState extends State<MenuReportes> {
   }
 
   Future<void> _openFilterDialog() async {
-    // collect all tag names from existing reports
     final reports = ReportHandler.getReportes;
     final Set<String> availableTags = {};
     final Set<String> availableColorsFromReports = {};
@@ -147,22 +145,20 @@ class _MenuReportesState extends State<MenuReportes> {
         availableTags.add(tag.nombre);
         availableColorsFromReports.add(tag.colorName);
       }
-      availableTiposFromReports.add(r.tipo.name);
+      if (r.tipo.name != 'administracion') availableTiposFromReports.add(r.tipo.name);
     }
 
-    // Also include global color list from report_display if available
     final Set<String> availableColors = {};
     try {
       availableColors.addAll(colorNameToHex.keys);
     } catch (_) {
-      // ignore if symbol not accessible
+
     }
     availableColors.addAll(availableColorsFromReports);
 
-    // Tipos: use enum values for TipoReporte as base
     final Set<String> availableTipos = {};
     try {
-      availableTipos.addAll(TipoReporte.values.map((t) => t.name));
+      availableTipos.addAll(TipoReporte.values.where((t) => t.name != 'administracion').map((t) => t.name));
     } catch (_) {}
     availableTipos.addAll(availableTiposFromReports);
 

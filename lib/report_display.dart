@@ -883,27 +883,55 @@ class DetallesReporte extends StatelessWidget {
         Expanded(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
                 "Detalles del reporte",
                 style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
                 textAlign: TextAlign.center,
               ),
+              const SizedBox(height: 6),
               Text(
                 "Autor: ${SessionHandler.nombreUsuario}",
                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
-                textAlign: TextAlign.left,
+                textAlign: TextAlign.center,
               ),
+              const SizedBox(height: 4),
               Text(
                 "Tipo: Objeto ${reporte.tipo.name}",
                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
-                textAlign: TextAlign.left,
+                textAlign: TextAlign.center,
               ),
               Text(
-                "Fecha: 04/11/2025", //TODO: Incluir fecha en reporte
+                "Fecha: ${reporte.fecha.day.toString().padLeft(2,'0')}/${reporte.fecha.month.toString().padLeft(2,'0')}/${reporte.fecha.year}",
                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
+              // show categories and colors summary when viewing (not editing)
+              Builder(builder: (context) {
+                final cats = selectedTags.map((t) => t.nombre).join(', ');
+                final colorSet = selectedTags.map((t) => t.colorName).where((c) => c != 'blanco').toSet();
+                final colorsPretty = colorSet.map((c) => prettifyColorName(c)).join(', ');
+                return Column(
+                  children: [
+                    if (cats.isNotEmpty)
+                      Text(
+                        'Categoría(s): $cats',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                      ),
+                    if (colorsPretty.isNotEmpty)
+                      Text(
+                        'Color(es): $colorsPretty',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                      ),
+                  ],
+                );
+              }),
+              const SizedBox(height: 8),
+              // chips with colored backgrounds removed per request; keeping textual summary above
               if (editable)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 12.0),
