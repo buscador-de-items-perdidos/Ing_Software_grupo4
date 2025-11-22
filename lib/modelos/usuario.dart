@@ -1,15 +1,19 @@
 class Usuario {
-  final String nombreUsuario;
-  final String correo;
-  final String numero;
-  final String miscelaneo;
-  final bool isAdmin;
+  String nombreUsuario;
+  String correo;
+  String numero;
+  String miscelaneo;
+  Set<String> reportes_pendientes;
+  Set<String> reportes_aceptados;
+  bool isAdmin;
 
-  const Usuario({
+  Usuario({
     required this.nombreUsuario,
     required this.correo,
     required this.numero,
     required this.miscelaneo,
-    required this.isAdmin
+    required this.reportes_pendientes,
+    required this.reportes_aceptados,
+    required this.isAdmin,
   });
 }

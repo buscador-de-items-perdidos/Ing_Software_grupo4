@@ -126,6 +126,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
       TextEditingController(text: widget.reporte.descripcion);
 
   final _formKey = GlobalKey<FormState>();
+  late bool _encontrado = widget.reporte.encontrado;
 
   late LatLng _loc =
       widget.reporte.ubicacion ?? LatLng(-36.8288323, -73.0372646);
@@ -173,6 +174,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
       type: FileType.image,
       allowMultiple: false,
       withData: true,
+      allowCompression: false,
     );
     if (res == null || res.files.isEmpty) return;
     final file = res.files.first;
@@ -188,6 +190,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(),
       body: Form(
         key: _formKey,
         child: Padding(
@@ -230,14 +233,54 @@ class _ReportDisplayState extends State<ReportDisplay> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
-                Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 800),
-                    child: _CampoTitulo(
-                      controller: _titleController,
-                      editable: widget.modo == Modo.Editar,
-                    ),
+              ),
+              Expanded(
+                flex: 1,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 4.0),
+                  child: Column(
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: DetallesReporte(reporte: widget.reporte),
+                            ),
+                            Expanded(
+                              flex: 3,
+                              child: _DatosContacto(usuario: widget.usuario),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (widget.modo == Modo.Ver &&
+                          widget.reporte.autor == SessionHandler.uuid)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: SwitchListTile(
+                            title: const Text('Marcar como encontrado'),
+                            subtitle: Text(
+                              _encontrado ? 'Encontrado' : 'Pendiente',
+                            ),
+                            value: _encontrado,
+                            onChanged: (bool value) {
+                              setState(() => _encontrado = value);
+                              _actualizarEstadoEncontrado(value);
+                            },
+                          ),
+                        ),
+                      Expanded(flex: 4, child: mapaUdec()),
+                      Expanded(
+                        flex: 1,
+                        child: switch (widget.modo) {
+                          Modo.Editar => _crearBotonesGuardado(context),
+                          Modo.Ver => _crearBotonEditar(context),
+                          Modo.Revisar => _crearBotonesPublicacion(context),
+                        },
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -415,6 +458,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
       _descriptionController.text,
       SessionHandler.uuid,
       "",
+      _encontrado,
       widget.reporte.tipo,
       _finalLoc!,
       imagenesBytes: _imagenesBytes,

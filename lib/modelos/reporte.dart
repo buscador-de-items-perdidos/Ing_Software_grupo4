@@ -9,6 +9,7 @@ class Reporte {
     this.descripcion,
     this.autor,
     this.objeto,
+    this.encontrado,
     this.tipo,
     LatLng? this.ubicacion, {
     DateTime? fecha,
@@ -21,6 +22,7 @@ class Reporte {
     : titulo = "",
       descripcion = "",
       objeto = "",
+      encontrado = false,
       ubicacion = null,
       fecha = DateTime.now(),
       imagenes = const [],
@@ -31,6 +33,7 @@ class Reporte {
   final String descripcion;
   final String autor; //Se deberia cambiar una clase propia a futuro
   final String objeto;
+  bool encontrado;
   final LatLng? ubicacion;
   final DateTime fecha;
   final TipoReporte tipo;

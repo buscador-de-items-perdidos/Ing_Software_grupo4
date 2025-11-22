@@ -4,7 +4,6 @@ import 'package:ing_software_grupo4/modelos/tag.dart';
 import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
 import 'package:ing_software_grupo4/tarjeta_reporte.dart';
 import 'package:ing_software_grupo4/handlers/report_handler.dart';
-import 'package:ing_software_grupo4/menu_pendientes.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/modelos/modo.dart';
 import 'package:ing_software_grupo4/report_display.dart';
@@ -12,7 +11,9 @@ import 'package:ing_software_grupo4/report_display.dart';
 import 'package:uuid/uuid.dart';
 
 class MenuReportes extends StatefulWidget {
-  const MenuReportes({super.key});
+  final bool soloMisReportes;
+
+  const MenuReportes({super.key, this.soloMisReportes = false});
 
   @override
   State<MenuReportes> createState() => _MenuReportesState();
@@ -83,36 +84,122 @@ class _MenuReportesState extends State<MenuReportes> {
                   return matchesText && matchesFilters;
                 }).toList();
                 // Mostrar los reportes en una lista vertical con scroll.
-                // Cada tarjeta está centrada horizontalmente 
+                // Cada tarjeta está centrada horizontalmente
                 return ListView.separated(
-                  padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12.0,
+                    horizontal: 8.0,
+                  ),
                   itemCount: filtrados.length,
                   separatorBuilder: (context, index) => Padding(
                     padding: const EdgeInsets.only(top: 16),
                     child: Container(),
                   ),
                   itemBuilder: (context, i) {
-                    Reporte? reporte = ReportHandler.getReporte(filtrados[i]);
+                    // Buscar el reporte usando buscarReporte
+                    Reporte? reporte = ReportHandler.buscarReporte(
+                      filtrados[i],
+                    );
+
                     if (reporte == null) return const SizedBox.shrink();
                     if (!reporte.titulo.toLowerCase().contains(
                       input.toLowerCase(),
-                    )) return const SizedBox.shrink();
+                    ))
+                      return const SizedBox.shrink();
 
-                    final double width = MediaQuery.of(context).size.width * 0.4;
+                    final double width =
+                        MediaQuery.of(context).size.width * 0.4;
                     const double height = 670;
+
+                    // Determinar si es pendiente o no
+                    bool esPendiente = SessionHandler.getPendientes.contains(
+                      filtrados[i],
+                    );
 
                     return Center(
                       child: Padding(
                         padding: EdgeInsets.zero,
-                        child: Container(
-                          width: width,
-                          height: height,
-                          child: TarjetaReporte(
-                            key: ValueKey(filtrados[i]),
-                            nombre: filtrados[i],
-                            modo: Modo.Ver,
-                            pendiente: false,
-                          ),
+                        child: Stack(
+                          children: [
+                            Container(
+                              width: width,
+                              height: height,
+                              child: TarjetaReporte(
+                                key: ValueKey(filtrados[i]),
+                                nombre: filtrados[i],
+                                modo: Modo.Ver,
+                                pendiente: esPendiente,
+                              ),
+                            ),
+                            if (soloMisReportes && esPendiente)
+                              Positioned(
+                                top: 8,
+                                left: 8,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.schedule,
+                                        size: 16,
+                                        color: Colors.white,
+                                      ),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        'Pendiente',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            if (soloMisReportes && !esPendiente)
+                              Positioned(
+                                top: 8,
+                                left: 8,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.check_circle,
+                                        size: 16,
+                                        color: Colors.white,
+                                      ),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        'Publicado',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       ),
                     );
