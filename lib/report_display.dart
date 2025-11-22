@@ -53,6 +53,32 @@ String prettifyColorName(String key) {
       .join(' ');
 }
 
+String _normalizeTagName(String s) {
+  var t = s.toLowerCase();
+  t = t.replaceAll(RegExp(r'[áàäâ]'), 'a');
+  t = t.replaceAll(RegExp(r'[éèëê]'), 'e');
+  t = t.replaceAll(RegExp(r'[íìïî]'), 'i');
+  t = t.replaceAll(RegExp(r'[óòöô]'), 'o');
+  t = t.replaceAll(RegExp(r'[úùüû]'), 'u');
+  t = t.replaceAll(RegExp(r'[ñ]'), 'n');
+  t = t.replaceAll(RegExp(r'[ç]'), 'c');
+  t = t.replaceAll(RegExp(r'[^a-z0-9]'), '');
+  return t;
+}
+
+bool _isColorable(String tagName) {
+  const blocked = {
+    'documentos',
+    'cedula',
+    'pasaporte',
+    'licenciadeconducir',
+    'credencial',
+    'credencialuniversitarialaboral',
+    'tarjetabancaria',
+  };
+  return !blocked.contains(_normalizeTagName(tagName));
+}
+
 class ReportDisplay extends StatefulWidget {
   final Reporte reporte;
   final String uuid;
@@ -413,7 +439,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Seleccionar etiquetas'),
+          title: const Text('Seleccione la categoría'),
           content: SingleChildScrollView(
             child: StatefulBuilder(
               builder: (context, setState) {
@@ -503,7 +529,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Asignar colores a etiquetas'),
+          title: const Text('Seleccione el color(es)'),
           content: SingleChildScrollView(
             child: StatefulBuilder(
               builder: (context, setState) {
@@ -521,13 +547,18 @@ class _ReportDisplayState extends State<ReportDisplay> {
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
-                      trailing: TextButton(
-                        onPressed: () async {
-                          final chosen = await _pickColor(context, t.nombre);
-                          if (chosen != null) setState(() => colors[t.nombre] = chosen);
-                        },
-                        child: const Text('Cambiar color'),
-                      ),
+                      trailing: _isColorable(t.nombre)
+                          ? TextButton(
+                              onPressed: () async {
+                                final chosen = await _pickColor(context, t.nombre);
+                                if (chosen != null) setState(() => colors[t.nombre] = chosen);
+                              },
+                              child: const Text('Cambiar color'),
+                            )
+                          : TextButton(
+                              onPressed: null,
+                              child: const Text('No aplicable'),
+                            ),
                     );
                   }).toList(),
                 );
