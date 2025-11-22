@@ -43,6 +43,7 @@ const Map<String, String> colorNameToHex = {
   'plateado': '#C0C0C0',
   'azul_marino': '#000080',
   'burdeos': '#800020',
+  'Otro': '#FFFFFF',
 };
 
 String prettifyColorName(String key) {
@@ -138,6 +139,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
     'Termo',
     'Llaveros',
     'Cuadernos / Libretas',
+    'Otro',
   ];
   final PageController _pageController = PageController();
   Future<void> _pickOneImage() async {
@@ -223,7 +225,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
                           editable: widget.modo == Modo.Editar,
                         ),
                       ),
-                      // etiquetas moved to DetallesReporte (derecha) to preserve layout
+                      
                     ],
                   ),
                 ),
@@ -337,20 +339,11 @@ class _ReportDisplayState extends State<ReportDisplay> {
 
   Widget _crearBotonesGuardado(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         Expanded(
-          flex: 3,
           child: ElevatedButton(
             onPressed: () => _publicarYSalir(context),
             child: const Text("Publicar y Salir"),
-          ),
-        ),
-        Expanded(
-          flex: 1,
-          child: ElevatedButton(
-            onPressed: () => _publicar(context),
-            child: Text("Publicar"),
           ),
         ),
       ],
@@ -360,7 +353,8 @@ class _ReportDisplayState extends State<ReportDisplay> {
   bool _publicar(BuildContext context) {
     if (!_formKey.currentState!.validate() ||
         _finalLoc == null ||
-        _imagenesBytes.isEmpty) {
+        _imagenesBytes.isEmpty ||
+        _selectedTags.isEmpty) {
       if (_finalLoc == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -373,6 +367,12 @@ class _ReportDisplayState extends State<ReportDisplay> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Debes seleccionar al menos una imagen"),
+          ),
+        );
+      } else if (_selectedTags.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Debes seleccionar al menos una etiqueta"),
           ),
         );
       }
@@ -916,16 +916,46 @@ class DetallesReporte extends StatelessWidget {
                 return Column(
                   children: [
                     if (cats.isNotEmpty)
-                      Text(
-                        'Categoría(s): $cats',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxHeight: 56),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(8.0),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade50,
+                            border: Border.all(color: Colors.black12),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: SingleChildScrollView(
+                            child: Text(
+                              'Categoría(s): $cats',
+                              textAlign: TextAlign.left,
+                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                            ),
+                          ),
+                        ),
                       ),
                     if (colorsPretty.isNotEmpty)
-                      Text(
-                        'Color(es): $colorsPretty',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                      const SizedBox(height: 6),
+                    if (colorsPretty.isNotEmpty)
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxHeight: 56),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(8.0),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade50,
+                            border: Border.all(color: Colors.black12),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: SingleChildScrollView(
+                            child: Text(
+                              'Color(es): $colorsPretty',
+                              textAlign: TextAlign.left,
+                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                            ),
+                          ),
+                        ),
                       ),
                   ],
                 );
