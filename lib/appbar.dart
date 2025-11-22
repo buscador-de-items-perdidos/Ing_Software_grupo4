@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/report_display.dart';
 import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
 import 'package:ing_software_grupo4/modelos/modo.dart';
@@ -26,13 +25,7 @@ AppBar appbar(BuildContext context) => AppBar(
           ),
         ),
       ),
-      !SessionHandler.isAdmin ? SizedBox.shrink() : SizedBox.shrink(),
-      Row(
-        children: [
-          BotonPublicar(),
-          IconButton.filled(onPressed: () {}, icon: Icon(Icons.person)),
-        ],
-      ),
+      BotonPublicar(),
     ],
   ),
   backgroundColor: Theme.of(context).primaryColor,
@@ -95,10 +88,12 @@ class _BotonMenu extends StatelessWidget {
   _BotonMenu({required this.tipo});
 
   final TipoReporte tipo;
-  String? titulo;
-  String? descripcion;
+
   @override
   Widget build(BuildContext context) {
+    String titulo;
+    String descripcion;
+
     switch (tipo) {
       case TipoReporte.perdido:
         titulo = "Perdido";
@@ -118,12 +113,12 @@ class _BotonMenu extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                titulo!,
+                titulo,
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
               ),
             ),
-            Text(descripcion!),
+            Text(descripcion),
           ],
         ),
         onTap: () {
