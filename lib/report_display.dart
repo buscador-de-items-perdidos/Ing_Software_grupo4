@@ -233,42 +233,68 @@ class _ReportDisplayState extends State<ReportDisplay> {
               ),
 
               const SizedBox(height: 24),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: DetallesReporte(
-                      reporte: widget.reporte,
-                      selectedTags: _selectedTags,
-                      editable: widget.modo == Modo.Editar,
-                      onEditTags: _openTagEditor,
-                      onEditColors: _openColorEditor,
-                    ),
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 800),
+                  child: _CampoTitulo(
+                    controller: _titleController,
+                    editable: widget.modo == Modo.Editar,
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    flex: 3,
-                    child: _DatosContacto(usuario: widget.usuario),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 800),
+                  child: _DescripcionReporte(
+                    controller: _descriptionController,
+                    tipo: widget.reporte.tipo,
+                    editable: widget.modo == Modo.Editar,
                   ),
-                ],
+                ),
+              ),
+
+              const SizedBox(height: 24),
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 800),
+                  child: Column(
+                    children: [
+                      _DatosContacto(usuario: widget.usuario),
+                      const SizedBox(height: 24),
+                      DetallesReporte(
+                        reporte: widget.reporte,
+                        selectedTags: _selectedTags,
+                        editable: widget.modo == Modo.Editar,
+                        onEditTags: _openTagEditor,
+                        onEditColors: _openColorEditor,
+                      ),
+                    ],
+                  ),
+                ),
               ),
 
               const SizedBox(height: 16),
               if (widget.modo == Modo.Ver &&
                   widget.reporte.autor == SessionHandler.uuid)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: SwitchListTile(
-                    title: const Text('Marcar como encontrado'),
-                    subtitle: Text(
-                      _encontrado ? 'Encontrado' : 'Pendiente',
+                Center(
+                  child: FractionallySizedBox(
+                    widthFactor: 0.6,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: SwitchListTile(
+                        title: const Text('Marcar como encontrado'),
+                        subtitle: Text(
+                          _encontrado ? 'Encontrado' : 'Pendiente',
+                        ),
+                        value: _encontrado,
+                        onChanged: (bool value) {
+                          setState(() => _encontrado = value);
+                          _actualizarEstadoEncontrado(value);
+                        },
+                      ),
                     ),
-                    value: _encontrado,
-                    onChanged: (bool value) {
-                      setState(() => _encontrado = value);
-                      _actualizarEstadoEncontrado(value);
-                    },
                   ),
                 ),
 
@@ -279,18 +305,6 @@ class _ReportDisplayState extends State<ReportDisplay> {
                   child: SizedBox(
                     height: 360,
                     child: mapaUdec(),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 24),
-              Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 800),
-                  child: _DescripcionReporte(
-                    controller: _descriptionController,
-                    tipo: widget.reporte.tipo,
-                    editable: widget.modo == Modo.Editar,
                   ),
                 ),
               ),
