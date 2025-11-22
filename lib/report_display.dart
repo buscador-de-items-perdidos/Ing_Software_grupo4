@@ -169,6 +169,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
     'Otro',
   ];
   final PageController _pageController = PageController();
+
   Future<void> _pickOneImage() async {
     final res = await FilePicker.platform.pickFiles(
       type: FileType.image,
@@ -184,154 +185,145 @@ class _ReportDisplayState extends State<ReportDisplay> {
     });
   }
 
-  
-
-
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
-      body: Form(
-        key: _formKey,
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Center(
-                  child: FractionallySizedBox(
-                    widthFactor: 0.6,
-                    child: SizedBox(
-                      height: 480,
-                      child: Stack(
-                        children: [
-                          _GaleriaImagenes(
-                            imagenesBytes: _imagenesBytes,
-                            controller: _pageController,
-                            editable: widget.modo == Modo.Editar,
-                            onDelete: (i) {
-                              setState(() {
-                                _imagenesBytes.removeAt(i);
-                              });
-                            },
-                          ),
-                          if (widget.modo == Modo.Editar)
-                            Positioned(
-                              top: 8,
-                              right: 8,
-                              child: Tooltip(
-                                message: 'Agregar imagen',
-                                child: IconButton.filled(
-                                  onPressed: _pickOneImage,
-                                  icon: const Icon(Icons.add_a_photo_outlined),
-                                ),
+ Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(),
+    body: Form(
+      key: _formKey,
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: FractionallySizedBox(
+                  widthFactor: 0.6,
+                  child: SizedBox(
+                    height: 480,
+                    child: Stack(
+                      children: [
+                        _GaleriaImagenes(
+                          imagenesBytes: _imagenesBytes,
+                          controller: _pageController,
+                          editable: widget.modo == Modo.Editar,
+                          onDelete: (i) {
+                            setState(() {
+                              _imagenesBytes.removeAt(i);
+                            });
+                          },
+                        ),
+                        if (widget.modo == Modo.Editar)
+                          Positioned(
+                            top: 8,
+                            right: 8,
+                            child: Tooltip(
+                              message: 'Agregar imagen',
+                              child: IconButton.filled(
+                                onPressed: _pickOneImage,
+                                icon: const Icon(Icons.add_a_photo_outlined),
                               ),
                             ),
-                        ],
-                      ),
+                          ),
+                      ],
                     ),
                   ),
                 ),
               ),
-              Expanded(
-                flex: 1,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 4.0),
-                  child: Column(
-                    children: [
-                      Expanded(
-                        flex: 3,
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 2,
-                              child: DetallesReporte(reporte: widget.reporte),
-                            ),
-                            Expanded(
-                              flex: 3,
-                              child: _DatosContacto(usuario: widget.usuario),
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (widget.modo == Modo.Ver &&
-                          widget.reporte.autor == SessionHandler.uuid)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: SwitchListTile(
-                            title: const Text('Marcar como encontrado'),
-                            subtitle: Text(
-                              _encontrado ? 'Encontrado' : 'Pendiente',
-                            ),
-                            value: _encontrado,
-                            onChanged: (bool value) {
-                              setState(() => _encontrado = value);
-                              _actualizarEstadoEncontrado(value);
-                            },
-                          ),
-                        ),
-                      Expanded(flex: 4, child: mapaUdec()),
-                      Expanded(
-                        flex: 1,
-                        child: switch (widget.modo) {
-                          Modo.Editar => _crearBotonesGuardado(context),
-                          Modo.Ver => _crearBotonEditar(context),
-                          Modo.Revisar => _crearBotonesPublicacion(context),
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 800),
-                    child: _DescripcionReporte(
-                      controller: _descriptionController,
-                      tipo: widget.reporte.tipo,
+
+              const SizedBox(height: 24),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: DetallesReporte(
+                      reporte: widget.reporte,
+                      selectedTags: _selectedTags,
                       editable: widget.modo == Modo.Editar,
+                      onEditTags: _openTagEditor,
+                      onEditColors: _openColorEditor,
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1000),
-                  child: DetallesReporte(
-                    reporte: widget.reporte,
-                    selectedTags: _selectedTags,
-                    editable: widget.modo == Modo.Editar,
-                    onEditTags: _openTagEditor,
-                    onEditColors: _openColorEditor,
+                  const SizedBox(width: 16),
+                  Expanded(
+                    flex: 3,
+                    child: _DatosContacto(usuario: widget.usuario),
                   ),
-                ),
-                const SizedBox(height: 8),
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1000),
-                  child: _DatosContacto(usuario: widget.usuario),
-                ),
-                const SizedBox(height: 16),
-                Center(
-                  child: FractionallySizedBox(
-                    widthFactor: 0.6,
-                    child: SizedBox(height: 360, child: mapaUdec()),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 800),
-                    child: switch (widget.modo) {
-                      Modo.Editar => _crearBotonesGuardado(context),
-                      Modo.Ver => _crearBotonEditar(context),
-                      Modo.Revisar => _crearBotonesPublicacion(context),
+                ],
+              ),
+
+              const SizedBox(height: 16),
+              if (widget.modo == Modo.Ver &&
+                  widget.reporte.autor == SessionHandler.uuid)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: SwitchListTile(
+                    title: const Text('Marcar como encontrado'),
+                    subtitle: Text(
+                      _encontrado ? 'Encontrado' : 'Pendiente',
+                    ),
+                    value: _encontrado,
+                    onChanged: (bool value) {
+                      setState(() => _encontrado = value);
+                      _actualizarEstadoEncontrado(value);
                     },
                   ),
                 ),
-                const SizedBox(height: 24),
-              ],
-            ),
+
+              const SizedBox(height: 16),
+              Center(
+                child: FractionallySizedBox(
+                  widthFactor: 0.6,
+                  child: SizedBox(
+                    height: 360,
+                    child: mapaUdec(),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 24),
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 800),
+                  child: _DescripcionReporte(
+                    controller: _descriptionController,
+                    tipo: widget.reporte.tipo,
+                    editable: widget.modo == Modo.Editar,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 24),
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 800),
+                  child: switch (widget.modo) {
+                    Modo.Editar => _crearBotonesGuardado(context),
+                    Modo.Ver => _crearBotonEditar(context),
+                    Modo.Revisar => _crearBotonesPublicacion(context),
+                  },
+                ),
+              ),
+
+              const SizedBox(height: 24),
+            ],
           ),
+        ),
+      ),
+    ),
+  );
+}
+void _actualizarEstadoEncontrado(bool encontrado) {
+    ReportHandler.estadoObjeto(widget.uuid, encontrado);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          encontrado
+              ? 'Reporte marcado como encontrado'
+              : 'Reporte marcado como pendiente',
         ),
       ),
     );

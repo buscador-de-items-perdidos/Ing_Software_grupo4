@@ -7,7 +7,6 @@ import 'package:ing_software_grupo4/handlers/report_handler.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/modelos/modo.dart';
 import 'package:ing_software_grupo4/report_display.dart';
-
 import 'package:uuid/uuid.dart';
 
 class MenuReportes extends StatefulWidget {
@@ -21,9 +20,15 @@ class MenuReportes extends StatefulWidget {
 
 class _MenuReportesState extends State<MenuReportes> {
   String input = "";
+  late bool soloMisReportes;
   final Set<String> _activeTagFilters = {};
   final Set<String> _activeColorFilters = {};
   final Set<String> _activeTipoFilters = {};
+  @override
+  void initState() {
+    super.initState();
+    soloMisReportes = widget.soloMisReportes;
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -210,13 +215,6 @@ class _MenuReportesState extends State<MenuReportes> {
           ),
         ],
       ),
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          BotonPendientes(),
-        ],
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
@@ -347,26 +345,6 @@ class _MenuReportesState extends State<MenuReportes> {
           ..addAll(result['tipos'] ?? {});
       });
     }
-  }
-}
-
-class BotonPendientes extends StatelessWidget {
-  const BotonPendientes({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return FloatingActionButton.extended(
-      heroTag: 'pendientes',
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => MenuPendientes()),
-        );
-      },
-      tooltip: SessionHandler.isAdmin ? 'Aceptar reportes (solo admin)' : null,
-      icon: const Icon(Icons.timer),
-      label: const Text('Pendientes'),
-    );
   }
 }
 
