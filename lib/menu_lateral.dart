@@ -6,7 +6,6 @@ class MenuLateral extends StatelessWidget {
 
   const MenuLateral({super.key, required this.select});
 
-
   @override
   Widget build(BuildContext context) {
     final appBarHeight = AppBar().preferredSize.height;
@@ -37,24 +36,24 @@ class MenuLateral extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.home),
             title: const Text('Inicio'),
-            onTap: () => select(0)
-          ),
-          ListTile(
-            leading: const Icon(Icons.list),
-            title: const Text('Reportes'),
-            onTap: () => select(0)
+            onTap: () => select(0),
           ),
           if (SessionHandler.isAdmin)
             ListTile(
               leading: const Icon(Icons.pending_actions),
               title: const Text('Pendientes'),
-              onTap: () => select(1)
+              onTap: () => select(1),
             ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.person),
             title: const Text('Mi Perfil'),
-            onTap: () => select(2)
+            onTap: () => select(2),
+          ),
+          ListTile(
+            leading: const Icon(Icons.list),
+            title: const Text('Mis Reportes'),
+            onTap: () => select(3),
           ),
         ],
       ),

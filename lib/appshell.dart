@@ -37,10 +37,11 @@ class _AppShellState extends State<AppShell> {
 
   Widget? _buildBody() {
     return switch (selection) {
-      0 => MenuReportes(),
+      0 => MenuReportes(key: ValueKey('todos-$selection')),
       1 => MenuPendientes(),
       2 => CambioContactos(),
-      _ => MenuReportes(),
+      3 => MenuReportes(key: ValueKey('mis-$selection'), soloMisReportes: true),
+      _ => MenuReportes(key: ValueKey('default-$selection')),
     };
   }
 }

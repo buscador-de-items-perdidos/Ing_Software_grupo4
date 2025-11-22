@@ -121,6 +121,7 @@ class ReportHandler {
       _encontrados[uuid] = _existentes[uuid]!;
       _existentes.remove(uuid);
     } else {
+      _encontrados[uuid]?.encontrado = false;
       _existentes[uuid] = _encontrados[uuid]!;
       _encontrados.remove(uuid);
     }

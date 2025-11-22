@@ -3,7 +3,6 @@ import 'package:ing_software_grupo4/modelos/reporte.dart';
 import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
 import 'package:ing_software_grupo4/tarjeta_reporte.dart';
 import 'package:ing_software_grupo4/handlers/report_handler.dart';
-import 'package:ing_software_grupo4/menu_pendientes.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/modelos/modo.dart';
 import 'package:ing_software_grupo4/report_display.dart';
@@ -11,7 +10,9 @@ import 'package:ing_software_grupo4/report_display.dart';
 import 'package:uuid/uuid.dart';
 
 class MenuReportes extends StatefulWidget {
-  const MenuReportes({super.key});
+  final bool soloMisReportes;
+
+  const MenuReportes({super.key, this.soloMisReportes = false});
 
   @override
   State<MenuReportes> createState() => _MenuReportesState();
@@ -19,7 +20,13 @@ class MenuReportes extends StatefulWidget {
 
 class _MenuReportesState extends State<MenuReportes> {
   String input = "";
-  bool soloMisReportes = false;
+  late bool soloMisReportes;
+
+  @override
+  void initState() {
+    super.initState();
+    soloMisReportes = widget.soloMisReportes;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,41 +35,14 @@ class _MenuReportesState extends State<MenuReportes> {
         children: [
           Padding(
             padding: const EdgeInsets.only(bottom: 28.0, left: 50, right: 50),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    onChanged: (text) => setState(() {
-                      input = text;
-                    }),
-                    decoration: const InputDecoration(
-                      hintText: 'Que estas buscando?',
-                      prefixIcon: Icon(Icons.search),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                SegmentedButton<bool>(
-                  segments: const [
-                    ButtonSegment(
-                      value: false,
-                      label: Text('Todos'),
-                      icon: Icon(Icons.list),
-                    ),
-                    ButtonSegment(
-                      value: true,
-                      label: Text('Mis reportes'),
-                      icon: Icon(Icons.person),
-                    ),
-                  ],
-                  selected: {soloMisReportes},
-                  onSelectionChanged: (Set<bool> newSelection) {
-                    setState(() {
-                      soloMisReportes = newSelection.first;
-                    });
-                  },
-                ),
-              ],
+            child: TextField(
+              onChanged: (text) => setState(() {
+                input = text;
+              }),
+              decoration: const InputDecoration(
+                hintText: 'Que estas buscando?',
+                prefixIcon: Icon(Icons.search),
+              ),
             ),
           ),
           Expanded(
@@ -149,31 +129,6 @@ class _MenuReportesState extends State<MenuReportes> {
           ),
         ],
       ),
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [BotonPendientes()],
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-    );
-  }
-}
-
-class BotonPendientes extends StatelessWidget {
-  const BotonPendientes({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return FloatingActionButton.extended(
-      heroTag: 'pendientes',
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => MenuPendientes()),
-        );
-      },
-      tooltip: SessionHandler.isAdmin ? 'Aceptar reportes (solo admin)' : null,
-      icon: const Icon(Icons.timer),
-      label: const Text('Pendientes'),
     );
   }
 }
