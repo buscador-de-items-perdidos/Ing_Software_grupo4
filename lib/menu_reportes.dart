@@ -3,7 +3,6 @@ import 'package:ing_software_grupo4/modelos/reporte.dart';
 import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
 import 'package:ing_software_grupo4/tarjeta_reporte.dart';
 import 'package:ing_software_grupo4/handlers/report_handler.dart';
-import 'package:ing_software_grupo4/menu_pendientes.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/modelos/modo.dart';
 import 'package:ing_software_grupo4/report_display.dart';
@@ -11,7 +10,9 @@ import 'package:ing_software_grupo4/report_display.dart';
 import 'package:uuid/uuid.dart';
 
 class MenuReportes extends StatefulWidget {
-  const MenuReportes({super.key});
+  final bool soloMisReportes;
+
+  const MenuReportes({super.key, this.soloMisReportes = false});
 
   @override
   State<MenuReportes> createState() => _MenuReportesState();
@@ -19,6 +20,14 @@ class MenuReportes extends StatefulWidget {
 
 class _MenuReportesState extends State<MenuReportes> {
   String input = "";
+  late bool soloMisReportes;
+
+  @override
+  void initState() {
+    super.initState();
+    soloMisReportes = widget.soloMisReportes;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,20 +35,14 @@ class _MenuReportesState extends State<MenuReportes> {
         children: [
           Padding(
             padding: const EdgeInsets.only(bottom: 28.0, left: 50, right: 50),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    onChanged: (text) => setState(() {
-                      input = text;
-                    }),
-                    decoration: const InputDecoration(
-                      hintText: 'Que estas buscando?',
-                      prefixIcon: Icon(Icons.search),
-                    ),
-                  ),
-                ),
-              ],
+            child: TextField(
+              onChanged: (text) => setState(() {
+                input = text;
+              }),
+              decoration: const InputDecoration(
+                hintText: 'Que estas buscando?',
+                prefixIcon: Icon(Icons.search),
+              ),
             ),
           ),
           Expanded(
@@ -47,47 +50,147 @@ class _MenuReportesState extends State<MenuReportes> {
             child: ValueListenableBuilder(
               valueListenable: ReportHandler.reportNotifier,
               builder: (context, value, child) {
-                List<String> reportes = ReportHandler.getReportes;
-                List<String> filtrados = reportes
-                    .where(
-                      (x) =>
-                          ReportHandler.getReporte(x)?.titulo
-                              .toLowerCase()
-                              .contains(input.toLowerCase()) ??
-                          false,
-                    )
-                    .toList();
+                List<String> reportes;
+
+                if (soloMisReportes) {
+                  // Obtener UUIDs del usuario desde SessionHandler
+                  Set<String> misReportesUUIDs = {
+                    ...SessionHandler.getPendientes,
+                    ...SessionHandler.getAceptados,
+                  };
+                  reportes = misReportesUUIDs.toList();
+                } else {
+                  reportes = ReportHandler.getReportes;
+                }
+
+                List<String> filtrados = reportes.where((uuid) {
+                  // Buscar el reporte usando buscarReporte que busca en los 3 maps
+                  Reporte? reporte = ReportHandler.buscarReporte(uuid);
+
+                  if (reporte == null) return false;
+
+                  // Filtrar por búsqueda
+                  return reporte.titulo.toLowerCase().contains(
+                    input.toLowerCase(),
+                  );
+                }).toList();
                 // Mostrar los reportes en una lista vertical con scroll.
-                // Cada tarjeta está centrada horizontalmente 
+                // Cada tarjeta está centrada horizontalmente
                 return ListView.separated(
-                  padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12.0,
+                    horizontal: 8.0,
+                  ),
                   itemCount: filtrados.length,
                   separatorBuilder: (context, index) => Padding(
                     padding: const EdgeInsets.only(top: 16),
                     child: Container(),
                   ),
                   itemBuilder: (context, i) {
-                    Reporte? reporte = ReportHandler.getReporte(filtrados[i]);
+                    // Buscar el reporte usando buscarReporte
+                    Reporte? reporte = ReportHandler.buscarReporte(
+                      filtrados[i],
+                    );
+
                     if (reporte == null) return const SizedBox.shrink();
                     if (!reporte.titulo.toLowerCase().contains(
                       input.toLowerCase(),
-                    )) return const SizedBox.shrink();
+                    ))
+                      return const SizedBox.shrink();
 
-                    final double width = MediaQuery.of(context).size.width * 0.4;
+                    final double width =
+                        MediaQuery.of(context).size.width * 0.4;
                     const double height = 670;
+
+                    // Determinar si es pendiente o no
+                    bool esPendiente = SessionHandler.getPendientes.contains(
+                      filtrados[i],
+                    );
 
                     return Center(
                       child: Padding(
                         padding: EdgeInsets.zero,
-                        child: Container(
-                          width: width,
-                          height: height,
-                          child: TarjetaReporte(
-                            key: ValueKey(filtrados[i]),
-                            nombre: filtrados[i],
-                            modo: Modo.Ver,
-                            pendiente: false,
-                          ),
+                        child: Stack(
+                          children: [
+                            Container(
+                              width: width,
+                              height: height,
+                              child: TarjetaReporte(
+                                key: ValueKey(filtrados[i]),
+                                nombre: filtrados[i],
+                                modo: Modo.Ver,
+                                pendiente: esPendiente,
+                              ),
+                            ),
+                            if (soloMisReportes && esPendiente)
+                              Positioned(
+                                top: 8,
+                                left: 8,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.schedule,
+                                        size: 16,
+                                        color: Colors.white,
+                                      ),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        'Pendiente',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            if (soloMisReportes && !esPendiente)
+                              Positioned(
+                                top: 8,
+                                left: 8,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.check_circle,
+                                        size: 16,
+                                        color: Colors.white,
+                                      ),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        'Publicado',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       ),
                     );
@@ -98,33 +201,6 @@ class _MenuReportesState extends State<MenuReportes> {
           ),
         ],
       ),
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          BotonPendientes(),
-        ],
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-    );
-  }
-}
-
-class BotonPendientes extends StatelessWidget {
-  const BotonPendientes({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return FloatingActionButton.extended(
-      heroTag: 'pendientes',
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => MenuPendientes()),
-        );
-      },
-      tooltip: SessionHandler.isAdmin ? 'Aceptar reportes (solo admin)' : null,
-      icon: const Icon(Icons.timer),
-      label: const Text('Pendientes'),
     );
   }
 }
