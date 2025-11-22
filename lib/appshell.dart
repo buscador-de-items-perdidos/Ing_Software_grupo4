@@ -5,6 +5,9 @@ import 'package:ing_software_grupo4/menu_lateral.dart';
 import 'package:ing_software_grupo4/menu_pendientes.dart';
 import 'package:ing_software_grupo4/menu_reportes.dart';
 
+// Global navigator key so other widgets can access a root context
+final GlobalKey<NavigatorState> navKey = GlobalKey<NavigatorState>();
+
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
   @override
@@ -15,7 +18,6 @@ class AppShell extends StatefulWidget {
 
 class _AppShellState extends State<AppShell> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
-  final GlobalKey<NavigatorState> _navKey = GlobalKey();
   int? selection;
 
   @override
