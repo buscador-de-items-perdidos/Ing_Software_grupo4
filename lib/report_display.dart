@@ -192,111 +192,102 @@ class _ReportDisplayState extends State<ReportDisplay> {
         key: _formKey,
         child: Padding(
           padding: const EdgeInsets.all(24.0),
-          child: Row(
-            children: [
-              Expanded(
-                flex: 1,
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 4.0),
-                  child: Column(
-                    children: [
-                      Expanded(
-                        flex: 3,
-                        child: SizedBox.expand(
-                          child: Stack(
-                            children: [
-                              _GaleriaImagenes(
-                                imagenesBytes: _imagenesBytes,
-                                controller: _pageController,
-                                editable: widget.modo == Modo.Editar,
-                                onDelete: (i) {
-                                  setState(() {
-                                    _imagenesBytes.removeAt(i);
-                                  });
-                                },
-                              ),
-                              if (widget.modo == Modo.Editar)
-                                Positioned(
-                                  top: 8,
-                                  right: 8,
-                                  child: Tooltip(
-                                    message: 'Agregar imagen',
-                                    child: IconButton.filled(
-                                      onPressed: _pickOneImage,
-                                      icon: const Icon(
-                                        Icons.add_a_photo_outlined,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 16),
-                          child: _CampoTitulo(
-                            controller: _titleController,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(
+                  child: FractionallySizedBox(
+                    widthFactor: 0.6,
+                    child: SizedBox(
+                      height: 480,
+                      child: Stack(
+                        children: [
+                          _GaleriaImagenes(
+                            imagenesBytes: _imagenesBytes,
+                            controller: _pageController,
                             editable: widget.modo == Modo.Editar,
+                            onDelete: (i) {
+                              setState(() {
+                                _imagenesBytes.removeAt(i);
+                              });
+                            },
                           ),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 4,
-                        child: _DescripcionReporte(
-                          controller: _descriptionController,
-                          tipo: widget.reporte.tipo,
-                          editable: widget.modo == Modo.Editar,
-                        ),
-                      ),
-                      
-                    ],
-                  ),
-                ),
-              ),
-              Expanded(
-                flex: 1,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 4.0),
-                  child: Column(
-                    children: [
-                      Expanded(
-                        flex: 3,
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 2,
-                              child: DetallesReporte(
-                                reporte: widget.reporte,
-                                selectedTags: _selectedTags,
-                                editable: widget.modo == Modo.Editar,
-                                onEditTags: _openTagEditor,
-                                onEditColors: _openColorEditor,
+                          if (widget.modo == Modo.Editar)
+                            Positioned(
+                              top: 8,
+                              right: 8,
+                              child: Tooltip(
+                                message: 'Agregar imagen',
+                                child: IconButton.filled(
+                                  onPressed: _pickOneImage,
+                                  icon: const Icon(Icons.add_a_photo_outlined),
+                                ),
                               ),
                             ),
-                            Expanded(
-                              flex: 3,
-                              child: _DatosContacto(usuario: widget.usuario),
-                            ),
-                          ],
-                        ),
+                        ],
                       ),
-                      Expanded(flex: 4, child: mapaUdec()),
-                      Expanded(
-                        flex: 1,
-                        child: switch (widget.modo) {
-                          Modo.Editar => _crearBotonesGuardado(context),
-                          Modo.Ver => _crearBotonEditar(context),
-                          Modo.Revisar => _crearBotonesPublicacion(context),
-                        },
-                      ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 20),
+                Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 800),
+                    child: _CampoTitulo(
+                      controller: _titleController,
+                      editable: widget.modo == Modo.Editar,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 800),
+                    child: _DescripcionReporte(
+                      controller: _descriptionController,
+                      tipo: widget.reporte.tipo,
+                      editable: widget.modo == Modo.Editar,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1000),
+                  child: DetallesReporte(
+                    reporte: widget.reporte,
+                    selectedTags: _selectedTags,
+                    editable: widget.modo == Modo.Editar,
+                    onEditTags: _openTagEditor,
+                    onEditColors: _openColorEditor,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1000),
+                  child: _DatosContacto(usuario: widget.usuario),
+                ),
+                const SizedBox(height: 16),
+                Center(
+                  child: FractionallySizedBox(
+                    widthFactor: 0.6,
+                    child: SizedBox(height: 360, child: mapaUdec()),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 800),
+                    child: switch (widget.modo) {
+                      Modo.Editar => _crearBotonesGuardado(context),
+                      Modo.Ver => _crearBotonEditar(context),
+                      Modo.Revisar => _crearBotonesPublicacion(context),
+                    },
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
+            ),
           ),
         ),
       ),
@@ -920,91 +911,84 @@ class DetallesReporte extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
+        const SizedBox(height: 6),
+        Text(
+          "Detalles del reporte",
+          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 6),
+        Text(
+          "Autor: ${SessionHandler.nombreUsuario}",
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 4),
+        Text(
+          "Tipo: Objeto ${reporte.tipo.name}",
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
+          textAlign: TextAlign.center,
+        ),
+        Text(
+          "Fecha: ${reporte.fecha.day.toString().padLeft(2,'0')}/${reporte.fecha.month.toString().padLeft(2,'0')}/${reporte.fecha.year}",
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 8),
+        Builder(builder: (context) {
+          final cats = selectedTags.map((t) => t.nombre).join(', ');
+          final colorSet = selectedTags.map((t) => t.colorName).where((c) => c != 'blanco').toSet();
+          final colorsPretty = colorSet.map((c) => prettifyColorName(c)).join(', ');
+          return Column(
             children: [
-              Text(
-                "Detalles del reporte",
-                style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 6),
-              Text(
-                "Autor: ${SessionHandler.nombreUsuario}",
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                "Tipo: Objeto ${reporte.tipo.name}",
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
-                textAlign: TextAlign.center,
-              ),
-              Text(
-                "Fecha: ${reporte.fecha.day.toString().padLeft(2,'0')}/${reporte.fecha.month.toString().padLeft(2,'0')}/${reporte.fecha.year}",
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Builder(builder: (context) {
-                final cats = selectedTags.map((t) => t.nombre).join(', ');
-                final colorSet = selectedTags.map((t) => t.colorName).where((c) => c != 'blanco').toSet();
-                final colorsPretty = colorSet.map((c) => prettifyColorName(c)).join(', ');
-                return Column(
-                  children: [
-                    if (cats.isNotEmpty)
-                      Align(
-                        alignment: Alignment.center,
-                        child: Text(
-                          'Categoría: $cats',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
-                        ),
-                      ),
-                    if (colorsPretty.isNotEmpty) const SizedBox(height: 6),
-                    if (colorsPretty.isNotEmpty)
-                      Align(
-                        alignment: Alignment.center,
-                        child: Text(
-                          'Color: $colorsPretty',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
-                        ),
-                      ),
-                  ],
-                );
-              }),
-              const SizedBox(height: 2),
-              // chips with colored backgrounds removed per request; keeping textual summary above
-              if (editable)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12.0),
-                  child: Wrap(
-                    alignment: WrapAlignment.end,
-                    spacing: 8,
-                    runSpacing: 6,
-                    children: [
-                      TextButton.icon(
-                        style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6)),
-                        onPressed: onEditTags,
-                        icon: const Icon(Icons.label_outline, size: 18),
-                        label: const Text('Seleccionar Categoria'),
-                      ),
-                      TextButton.icon(
-                        style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6)),
-                        onPressed: onEditColors,
-                        icon: const Icon(Icons.color_lens_outlined, size: 18),
-                        label: const Text('Seleccionar Color'),
-                      ),
-                    ],
+              if (cats.isNotEmpty)
+                Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Categoría: $cats',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                  ),
+                ),
+              if (colorsPretty.isNotEmpty) const SizedBox(height: 6),
+              if (colorsPretty.isNotEmpty)
+                Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Color: $colorsPretty',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
                   ),
                 ),
             ],
+          );
+        }),
+        const SizedBox(height: 2),
+        if (editable)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12.0),
+            child: Wrap(
+              alignment: WrapAlignment.end,
+              spacing: 8,
+              runSpacing: 6,
+              children: [
+                TextButton.icon(
+                  style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6)),
+                  onPressed: onEditTags,
+                  icon: const Icon(Icons.label_outline, size: 18),
+                  label: const Text('Seleccionar Categoria'),
+                ),
+                TextButton.icon(
+                  style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6)),
+                  onPressed: onEditColors,
+                  icon: const Icon(Icons.color_lens_outlined, size: 18),
+                  label: const Text('Seleccionar Color'),
+                ),
+              ],
+            ),
           ),
-        ),
       ],
     );
   }

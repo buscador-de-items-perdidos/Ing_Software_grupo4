@@ -10,8 +10,8 @@ class _DescripcionReporte extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      minLines: null,
-      maxLines: 100,
+      minLines: 3,
+      maxLines: 15,
       readOnly: !editable,
       controller: controller,
       decoration: InputDecoration(
