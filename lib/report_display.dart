@@ -526,36 +526,49 @@ class _ReportDisplayState extends State<ReportDisplay> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Seleccione el color(es)'),
+          title: const Text('Seleccionar color'),
           content: SingleChildScrollView(
             child: StatefulBuilder(
               builder: (context, setState) {
                 return Column(
                   mainAxisSize: MainAxisSize.min,
                   children: _selectedTags.map((t) {
-                    return ListTile(
-                      title: Text(t.nombre),
-                      leading: Container(
-                        width: 28,
-                        height: 28,
-                        decoration: BoxDecoration(
-                          color: hexToColor(colorNameToHex[colors[t.nombre]!] ?? colorNameToHex['blanco']!),
-                          border: Border.all(color: Colors.black26),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                      trailing: _isColorable(t.nombre)
-                          ? TextButton(
-                              onPressed: () async {
-                                final chosen = await _pickColor(context, t.nombre);
-                                if (chosen != null) setState(() => colors[t.nombre] = chosen);
-                              },
-                              child: const Text('Cambiar color'),
-                            )
-                          : TextButton(
-                              onPressed: null,
-                              child: const Text('No aplicable'),
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 6.0),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 28,
+                            height: 28,
+                            decoration: BoxDecoration(
+                              color: hexToColor(colorNameToHex[colors[t.nombre]!] ?? colorNameToHex['blanco']!),
+                              border: Border.all(color: Colors.black26),
+                              borderRadius: BorderRadius.circular(4),
                             ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              t.nombre,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          _isColorable(t.nombre)
+                              ? TextButton(
+                                  onPressed: () async {
+                                    final chosen = await _pickColor(context, t.nombre);
+                                    if (chosen != null) setState(() => colors[t.nombre] = chosen);
+                                  },
+                                  child: const Text('Cambiar color'),
+                                )
+                              : TextButton(
+                                  onPressed: null,
+                                  child: const Text('No aplicable'),
+                                ),
+                        ],
+                      ),
                     );
                   }).toList(),
                 );
@@ -936,7 +949,6 @@ class DetallesReporte extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
-              // show categories and colors summary when viewing (not editing)
               Builder(builder: (context) {
                 final cats = selectedTags.map((t) => t.nombre).join(', ');
                 final colorSet = selectedTags.map((t) => t.colorName).where((c) => c != 'blanco').toSet();
@@ -965,7 +977,7 @@ class DetallesReporte extends StatelessWidget {
                   ],
                 );
               }),
-              const SizedBox(height: 8),
+              const SizedBox(height: 2),
               // chips with colored backgrounds removed per request; keeping textual summary above
               if (editable)
                 Padding(
