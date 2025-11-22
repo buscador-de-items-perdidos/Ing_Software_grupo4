@@ -110,15 +110,87 @@ class _MenuReportesState extends State<MenuReportes> {
                     return Center(
                       child: Padding(
                         padding: EdgeInsets.zero,
-                        child: Container(
-                          width: width,
-                          height: height,
-                          child: TarjetaReporte(
-                            key: ValueKey(filtrados[i]),
-                            nombre: filtrados[i],
-                            modo: Modo.Ver,
-                            pendiente: esPendiente,
-                          ),
+                        child: Stack(
+                          children: [
+                            Container(
+                              width: width,
+                              height: height,
+                              child: TarjetaReporte(
+                                key: ValueKey(filtrados[i]),
+                                nombre: filtrados[i],
+                                modo: Modo.Ver,
+                                pendiente: esPendiente,
+                              ),
+                            ),
+                            if (soloMisReportes && esPendiente)
+                              Positioned(
+                                top: 8,
+                                left: 8,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.schedule,
+                                        size: 16,
+                                        color: Colors.white,
+                                      ),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        'Pendiente',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            if (soloMisReportes && !esPendiente)
+                              Positioned(
+                                top: 8,
+                                left: 8,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.check_circle,
+                                        size: 16,
+                                        color: Colors.white,
+                                      ),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        'Publicado',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       ),
                     );
