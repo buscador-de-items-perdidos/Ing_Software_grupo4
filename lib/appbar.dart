@@ -49,28 +49,33 @@ class BotonPublicar extends StatelessWidget {
         ),
       ),
       onPressed: () => showDialog(
-        barrierColor: Colors.transparent,
-        context: context,
+        barrierColor: Colors.black26,
+        context: navKey.currentContext!,
         builder: (context) => Dialog(
-          constraints: BoxConstraints.loose(Size.square(250)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          insetPadding: const EdgeInsets.only(top: 56, right: 12, left: 12),
           alignment: Alignment.topRight,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "Selecciona el tipo de reporte",
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
-              ),
-              Divider(),
-              Expanded(
-                child: Column(
-                  children: [
-                    Expanded(child: _BotonMenu(tipo: TipoReporte.perdido)),
-                    Expanded(child: _BotonMenu(tipo: TipoReporte.encontrado)),
-                  ],
+          child: Container(
+            width: 320,
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+                  child: Text(
+                    "Selecciona el tipo de reporte",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+                  ),
                 ),
-              ),
-            ],
+                const Divider(),
+                _BotonMenu(navKey: navKey, tipo: TipoReporte.perdido),
+                const SizedBox(height: 8),
+                _BotonMenu(navKey: navKey, tipo: TipoReporte.encontrado),
+                const SizedBox(height: 8),
+              ],
+            ),
           ),
         ),
       ),
@@ -100,17 +105,25 @@ class _BotonMenu extends StatelessWidget {
 
     switch (tipo) {
       case TipoReporte.perdido:
-        titulo = "Perdido";
-        descripcion = "Publica un objeto que has perdido.";
+        titulo = 'Perdido';
+        descripcion = 'Publica un objeto que has perdido.';
+        icon = Icons.report_problem_outlined;
+        break;
       case TipoReporte.encontrado:
-        titulo = "Encontrado";
-        descripcion = "Publica un objeto que has encontrado.";
-      case TipoReporte.administracion:
-        titulo = "Anuncio";
-        descripcion = "Publica anuncios de administración.";
+        titulo = 'Encontrado';
+        descripcion = 'Publica un objeto que has encontrado.';
+        icon = Icons.location_searching_outlined;
+        break;
+      default:
+        titulo = 'Reporte';
+        descripcion = 'Publica un reporte.';
+        icon = Icons.info_outline;
+        break;
     }
-    return SizedBox(
-      width: double.infinity,
+
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: InkWell(
         child: Column(
           children: [
@@ -132,12 +145,34 @@ class _BotonMenu extends StatelessWidget {
             MaterialPageRoute(
               builder: (_) {
                 final uuid = Uuid().v7();
-
                 return ReportDisplay.vacio(uuid, modo: Modo.Editar, tipo: tipo);
               },
             ),
           );
         },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 12.0),
+          child: Row(
+            children: [
+              CircleAvatar(
+                backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+                child: Icon(icon, color: Theme.of(context).primaryColor),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(titulo, style: const TextStyle(fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 4),
+                    Text(descripcion, style: const TextStyle(fontSize: 12, color: Colors.black54)),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right_outlined, color: Colors.black26),
+            ],
+          ),
+        ),
       ),
     );
   }

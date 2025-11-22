@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:ing_software_grupo4/handlers/report_handler.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/modelos/reporte.dart';
+import 'package:ing_software_grupo4/modelos/tag.dart';
 import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
 import 'package:ing_software_grupo4/modelos/modo.dart';
 import 'package:ing_software_grupo4/modelos/usuario.dart';
@@ -12,6 +13,71 @@ import 'package:latlong2/latlong.dart';
 
 part 'campo_titulo.dart';
 part 'descripcion_reporte.dart';
+
+Color hexToColor(String hex) {
+  final cleaned = hex.replaceAll('#', '');
+  final value = int.parse(cleaned.length == 6 ? 'FF$cleaned' : cleaned, radix: 16);
+  return Color(value);
+}
+
+const Map<String, String> colorNameToHex = {
+  'blanco': '#FFFFFF',
+  'negro': '#000000',
+  'rojo': '#FF0000',
+  'verde': '#00FF00',
+  'azul': '#0000FF',
+  'amarillo': '#FFFF00',
+  'naranja': '#FFA500',
+  'morado': '#800080',
+  'rosa': '#FFC0CB',
+  'celeste': '#87CEEB',
+  'café': '#8B4513',
+  'gris': '#808080',
+  'turquesa': '#40E0D0',
+  'lima': '#00FF7F',
+  'cian': '#00FFFF',
+  'fucsia': '#FF00FF',
+  'beige': '#F5F5DC',
+  'chocolate': '#D2691E',
+  'dorado': '#FFD700',
+  'plateado': '#C0C0C0',
+  'azul_marino': '#000080',
+  'burdeos': '#800020',
+  'Otro': '#FFFFFF',
+};
+
+String prettifyColorName(String key) {
+  return key
+      .split('_')
+      .map((s) => s.isEmpty ? s : (s[0].toUpperCase() + s.substring(1)))
+      .join(' ');
+}
+
+String _normalizeTagName(String s) {
+  var t = s.toLowerCase();
+  t = t.replaceAll(RegExp(r'[áàäâ]'), 'a');
+  t = t.replaceAll(RegExp(r'[éèëê]'), 'e');
+  t = t.replaceAll(RegExp(r'[íìïî]'), 'i');
+  t = t.replaceAll(RegExp(r'[óòöô]'), 'o');
+  t = t.replaceAll(RegExp(r'[úùüû]'), 'u');
+  t = t.replaceAll(RegExp(r'[ñ]'), 'n');
+  t = t.replaceAll(RegExp(r'[ç]'), 'c');
+  t = t.replaceAll(RegExp(r'[^a-z0-9]'), '');
+  return t;
+}
+
+bool _isColorable(String tagName) {
+  const blocked = {
+    'documentos',
+    'cedula',
+    'pasaporte',
+    'licenciadeconducir',
+    'credencial',
+    'credencialuniversitarialaboral',
+    'tarjetabancaria',
+  };
+  return !blocked.contains(_normalizeTagName(tagName));
+}
 
 class ReportDisplay extends StatefulWidget {
   final Reporte reporte;
@@ -68,6 +134,40 @@ class _ReportDisplayState extends State<ReportDisplay> {
   late List<Uint8List> _imagenesBytes = List<Uint8List>.from(
     widget.reporte.imagenesBytes,
   );
+  late List<Tag> _selectedTags = List<Tag>.from(widget.reporte.etiquetas);
+
+  final List<String> _availableTags = [
+    'Celular',
+    'Notebook / Laptop',
+    'Tablet',
+    'Audífonos',
+    'Cargador / Cable',
+    'Reloj inteligente',
+    'Lentes',
+    'Llaves',
+    'Billetera',
+    'Cartera',
+    'Paraguas',
+    'Mochila',
+    'Estuche',
+    'Documentos',
+    'Cédula',
+    'Pasaporte',
+    'Tarjeta bancaria',
+    'Licencia de conducir',
+    'Credencial universitaria / laboral',
+    'Polerón / Chaqueta',
+    'Gorro',
+    'Polera',
+    'Pantalones',
+    'Zapatos / Zapatillas',
+    'Guantes',
+    'Botella',
+    'Termo',
+    'Llaveros',
+    'Cuadernos / Libretas',
+    'Otro',
+  ];
   final PageController _pageController = PageController();
   Future<void> _pickOneImage() async {
     final res = await FilePicker.platform.pickFiles(
@@ -84,7 +184,8 @@ class _ReportDisplayState extends State<ReportDisplay> {
     });
   }
 
-  // Eliminado menú y selección múltiple para dejar sólo selección individual
+  
+
 
   @override
   Widget build(BuildContext context) {
@@ -94,66 +195,42 @@ class _ReportDisplayState extends State<ReportDisplay> {
         key: _formKey,
         child: Padding(
           padding: const EdgeInsets.all(24.0),
-          child: Row(
-            children: [
-              Expanded(
-                flex: 1,
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 4.0),
-                  child: Column(
-                    children: [
-                      Expanded(
-                        flex: 3,
-                        child: SizedBox.expand(
-                          child: Stack(
-                            children: [
-                              _GaleriaImagenes(
-                                imagenesBytes: _imagenesBytes,
-                                controller: _pageController,
-                                editable: widget.modo == Modo.Editar,
-                                onDelete: (i) {
-                                  setState(() {
-                                    _imagenesBytes.removeAt(i);
-                                  });
-                                },
-                              ),
-                              if (widget.modo == Modo.Editar)
-                                Positioned(
-                                  top: 8,
-                                  right: 8,
-                                  child: Tooltip(
-                                    message: 'Agregar imagen',
-                                    child: IconButton.filled(
-                                      onPressed: _pickOneImage,
-                                      icon: const Icon(
-                                        Icons.add_a_photo_outlined,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 16),
-                          child: _CampoTitulo(
-                            controller: _titleController,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(
+                  child: FractionallySizedBox(
+                    widthFactor: 0.6,
+                    child: SizedBox(
+                      height: 480,
+                      child: Stack(
+                        children: [
+                          _GaleriaImagenes(
+                            imagenesBytes: _imagenesBytes,
+                            controller: _pageController,
                             editable: widget.modo == Modo.Editar,
+                            onDelete: (i) {
+                              setState(() {
+                                _imagenesBytes.removeAt(i);
+                              });
+                            },
                           ),
-                        ),
+                          if (widget.modo == Modo.Editar)
+                            Positioned(
+                              top: 8,
+                              right: 8,
+                              child: Tooltip(
+                                message: 'Agregar imagen',
+                                child: IconButton.filled(
+                                  onPressed: _pickOneImage,
+                                  icon: const Icon(Icons.add_a_photo_outlined),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
-                      Expanded(
-                        flex: 4,
-                        child: _DescripcionReporte(
-                          controller: _descriptionController,
-                          tipo: widget.reporte.tipo,
-                          editable: widget.modo == Modo.Editar,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -206,8 +283,54 @@ class _ReportDisplayState extends State<ReportDisplay> {
                     ],
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 8),
+                Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 800),
+                    child: _DescripcionReporte(
+                      controller: _descriptionController,
+                      tipo: widget.reporte.tipo,
+                      editable: widget.modo == Modo.Editar,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1000),
+                  child: DetallesReporte(
+                    reporte: widget.reporte,
+                    selectedTags: _selectedTags,
+                    editable: widget.modo == Modo.Editar,
+                    onEditTags: _openTagEditor,
+                    onEditColors: _openColorEditor,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1000),
+                  child: _DatosContacto(usuario: widget.usuario),
+                ),
+                const SizedBox(height: 16),
+                Center(
+                  child: FractionallySizedBox(
+                    widthFactor: 0.6,
+                    child: SizedBox(height: 360, child: mapaUdec()),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 800),
+                    child: switch (widget.modo) {
+                      Modo.Editar => _crearBotonesGuardado(context),
+                      Modo.Ver => _crearBotonEditar(context),
+                      Modo.Revisar => _crearBotonesPublicacion(context),
+                    },
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
+            ),
           ),
         ),
       ),
@@ -276,20 +399,11 @@ class _ReportDisplayState extends State<ReportDisplay> {
 
   Widget _crearBotonesGuardado(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         Expanded(
-          flex: 3,
           child: ElevatedButton(
             onPressed: () => _publicarYSalir(context),
             child: const Text("Publicar y Salir"),
-          ),
-        ),
-        Expanded(
-          flex: 1,
-          child: ElevatedButton(
-            onPressed: () => _publicar(context),
-            child: Text("Publicar"),
           ),
         ),
       ],
@@ -299,7 +413,8 @@ class _ReportDisplayState extends State<ReportDisplay> {
   bool _publicar(BuildContext context) {
     if (!_formKey.currentState!.validate() ||
         _finalLoc == null ||
-        _imagenesBytes.isEmpty) {
+        _imagenesBytes.isEmpty ||
+        _selectedTags.isEmpty) {
       if (_finalLoc == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -312,6 +427,12 @@ class _ReportDisplayState extends State<ReportDisplay> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Debes seleccionar al menos una imagen"),
+          ),
+        );
+      } else if (_selectedTags.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Debes seleccionar al menos una etiqueta"),
           ),
         );
       }
@@ -341,21 +462,173 @@ class _ReportDisplayState extends State<ReportDisplay> {
       widget.reporte.tipo,
       _finalLoc!,
       imagenesBytes: _imagenesBytes,
+      etiquetas: _selectedTags,
     );
   }
 
-  void _actualizarEstadoEncontrado(bool encontrado) {
-    ReportHandler.estadoObjeto(widget.uuid, encontrado);
+  Future<void> _openTagEditor() async {
+    String? selected = _selectedTags.isNotEmpty ? _selectedTags.first.nombre : null;
+    final Map<String, String> currentColors = {for (var t in _selectedTags) t.nombre: t.colorName};
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          encontrado
-              ? 'Reporte marcado como encontrado'
-              : 'Reporte marcado como pendiente',
-        ),
-      ),
+    final result = await showDialog<List<Tag>>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Seleccione la categoría'),
+          content: SingleChildScrollView(
+            child: StatefulBuilder(
+              builder: (context, setState) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: _availableTags.map((t) {
+                    return RadioListTile<String>(
+                      title: Text(t),
+                      value: t,
+                      groupValue: selected,
+                      onChanged: (v) => setState(() {
+                        selected = v;
+                      }),
+                    );
+                  }).toList(),
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                final List<Tag> out = selected != null ? [Tag(selected!, currentColors[selected] ?? 'blanco')] : <Tag>[];
+                Navigator.pop(context, out);
+              },
+              child: const Text('Guardar'),
+            ),
+          ],
+        );
+      },
     );
+    if (result != null) {
+      setState(() {
+        _selectedTags = result;
+      });
+    }
+  }
+
+  Future<void> _openColorEditor() async {
+    if (_selectedTags.isEmpty) {
+      await showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('No hay etiquetas'),
+          content: const Text('Selecciona primero las categorías y luego asigna colores.'),
+          actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))],
+        ),
+      );
+      return;
+    }
+
+    final Map<String, String> colors = {for (var t in _selectedTags) t.nombre: t.colorName};
+    final List<String> presetColorNames = colorNameToHex.keys.toList();
+
+    Future<String?> _pickColor(BuildContext ctx, String tag) async {
+      final res = await showDialog<String>(
+        context: ctx,
+        builder: (ctx) {
+          return AlertDialog(
+            title: Text('Elegir color para "$tag"'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                  children: presetColorNames.map((name) {
+                  return ListTile(
+                    title: Text(prettifyColorName(name)),
+                    onTap: () => Navigator.pop(ctx, name),
+                  );
+                }).toList(),
+              ),
+            ),
+            actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancelar'))],
+          );
+        },
+      );
+      return res;
+    }
+
+    final result = await showDialog<List<Tag>>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Seleccionar color'),
+          content: SingleChildScrollView(
+            child: StatefulBuilder(
+              builder: (context, setState) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: _selectedTags.map((t) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 6.0),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 28,
+                            height: 28,
+                            decoration: BoxDecoration(
+                              color: hexToColor(colorNameToHex[colors[t.nombre]!] ?? colorNameToHex['blanco']!),
+                              border: Border.all(color: Colors.black26),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              t.nombre,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          _isColorable(t.nombre)
+                              ? TextButton(
+                                  onPressed: () async {
+                                    final chosen = await _pickColor(context, t.nombre);
+                                    if (chosen != null) setState(() => colors[t.nombre] = chosen);
+                                  },
+                                  child: const Text('Cambiar color'),
+                                )
+                              : TextButton(
+                                  onPressed: null,
+                                  child: const Text('No aplicable'),
+                                ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
+            TextButton(
+              onPressed: () {
+                final out = _selectedTags.map((t) => Tag(t.nombre, colors[t.nombre] ?? t.colorName)).toList();
+                Navigator.pop(context, out);
+              },
+              child: const Text('Guardar'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result != null) {
+      setState(() {
+        _selectedTags = result;
+      });
+    }
   }
 
   Widget _crearBotonEditar(BuildContext context) {
@@ -664,41 +937,102 @@ class _DatosContacto extends StatelessWidget {
 }
 
 class DetallesReporte extends StatelessWidget {
-  const DetallesReporte({super.key, required this.reporte});
+  const DetallesReporte({
+    super.key,
+    required this.reporte,
+    this.selectedTags = const [],
+    this.editable = false,
+    this.onEditTags,
+    this.onEditColors,
+  });
 
   final Reporte reporte;
+  final List<Tag> selectedTags;
+  final bool editable;
+  final VoidCallback? onEditTags;
+  final VoidCallback? onEditColors;
 
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Detalles del reporte",
-                style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
-                textAlign: TextAlign.center,
-              ),
-              Text(
-                "Autor: ${SessionHandler.nombreUsuario}",
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
-                textAlign: TextAlign.left,
-              ),
-              Text(
-                "Tipo: Objeto ${reporte.tipo.name}",
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
-                textAlign: TextAlign.left,
-              ),
-              Text(
-                "Fecha: 04/11/2025", //TODO: Incluir fecha en reporte
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
-              ),
-              SizedBox.shrink(),
-            ],
-          ),
+        const SizedBox(height: 6),
+        Text(
+          "Detalles del reporte",
+          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
+          textAlign: TextAlign.center,
         ),
+        const SizedBox(height: 6),
+        Text(
+          "Autor: ${SessionHandler.nombreUsuario}",
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 4),
+        Text(
+          "Tipo: Objeto ${reporte.tipo.name}",
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
+          textAlign: TextAlign.center,
+        ),
+        Text(
+          "Fecha: ${reporte.fecha.day.toString().padLeft(2,'0')}/${reporte.fecha.month.toString().padLeft(2,'0')}/${reporte.fecha.year}",
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 8),
+        Builder(builder: (context) {
+          final cats = selectedTags.map((t) => t.nombre).join(', ');
+          final colorSet = selectedTags.map((t) => t.colorName).where((c) => c != 'blanco').toSet();
+          final colorsPretty = colorSet.map((c) => prettifyColorName(c)).join(', ');
+          return Column(
+            children: [
+              if (cats.isNotEmpty)
+                Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Categoría: $cats',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                  ),
+                ),
+              if (colorsPretty.isNotEmpty) const SizedBox(height: 6),
+              if (colorsPretty.isNotEmpty)
+                Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Color: $colorsPretty',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                  ),
+                ),
+            ],
+          );
+        }),
+        const SizedBox(height: 2),
+        if (editable)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12.0),
+            child: Wrap(
+              alignment: WrapAlignment.end,
+              spacing: 8,
+              runSpacing: 6,
+              children: [
+                TextButton.icon(
+                  style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6)),
+                  onPressed: onEditTags,
+                  icon: const Icon(Icons.label_outline, size: 18),
+                  label: const Text('Seleccionar Categoria'),
+                ),
+                TextButton.icon(
+                  style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6)),
+                  onPressed: onEditColors,
+                  icon: const Icon(Icons.color_lens_outlined, size: 18),
+                  label: const Text('Seleccionar Color'),
+                ),
+              ],
+            ),
+          ),
       ],
     );
   }
