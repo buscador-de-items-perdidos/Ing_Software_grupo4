@@ -432,7 +432,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
   }
 
   Future<void> _openTagEditor() async {
-    final temp = Set<String>.from(_selectedTags.map((t) => t.nombre));
+    String? selected = _selectedTags.isNotEmpty ? _selectedTags.first.nombre : null;
     final Map<String, String> currentColors = {for (var t in _selectedTags) t.nombre: t.colorName};
 
     final result = await showDialog<List<Tag>>(
@@ -446,15 +446,12 @@ class _ReportDisplayState extends State<ReportDisplay> {
                 return Column(
                   mainAxisSize: MainAxisSize.min,
                   children: _availableTags.map((t) {
-                    return CheckboxListTile(
+                    return RadioListTile<String>(
                       title: Text(t),
-                      value: temp.contains(t),
+                      value: t,
+                      groupValue: selected,
                       onChanged: (v) => setState(() {
-                        if (v == true) {
-                          temp.add(t);
-                        } else {
-                          temp.remove(t);
-                        }
+                        selected = v;
                       }),
                     );
                   }).toList(),
@@ -469,7 +466,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
             ),
             TextButton(
               onPressed: () {
-                final List<Tag> out = temp.map((n) => Tag(n, currentColors[n] ?? 'blanco')).toList();
+                final List<Tag> out = selected != null ? [Tag(selected!, currentColors[selected] ?? 'blanco')] : <Tag>[];
                 Navigator.pop(context, out);
               },
               child: const Text('Guardar'),
@@ -947,45 +944,22 @@ class DetallesReporte extends StatelessWidget {
                 return Column(
                   children: [
                     if (cats.isNotEmpty)
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxHeight: 56),
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(8.0),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade50,
-                            border: Border.all(color: Colors.black12),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: SingleChildScrollView(
-                            child: Text(
-                              'Categoría(s): $cats',
-                              textAlign: TextAlign.left,
-                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
-                            ),
-                          ),
+                      Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          'Categoría: $cats',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
                         ),
                       ),
+                    if (colorsPretty.isNotEmpty) const SizedBox(height: 6),
                     if (colorsPretty.isNotEmpty)
-                      const SizedBox(height: 6),
-                    if (colorsPretty.isNotEmpty)
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxHeight: 56),
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(8.0),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade50,
-                            border: Border.all(color: Colors.black12),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: SingleChildScrollView(
-                            child: Text(
-                              'Color(es): $colorsPretty',
-                              textAlign: TextAlign.left,
-                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
-                            ),
-                          ),
+                      Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          'Color: $colorsPretty',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
                         ),
                       ),
                   ],
