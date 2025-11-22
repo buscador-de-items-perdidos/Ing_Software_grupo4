@@ -12,21 +12,25 @@ AppBar appbar(BuildContext context) => AppBar(
       onPressed: () => Scaffold.of(context).openDrawer(),
     ),
   ),
-  title: Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      GestureDetector(
-        onTap: () {},
-        child: Text(
-          "Objetos Perdidos",
-          style: TextStyle(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            fontWeight: FontWeight.w900,
+  titleSpacing: 0,
+  title: Padding(
+    padding: const EdgeInsets.only(right: 8.0),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        GestureDetector(
+          onTap: () {},
+          child: Text(
+            "Objetos Perdidos",
+            style: TextStyle(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              fontWeight: FontWeight.w900,
+            ),
           ),
         ),
-      ),
-      BotonPublicar(),
-    ],
+        BotonPublicar(),
+      ],
+    ),
   ),
   backgroundColor: Theme.of(context).primaryColor,
 );
