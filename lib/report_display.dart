@@ -278,7 +278,8 @@ class _ReportDisplayState extends State<ReportDisplay> {
 
               const SizedBox(height: 16),
               if (widget.modo == Modo.Ver &&
-                  widget.reporte.autor == SessionHandler.uuid)
+                  widget.reporte.autor == SessionHandler.uuid &&
+                  !SessionHandler.getPendientes.contains(widget.uuid))
                 Center(
                   child: FractionallySizedBox(
                     widthFactor: 0.6,
