@@ -102,7 +102,7 @@ class _MemoryImageWithFallback extends StatelessWidget {
 }
 
 class _ReportDisplayMovilState extends State<ReportDisplayMovil> {
-  late bool _encontrado = widget.reporte.encontrado;
+  late bool _resuelto = widget.reporte.encontrado;
 
   late final LatLng _loc =
       widget.reporte.ubicacion ?? LatLng(-36.8288323, -73.0372646);
@@ -190,24 +190,20 @@ class _ReportDisplayMovilState extends State<ReportDisplayMovil> {
                 ),
               ),
               Divider(indent: 30, endIndent: 30),
-              /*if (widget.reporte.autor == SessionHandler.uuid ||
+              if (widget.reporte.autor == SessionHandler.uuid ||
                   SessionHandler.getUsuario(widget.reporte.autor).isAdmin)
-                FractionallySizedBox(
-                  widthFactor: 0.6,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: SwitchListTile(
-                      title: const Text('Marcar como encontrado'),
-                      subtitle: Text(_encontrado ? 'Encontrado' : 'Pendiente'),
-                      value: _encontrado,
-                      onChanged: (bool value) {
-                        setState(() => _encontrado = value);
-                        _actualizarEstadoEncontrado(value);
-                      },
-                    ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: SwitchListTile(
+                    title: const Text('Marcar reporte como resuelto'),
+                    subtitle: Text(_resuelto ? 'Resuelto' : 'No resuelto'),
+                    value: _resuelto,
+                    onChanged: (bool value) {
+                      setState(() => _resuelto = value);
+                      _actualizarEstadoResuelto(value);
+                    },
                   ),
                 ),
-*/
               AspectRatio(aspectRatio: 3, child: mapaUdec()),
 
               const Padding(
@@ -226,17 +222,13 @@ class _ReportDisplayMovilState extends State<ReportDisplayMovil> {
                   style: TextStyle(fontSize: 14),
                 ),
               ),
-              const Padding(
+              Padding(
                 padding: EdgeInsets.all(12.0),
                 child: Center(
-                  child: Text(
-                    "Datos de contacto",
-                    style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
+                  child: _DatosContacto(
+                    usuario: SessionHandler.getUsuario(widget.reporte.autor),
                   ),
                 ),
-              ),
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 800),
               ),
             ],
           ),
@@ -245,15 +237,15 @@ class _ReportDisplayMovilState extends State<ReportDisplayMovil> {
     );
   }
 
-  void _actualizarEstadoEncontrado(bool encontrado) {
+  void _actualizarEstadoResuelto(bool encontrado) {
     ReportHandler.estadoObjeto(widget.uuid, encontrado);
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
           encontrado
-              ? 'Reporte marcado como encontrado'
-              : 'Reporte marcado como pendiente',
+              ? 'Reporte marcado como resuelto'
+              : 'Reporte marcado como no resuelto',
         ),
       ),
     );
@@ -563,23 +555,30 @@ class _DatosContacto extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text(
-          "Datos de contacto",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+    return Card(
+      elevation: 5,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          spacing: 12,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              "Datos de contacto",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+            ),
+            Text("Correo Electronico: ${usuario.correo}"),
+            Text("Numero de telefono: ${usuario.numero}"),
+            Text(
+              "Detalles adicionales",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontWeight: FontWeight.w500),
+            ),
+            Text(usuario.miscelaneo, textAlign: TextAlign.justify),
+            SizedBox.shrink(),
+          ],
         ),
-        Text("Correo Electronico: ${usuario.correo}"),
-        Text("Numero de telefono: ${usuario.numero}"),
-        Text(
-          "Detalles adicionales",
-          textAlign: TextAlign.center,
-          style: TextStyle(fontWeight: FontWeight.w500),
-        ),
-        Text(usuario.miscelaneo, textAlign: TextAlign.justify),
-        SizedBox.shrink(),
-      ],
+      ),
     );
   }
 }
@@ -596,29 +595,30 @@ class DetallesReporte extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const SizedBox(height: 6),
-        Text(
-          "Detalles del reporte",
-          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 6),
-        Text(
-          "Autor: ${SessionHandler.nombreUsuario}",
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          "Fecha: ${reporte.fecha.day.toString().padLeft(2, '0')}/${reporte.fecha.month.toString().padLeft(2, '0')}/${reporte.fecha.year}",
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 8),
-      ],
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        spacing: 6,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            "Detalles del reporte",
+            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
+            textAlign: TextAlign.center,
+          ),
+          Text(
+            "Autor: ${SessionHandler.nombreUsuario}",
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
+            textAlign: TextAlign.center,
+          ),
+          Text(
+            "Fecha: ${reporte.fecha.day.toString().padLeft(2, '0')}/${reporte.fecha.month.toString().padLeft(2, '0')}/${reporte.fecha.year}",
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+        ],
+      ),
     );
   }
 }
