@@ -20,7 +20,6 @@ class TarjetaReporte extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Usar buscarReporte para buscar en todos los maps (pendientes, existentes, encontrados)
     final Reporte? reporte = _obtenerReporte();
 
     if (reporte == null) {

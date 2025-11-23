@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:ing_software_grupo4/handlers/report_handler.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/modelos/reporte.dart';
@@ -113,6 +114,16 @@ class _ReportDisplayMovilState extends State<ReportDisplayMovil> {
 
   final PageController _pageController = PageController();
 
+  bool get isLandscape {
+    final mediaQuery = MediaQuery.of(context);
+    return mediaQuery.size.width > mediaQuery.size.height;
+  }
+
+  bool get isPortrait {
+    final mediaQuery = MediaQuery.of(context);
+    return mediaQuery.size.height > mediaQuery.size.width;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -210,15 +221,35 @@ class _ReportDisplayMovilState extends State<ReportDisplayMovil> {
           // Divider
           const SliverToBoxAdapter(child: Divider(indent: 30, endIndent: 30)),
 
-          // Details
-          SliverToBoxAdapter(child: DetallesReporte(reporte: widget.reporte)),
+          SliverPadding(
+            padding: const EdgeInsets.all(8),
+            sliver: SliverToBoxAdapter(
+              child: isLandscape
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Card(child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 30.0, horizontal: 8),
+                          child: DetallesReporte(reporte: widget.reporte),
+                        )),
+                        _DatosContacto(
+                          usuario: SessionHandler.getUsuario(
+                            widget.reporte.autor,
+                          ),
+                        ),
+                      ],
+                    )
+                  : DetallesReporte(reporte: widget.reporte),
+            ),
+          ),
 
           // Divider
           const SliverToBoxAdapter(child: Divider(indent: 30, endIndent: 30)),
 
           // Resolution toggle (conditional)
-          if (widget.reporte.autor == SessionHandler.uuid ||
-              SessionHandler.getUsuario(widget.reporte.autor).isAdmin)
+          if ((widget.reporte.autor == SessionHandler.uuid ||
+                  SessionHandler.getUsuario(widget.reporte.autor).isAdmin) &&
+              !SessionHandler.getPendientes.contains(widget.uuid))
             SliverPadding(
               padding: const EdgeInsets.symmetric(
                 vertical: 8.0,
@@ -275,16 +306,15 @@ class _ReportDisplayMovilState extends State<ReportDisplayMovil> {
           ),
 
           // Contact information
-          SliverPadding(
-            padding: const EdgeInsets.all(16.0),
-            sliver: SliverToBoxAdapter(
-              child: Center(
+          if (isPortrait)
+            SliverPadding(
+              padding: const EdgeInsets.all(8),
+              sliver: SliverToBoxAdapter(
                 child: _DatosContacto(
                   usuario: SessionHandler.getUsuario(widget.reporte.autor),
                 ),
               ),
             ),
-          ),
 
           // Bottom spacing
           const SliverToBoxAdapter(child: SizedBox(height: 20)),
@@ -399,15 +429,15 @@ class _Barra extends StatelessWidget {
             centerTitle: true,
             title: constraints.biggest.height <= kToolbarHeight
                 ? Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 100.0),
-                  child: Text(
+                    padding: const EdgeInsets.symmetric(horizontal: 100.0),
+                    child: Text(
                       titulo,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: Theme.of(context).scaffoldBackgroundColor,
                       ),
                     ),
-                )
+                  )
                 : null,
             stretchModes: [
               StretchMode.zoomBackground,
@@ -654,29 +684,27 @@ class DetallesReporte extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        spacing: 6,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            "Detalles del reporte",
-            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
-            textAlign: TextAlign.center,
-          ),
-          Text(
-            "Autor: ${SessionHandler.nombreUsuario}",
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
-            textAlign: TextAlign.center,
-          ),
-          Text(
-            "Fecha: ${reporte.fecha.day.toString().padLeft(2, '0')}/${reporte.fecha.month.toString().padLeft(2, '0')}/${reporte.fecha.year}",
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
+    return Column(
+      spacing: 6,
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        Text(
+          "Detalles del reporte",
+          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
+          textAlign: TextAlign.center,
+        ),
+        Text(
+          "Autor: ${SessionHandler.nombreUsuario}",
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
+          textAlign: TextAlign.center,
+        ),
+        Text(
+          "Fecha: ${reporte.fecha.day.toString().padLeft(2, '0')}/${reporte.fecha.month.toString().padLeft(2, '0')}/${reporte.fecha.year}",
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 }
