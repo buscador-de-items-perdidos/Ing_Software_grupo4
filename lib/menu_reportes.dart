@@ -88,8 +88,23 @@ class _MenuReportesState extends State<MenuReportes> {
 
                   return matchesText && matchesFilters;
                 }).toList();
-                // Mostrar los reportes en una lista vertical con scroll.
-                // Cada tarjeta está centrada horizontalmente
+                
+                final bool hasActiveFilters = _activeTagFilters.isNotEmpty || 
+                                               _activeColorFilters.isNotEmpty || 
+                                               _activeTipoFilters.isNotEmpty;
+                
+                if (filtrados.isEmpty && hasActiveFilters) {
+                  return const Center(
+                    child: Text(
+                      'No existen publicaciones con estas etiquetas',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  );
+                }
+                
                 return ListView.separated(
                   padding: const EdgeInsets.symmetric(
                     vertical: 12.0,
