@@ -135,6 +135,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
     widget.reporte.imagenesBytes,
   );
   late List<Tag> _selectedTags = List<Tag>.from(widget.reporte.etiquetas);
+  bool _intentoPublicarSinEtiquetas = false;
 
   final List<String> _availableTags = [
     'Celular',
@@ -419,8 +420,7 @@ void _actualizarEstadoEncontrado(bool encontrado) {
   bool _publicar(BuildContext context) {
     if (!_formKey.currentState!.validate() ||
         _finalLoc == null ||
-        _imagenesBytes.isEmpty ||
-        _selectedTags.isEmpty) {
+        _imagenesBytes.isEmpty) {
       if (_finalLoc == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -435,15 +435,27 @@ void _actualizarEstadoEncontrado(bool encontrado) {
             content: Text("Debes seleccionar al menos una imagen"),
           ),
         );
-      } else if (_selectedTags.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Debes seleccionar al menos una etiqueta"),
-          ),
-        );
       }
       return false;
     }
+    
+    // Validación especial para etiquetas: permite omitir en segundo intento
+    if (_selectedTags.isEmpty && !_intentoPublicarSinEtiquetas) {
+      setState(() {
+        _intentoPublicarSinEtiquetas = true;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Seleccione una etiqueta. Presiona nuevamente para publicar sin etiquetas."),
+          duration: Duration(seconds: 4),
+        ),
+      );
+      return false;
+    }
+    
+    // Resetear el flag si se publica exitosamente
+    _intentoPublicarSinEtiquetas = false;
+    
     Reporte r = _recolectarCambios();
     if (!ReportHandler.submitPeticion(widget.uuid, r, true)) {
       ScaffoldMessenger.of(
@@ -519,6 +531,10 @@ void _actualizarEstadoEncontrado(bool encontrado) {
     if (result != null) {
       setState(() {
         _selectedTags = result;
+        // Resetear el flag cuando se modifican las etiquetas
+        if (_selectedTags.isNotEmpty) {
+          _intentoPublicarSinEtiquetas = false;
+        }
       });
     }
   }

@@ -84,26 +84,38 @@ class _MenuReportesState extends State<MenuReportes> {
   }
 
   Future<void> _openFilterDialog() async {
-    final reports = ReportHandler.getReportes;
-    final Set<String> availableTags = {};
-    final Set<String> availableColorsFromReports = {};
-    final Set<String> availableTiposFromReports = {};
-    for (var k in reports) {
-      final r = ReportHandler.getReporte(k);
-      if (r == null) continue;
-      for (var tag in r.etiquetas) {
-        availableTags.add(tag.nombre);
-        availableColorsFromReports.add(tag.colorName);
-      }
-      if (r.tipo.name != 'administracion')
-        availableTiposFromReports.add(r.tipo.name);
-    }
+    // Definir todas las categorías disponibles siempre
+    final Set<String> availableTags = {
+      'Celular',
+      'Notebook / Laptop',
+      'Tablet',
+      'Audífonos',
+      'Cargador / Cable',
+      'Reloj inteligente',
+      'Lentes',
+      'Llaves',
+      'Billetera',
+      'Cartera',
+      'Paraguas',
+      'Botella de agua',
+      'Libro',
+      'Mochila',
+      'Chaqueta',
+      'Gorro',
+      'Bufanda',
+      'Guantes',
+      'Calculadora',
+      'USB / Pendrive',
+      'Tarjeta de memoria',
+      'Mouse',
+      'Teclado',
+      'Otro',
+    };
 
     final Set<String> availableColors = {};
     try {
       availableColors.addAll(colorNameToHex.keys);
     } catch (_) {}
-    availableColors.addAll(availableColorsFromReports);
 
     final Set<String> availableTipos = {};
     try {
@@ -113,7 +125,6 @@ class _MenuReportesState extends State<MenuReportes> {
             .map((t) => t.name),
       );
     } catch (_) {}
-    availableTipos.addAll(availableTiposFromReports);
 
     final tempTags = Set<String>.from(_activeTagFilters);
     final tempColors = Set<String>.from(_activeColorFilters);
@@ -270,7 +281,10 @@ class ListaReportes extends StatelessWidget {
     //Lista de UUID de reportes a mostrar
     List<String> reportes;
 
-    if (filtro.soloMisReportes) {
+    if (filtro.soloPendientes) {
+      // Obtener solo las peticiones pendientes
+      reportes = ReportHandler.getPeticiones().toList();
+    } else if (filtro.soloMisReportes) {
       // Obtener UUIDs del usuario desde SessionHandler
       Set<String> misReportesUUIDs = {
         ...SessionHandler.getPendientes,
@@ -312,6 +326,23 @@ class ListaReportes extends StatelessWidget {
 
       return true;
     }).toList();
+    
+    final bool hasActiveFilters = filtro.activeTagFilters.isNotEmpty || 
+                                   filtro.activeColorFilters.isNotEmpty || 
+                                   filtro.activeTipoFilters.isNotEmpty;
+    
+    if (filtrados.isEmpty && hasActiveFilters) {
+      return const Center(
+        child: Text(
+          'No existen publicaciones con estas etiquetas',
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.grey,
+          ),
+        ),
+      );
+    }
+    
     // Mostrar los reportes en una lista vertical con scroll.
     // Cada tarjeta está centrada horizontalmente
     return GridView.builder(

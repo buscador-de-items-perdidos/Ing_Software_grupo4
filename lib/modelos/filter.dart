@@ -1,6 +1,7 @@
 class Filter {
   final String input;
   final bool soloMisReportes;
+  final bool soloPendientes;
   final Set<String> activeTagFilters;
   final Set<String> activeColorFilters;
   final Set<String> activeTipoFilters;
@@ -10,6 +11,7 @@ class Filter {
     this.soloMisReportes,
     this.activeTagFilters,
     this.activeColorFilters,
-    this.activeTipoFilters,
-  );
+    this.activeTipoFilters, {
+    this.soloPendientes = false,
+  });
 }
