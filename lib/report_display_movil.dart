@@ -118,7 +118,7 @@ class _ReportDisplayMovilState extends State<ReportDisplayMovil> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () async => _editarReporte(context),
-        child: Icon(Icons.edit_document),
+        child: const Icon(Icons.edit_document),
         tooltip: "Editar reporte",
       ),
       body: CustomScrollView(
@@ -128,72 +128,104 @@ class _ReportDisplayMovilState extends State<ReportDisplayMovil> {
             pageController: _pageController,
             titulo: widget.reporte.titulo,
           ),
-          SliverList.list(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
+
+          // Tags section
+          SliverPadding(
+            padding: const EdgeInsets.all(8),
+            sliver: SliverToBoxAdapter(
+              child: Center(
                 child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(
                       widget.reporte.etiquetas.length,
-                      (i) => Chip(
-                        avatar: Container(
-                          height: 30,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: BoxBorder.fromBorderSide(
-                              BorderSide(color: Colors.grey),
-                            ),
-                            color: hexToColor(
-                              colorNameToHex[widget
-                                  .reporte
-                                  .etiquetas[i]
-                                  .colorName],
+                      (i) => Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                        child: Chip(
+                          avatar: Container(
+                            width: 20,
+                            height: 20,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.grey),
+                              color: hexToColor(
+                                colorNameToHex[widget
+                                        .reporte
+                                        .etiquetas[i]
+                                        .colorName] ??
+                                    '#000000',
+                              ),
                             ),
                           ),
+                          label: Text(widget.reporte.etiquetas[i].nombre),
                         ),
-                        label: Text(widget.reporte.etiquetas[i].nombre),
                       ),
                     ),
                   ),
                 ),
               ),
-              Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 800),
+            ),
+          ),
+
+          // Title section
+          SliverToBoxAdapter(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 800),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 8.0,
+                  ),
                   child: Text(
                     widget.reporte.titulo,
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w600,
                     ),
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ),
+            ),
+          ),
 
-              Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 800),
+          // Type section
+          SliverToBoxAdapter(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 800),
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 16.0),
                   child: Text(
                     "Objeto ${widget.reporte.tipo.name}",
-                    style: const TextStyle(fontSize: 18),
+                    style: const TextStyle(fontSize: 18, color: Colors.grey),
                   ),
                 ),
               ),
+            ),
+          ),
 
-              Divider(indent: 30, endIndent: 30),
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 800),
-                child: Column(
-                  children: [DetallesReporte(reporte: widget.reporte)],
-                ),
+          // Divider
+          const SliverToBoxAdapter(child: Divider(indent: 30, endIndent: 30)),
+
+          // Details
+          SliverToBoxAdapter(child: DetallesReporte(reporte: widget.reporte)),
+
+          // Divider
+          const SliverToBoxAdapter(child: Divider(indent: 30, endIndent: 30)),
+
+          // Resolution toggle (conditional)
+          if (widget.reporte.autor == SessionHandler.uuid ||
+              SessionHandler.getUsuario(widget.reporte.autor).isAdmin)
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(
+                vertical: 8.0,
+                horizontal: 16.0,
               ),
-              Divider(indent: 30, endIndent: 30),
-              if (widget.reporte.autor == SessionHandler.uuid ||
-                  SessionHandler.getUsuario(widget.reporte.autor).isAdmin)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+              sliver: SliverToBoxAdapter(
+                child: Card(
                   child: SwitchListTile(
                     title: const Text('Marcar reporte como resuelto'),
                     subtitle: Text(_resuelto ? 'Resuelto' : 'No resuelto'),
@@ -204,34 +236,58 @@ class _ReportDisplayMovilState extends State<ReportDisplayMovil> {
                     },
                   ),
                 ),
-              AspectRatio(aspectRatio: 3, child: mapaUdec()),
+              ),
+            ),
 
-              const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Center(
-                  child: Text(
-                    "Descripción",
-                    style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
-                  ),
-                ),
-              ),
-
-              Center(
-                child: Text(
-                  widget.reporte.descripcion,
-                  style: TextStyle(fontSize: 14),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.all(12.0),
-                child: Center(
-                  child: _DatosContacto(
-                    usuario: SessionHandler.getUsuario(widget.reporte.autor),
-                  ),
-                ),
-              ),
-            ],
+          // Map section
+          SliverToBoxAdapter(
+            child: AspectRatio(aspectRatio: 3, child: mapaUdec()),
           ),
+
+          // Description header
+          const SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Center(
+                child: Text(
+                  "Descripción",
+                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
+                ),
+              ),
+            ),
+          ),
+
+          // Description content
+          SliverToBoxAdapter(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 800),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text(
+                    widget.reporte.descripcion,
+                    style: const TextStyle(fontSize: 14, height: 1.5),
+                    textAlign: TextAlign.justify,
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          // Contact information
+          SliverPadding(
+            padding: const EdgeInsets.all(16.0),
+            sliver: SliverToBoxAdapter(
+              child: Center(
+                child: _DatosContacto(
+                  usuario: SessionHandler.getUsuario(widget.reporte.autor),
+                ),
+              ),
+            ),
+          ),
+
+          // Bottom spacing
+          const SliverToBoxAdapter(child: SizedBox(height: 20)),
         ],
       ),
     );
@@ -342,12 +398,16 @@ class _Barra extends StatelessWidget {
           return FlexibleSpaceBar(
             centerTitle: true,
             title: constraints.biggest.height <= kToolbarHeight
-                ? Text(
-                    titulo,
-                    style: TextStyle(
-                      color: Theme.of(context).scaffoldBackgroundColor,
+                ? Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 100.0),
+                  child: Text(
+                      titulo,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Theme.of(context).scaffoldBackgroundColor,
+                      ),
                     ),
-                  )
+                )
                 : null,
             stretchModes: [
               StretchMode.zoomBackground,
@@ -556,7 +616,6 @@ class _DatosContacto extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 5,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -616,7 +675,6 @@ class DetallesReporte extends StatelessWidget {
             style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 8),
         ],
       ),
     );

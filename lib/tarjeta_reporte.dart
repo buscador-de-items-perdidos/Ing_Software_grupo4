@@ -4,7 +4,7 @@ import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/modelos/modo.dart';
 import 'package:ing_software_grupo4/modelos/reporte.dart';
 import 'package:ing_software_grupo4/mostrar_reporte.dart';
-import 'package:ing_software_grupo4/report_display.dart';
+import 'package:ing_software_grupo4/report_display_movil.dart';
 
 class TarjetaReporte extends StatelessWidget {
   const TarjetaReporte({
@@ -49,6 +49,7 @@ class TarjetaReporte extends StatelessWidget {
         child: Stack(
           children: [
             Column(
+              mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Expanded(
@@ -64,10 +65,33 @@ class TarjetaReporte extends StatelessWidget {
                       : Image.asset('assets/trial.png', fit: BoxFit.cover),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(12.0),
+                  padding: const EdgeInsets.all(8.0),
                   child: Text(
                     reporte.titulo,
                     style: Theme.of(context).textTheme.titleMedium,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Chip(
+                    avatar: DecoratedBox(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: hexToColor(
+                          colorNameToHex[reporte.etiquetas.first.colorName],
+                        ),
+                      ),
+                    ),
+                    label: Text(reporte.etiquetas.first.nombre),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Text(
+                    'Objeto ${reporte.tipo.name}',
+                    style: Theme.of(context).textTheme.labelMedium,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
