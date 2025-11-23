@@ -31,6 +31,9 @@ class TarjetaReporte extends StatelessWidget {
     final esAutor = reporte.autor == SessionHandler.uuid;
 
     return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadiusGeometry.circular(3),
+      ),
       clipBehavior: Clip.antiAlias,
       elevation: 3,
       child: InkWell(
