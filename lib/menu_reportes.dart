@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ing_software_grupo4/modelos/filter.dart';
 import 'package:ing_software_grupo4/modelos/reporte.dart';
 import 'package:ing_software_grupo4/modelos/tag.dart';
 import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
@@ -6,9 +7,6 @@ import 'package:ing_software_grupo4/tarjeta_reporte.dart';
 import 'package:ing_software_grupo4/handlers/report_handler.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/modelos/modo.dart';
-import 'package:ing_software_grupo4/report_display.dart';
-
-import 'package:uuid/uuid.dart';
 
 class MenuReportes extends StatefulWidget {
   final bool soloMisReportes;
@@ -20,11 +18,19 @@ class MenuReportes extends StatefulWidget {
 }
 
 class _MenuReportesState extends State<MenuReportes> {
-  String input = "";
+  ValueNotifier<String> input = ValueNotifier("");
   final Set<String> _activeTagFilters = {};
   final Set<String> _activeColorFilters = {};
   final Set<String> _activeTipoFilters = {};
   late bool soloMisReportes;
+
+  Filter get filtro => Filter(
+    input.value,
+    soloMisReportes,
+    _activeTagFilters,
+    _activeColorFilters,
+    _activeTipoFilters,
+  );
 
   @override
   void initState() {
@@ -41,17 +47,7 @@ class _MenuReportesState extends State<MenuReportes> {
             padding: const EdgeInsets.only(bottom: 28.0, left: 50, right: 50),
             child: Row(
               children: [
-                Expanded(
-                  child: TextField(
-                    onChanged: (text) => setState(() {
-                      input = text;
-                    }),
-                    decoration: const InputDecoration(
-                      hintText: 'Que estas buscando?',
-                      prefixIcon: Icon(Icons.search),
-                    ),
-                  ),
-                ),
+                BarraBusqueda(input: input),
                 const SizedBox(width: 12),
                 Tooltip(
                   message: 'Filtrar por etiquetas, colores o tipos',
@@ -76,174 +72,14 @@ class _MenuReportesState extends State<MenuReportes> {
             child: ListenableBuilder(
               listenable: Listenable.merge([
                 ReportHandler.reportNotifier,
+                input,
                 if (soloMisReportes) ReportHandler.pendingNotifier,
               ]),
-              builder: (_, __) => _buildReportesList(),
+              builder: (_, __) => ListaReportes(filtro: filtro),
             ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildReportesList() {
-    List<String> reportes;
-
-    if (soloMisReportes) {
-      // Obtener UUIDs del usuario desde SessionHandler
-      Set<String> misReportesUUIDs = {
-        ...SessionHandler.getPendientes,
-        ...SessionHandler.getAceptados,
-      };
-      reportes = misReportesUUIDs.toList();
-    } else {
-      reportes = ReportHandler.getReportes;
-    }
-
-    List<String> filtrados = reportes.where((uuid) {
-      // Buscar el reporte usando buscarReporte que busca en los 3 maps
-      Reporte? reporte = ReportHandler.buscarReporte(uuid);
-
-      if (reporte == null) return false;
-
-      // Filtrar por búsqueda de texto
-      final matchesText = reporte.titulo.toLowerCase().contains(
-        input.toLowerCase(),
-      );
-
-      bool matchesFilters = true;
-
-      // Filtrar por tags (categorías)
-      if (_activeTagFilters.isNotEmpty) {
-        matchesFilters =
-            matchesFilters &&
-            reporte.etiquetas.any(
-              (Tag t) => _activeTagFilters.contains(t.nombre),
-            );
-      }
-
-      // Filtrar por colores
-      if (_activeColorFilters.isNotEmpty) {
-        matchesFilters =
-            matchesFilters &&
-            reporte.etiquetas.any(
-              (Tag t) => _activeColorFilters.contains(t.colorName),
-            );
-      }
-
-      // Filtrar por tipo de reporte
-      if (_activeTipoFilters.isNotEmpty) {
-        matchesFilters =
-            matchesFilters && _activeTipoFilters.contains(reporte.tipo.name);
-      }
-
-      return matchesText && matchesFilters;
-    }).toList();
-    // Mostrar los reportes en una lista vertical con scroll.
-    // Cada tarjeta está centrada horizontalmente
-    return ListView.separated(
-      padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
-      itemCount: filtrados.length,
-      separatorBuilder: (context, index) =>
-          Padding(padding: const EdgeInsets.only(top: 16), child: Container()),
-      itemBuilder: (context, i) {
-        // Buscar el reporte usando buscarReporte
-        Reporte? reporte = ReportHandler.buscarReporte(filtrados[i]);
-
-        if (reporte == null) return const SizedBox.shrink();
-        if (!reporte.titulo.toLowerCase().contains(input.toLowerCase()))
-          return const SizedBox.shrink();
-
-        final double width = MediaQuery.of(context).size.width * 0.4;
-        const double height = 670;
-
-        // Determinar si es pendiente o no
-        bool esPendiente = SessionHandler.getPendientes.contains(filtrados[i]);
-
-        return Center(
-          child: Padding(
-            padding: EdgeInsets.zero,
-            child: Stack(
-              children: [
-                Container(
-                  width: width,
-                  height: height,
-                  child: TarjetaReporte(
-                    key: ValueKey(filtrados[i]),
-                    nombre: filtrados[i],
-                    modo: Modo.Ver,
-                    pendiente: esPendiente,
-                  ),
-                ),
-                if (soloMisReportes && esPendiente)
-                  Positioned(
-                    top: 8,
-                    left: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.orange,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.schedule, size: 16, color: Colors.white),
-                          SizedBox(width: 4),
-                          Text(
-                            'Pendiente',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                if (soloMisReportes && !esPendiente)
-                  Positioned(
-                    top: 8,
-                    left: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.green,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.check_circle,
-                            size: 16,
-                            color: Colors.white,
-                          ),
-                          SizedBox(width: 4),
-                          Text(
-                            'Publicado',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        );
-      },
     );
   }
 
@@ -402,6 +238,148 @@ class _MenuReportesState extends State<MenuReportes> {
   }
 }
 
+class BarraBusqueda extends StatelessWidget {
+  const BarraBusqueda({
+    super.key,
+    required this.input,
+  });
+
+  final ValueNotifier<String> input;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: TextField(
+        onChanged: (text) => input.value = text,
+        decoration: const InputDecoration(
+          hintText: 'Que estas buscando?',
+          prefixIcon: Icon(Icons.search),
+        ),
+      ),
+    );
+  }
+}
+
+class ListaReportes extends StatelessWidget {
+  const ListaReportes({super.key, required this.filtro});
+
+  final Filter filtro;
+
+  @override
+  Widget build(BuildContext context) {
+    //Lista de UUID de reportes a mostrar
+    List<String> reportes;
+
+    if (filtro.soloMisReportes) {
+      // Obtener UUIDs del usuario desde SessionHandler
+      Set<String> misReportesUUIDs = {
+        ...SessionHandler.getPendientes,
+        ...SessionHandler.getAceptados,
+      };
+      reportes = misReportesUUIDs.toList();
+    } else {
+      reportes = ReportHandler.getReportes;
+    }
+
+    List<String> filtrados = reportes.where((uuid) {
+      // Buscar el reporte usando buscarReporte que busca en los 3 maps
+      Reporte? reporte = ReportHandler.buscarReporte(uuid);
+
+      if (reporte == null) return false;
+
+      // Filtrar por búsqueda de texto
+
+      if (!reporte.titulo.toLowerCase().contains(filtro.input.toLowerCase()))
+        return false;
+
+      // Filtrar por tags (categorías)
+      if (filtro.activeTagFilters.isNotEmpty &&
+          !reporte.etiquetas.any(
+            (Tag t) => filtro.activeTagFilters.contains(t.nombre),
+          ))
+        return false;
+      // Filtrar por colores
+      if (filtro.activeColorFilters.isNotEmpty &&
+          !reporte.etiquetas.any(
+            (Tag t) => filtro.activeColorFilters.contains(t.colorName),
+          ))
+        return false;
+
+      // Filtrar por tipo de reporte
+      if (filtro.activeTipoFilters.isNotEmpty &&
+          !filtro.activeTipoFilters.contains(reporte.tipo.name))
+        return false;
+
+      return true;
+    }).toList();
+    // Mostrar los reportes en una lista vertical con scroll.
+    // Cada tarjeta está centrada horizontalmente
+    return GridView.builder(
+      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: 350,
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+      itemCount: filtrados.length,
+      itemBuilder: (context, i) {
+        // Buscar el reporte usando buscarReporte
+        Reporte? reporte = ReportHandler.buscarReporte(filtrados[i]);
+
+        if (reporte == null) return const SizedBox.shrink();
+        if (!reporte.titulo.toLowerCase().contains(filtro.input.toLowerCase()))
+          return const SizedBox.shrink();
+
+        // Determinar si es pendiente o no
+        bool esPendiente = SessionHandler.getPendientes.contains(filtrados[i]);
+
+        return Stack(
+          children: [
+            TarjetaReporte(
+              key: ValueKey(filtrados[i]),
+              nombre: filtrados[i],
+              modo: Modo.Ver,
+              pendiente: esPendiente,
+            ),
+            if (filtro.soloMisReportes)
+              Positioned(
+                top: 8,
+                left: 8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: esPendiente ? Colors.orange : Colors.green,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        esPendiente ? Icons.schedule : Icons.check_circle,
+                        size: 16,
+                        color: Colors.white,
+                      ),
+                      SizedBox(width: 4),
+                      Text(
+                        esPendiente ? 'Pendiente' : 'Publicado',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
 const Map<String, String> colorNameToHex = {
   'rojo': '#FF0000',
   'verde': '#00FF00',
@@ -434,50 +412,3 @@ const Map<String, String> colorNameToHex = {
   'burdeos': '#800020',
   'Otro': '#FFFFFF',
 };
-
-class BotonCrear extends StatelessWidget {
-  const BotonCrear(this.tipo, {super.key});
-  final Uuid uuidGen = const Uuid();
-
-  final TipoReporte tipo;
-  @override
-  Widget build(BuildContext context) {
-    return Tooltip(
-      message: tipo == TipoReporte.encontrado
-          ? "Reporta un objeto que has encontrado"
-          : "Reporta un objeto que has perdido",
-      child: FloatingActionButton.extended(
-        heroTag: tipo,
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) {
-                final String uuid = uuidGen.v7();
-                return ReportDisplay.vacio(
-                  key: ValueKey(uuid),
-                  uuid,
-                  modo: Modo.Editar,
-                  tipo: tipo,
-                );
-              },
-            ),
-          );
-        },
-        elevation: 3,
-        label: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-          child: Row(
-            children: [
-              Icon(
-                tipo == TipoReporte.encontrado
-                    ? Icons.downloading
-                    : Icons.search,
-              ),
-            ],
-          ),
-        ), //TODO: cambiar los iconos
-      ),
-    );
-  }
-}
