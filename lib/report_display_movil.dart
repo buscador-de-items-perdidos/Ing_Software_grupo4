@@ -116,6 +116,11 @@ class _ReportDisplayMovilState extends State<ReportDisplayMovil> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async => _editarReporte(context),
+        child: Icon(Icons.edit_document),
+        tooltip: "Editar reporte",
+      ),
       body: CustomScrollView(
         slivers: [
           _Barra(
@@ -214,15 +219,24 @@ class _ReportDisplayMovilState extends State<ReportDisplayMovil> {
                   ),
                 ),
               ),
+
               Center(
                 child: Text(
                   widget.reporte.descripcion,
                   style: TextStyle(fontSize: 14),
                 ),
               ),
+              const Padding(
+                padding: EdgeInsets.all(12.0),
+                child: Center(
+                  child: Text(
+                    "Datos de contacto",
+                    style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
+                  ),
+                ),
+              ),
               ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 800),
-                child: _crearBotonEditar(context),
               ),
             ],
           ),
@@ -272,46 +286,41 @@ class _ReportDisplayMovilState extends State<ReportDisplayMovil> {
     );
   }
 
-  Widget _crearBotonEditar(BuildContext context) {
-    return ElevatedButton(
-      child: const Text("Editar"),
-      onPressed: () async {
-        bool editarRevisionEnCola = false;
-        if (ReportHandler.getPeticion(widget.uuid) != null) {
-          editarRevisionEnCola = await showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: const Text("Revisión en cola"),
-              content: const Text(
-                "Se ha detectado que tienes una revisión de este reporte en cola. ¿Deseas editar aquella revisión en vez de la versión aceptada?",
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context, true),
-                  child: const Text("Sí"),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.pop(context, false),
-                  child: const Text("No"),
-                ),
-              ],
-            ),
-          );
-        }
-        if (!context.mounted) return;
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => mostrarReporte(
-              editarRevisionEnCola
-                  ? ReportHandler.getPeticion(widget.uuid)!
-                  : widget.reporte,
-              widget.uuid,
-              modo: Modo.Editar,
-            ),
+  void _editarReporte(BuildContext context) async {
+    bool editarRevisionEnCola = false;
+    if (ReportHandler.getPeticion(widget.uuid) != null) {
+      editarRevisionEnCola = await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("Revisión en cola"),
+          content: const Text(
+            "Se ha detectado que tienes una revisión de este reporte en cola. ¿Deseas editar aquella revisión en vez de la versión aceptada?",
           ),
-        );
-      },
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text("Sí"),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text("No"),
+            ),
+          ],
+        ),
+      );
+    }
+    if (!context.mounted) return;
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => mostrarReporte(
+          editarRevisionEnCola
+              ? ReportHandler.getPeticion(widget.uuid)!
+              : widget.reporte,
+          widget.uuid,
+          modo: Modo.Editar,
+        ),
+      ),
     );
   }
 }
