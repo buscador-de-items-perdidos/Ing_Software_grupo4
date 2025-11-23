@@ -178,55 +178,51 @@ class _ReportDisplayMovilState extends State<ReportDisplayMovil> {
               ),
 
               Divider(indent: 30, endIndent: 30),
-              Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 800),
-                  child: Column(
-                    children: [
-                      DetallesReporte(
-                        reporte: widget.reporte,
-                        selectedTags: _selectedTags,
-                      ),
-                    ],
-                  ),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 800),
+                child: Column(
+                  children: [DetallesReporte(reporte: widget.reporte)],
                 ),
               ),
               Divider(indent: 30, endIndent: 30),
-              if (widget.reporte.autor == SessionHandler.uuid ||
+              /*if (widget.reporte.autor == SessionHandler.uuid ||
                   SessionHandler.getUsuario(widget.reporte.autor).isAdmin)
-                Center(
-                  child: FractionallySizedBox(
-                    widthFactor: 0.6,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: SwitchListTile(
-                        title: const Text('Marcar como encontrado'),
-                        subtitle: Text(
-                          _encontrado ? 'Encontrado' : 'Pendiente',
-                        ),
-                        value: _encontrado,
-                        onChanged: (bool value) {
-                          setState(() => _encontrado = value);
-                          _actualizarEstadoEncontrado(value);
-                        },
-                      ),
+                FractionallySizedBox(
+                  widthFactor: 0.6,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: SwitchListTile(
+                      title: const Text('Marcar como encontrado'),
+                      subtitle: Text(_encontrado ? 'Encontrado' : 'Pendiente'),
+                      value: _encontrado,
+                      onChanged: (bool value) {
+                        setState(() => _encontrado = value);
+                        _actualizarEstadoEncontrado(value);
+                      },
                     ),
                   ),
                 ),
+*/
+              AspectRatio(aspectRatio: 3, child: mapaUdec()),
 
-              Center(
-                child: FractionallySizedBox(
-                  widthFactor: 0.6,
-                  child: SizedBox(height: 360, child: mapaUdec()),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Center(
+                  child: Text(
+                    "Descripción",
+                    style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
+                  ),
                 ),
               ),
-
-              Spacer(flex: 2),
               Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 800),
-                  child: _crearBotonEditar(context),
+                child: Text(
+                  widget.reporte.descripcion,
+                  style: TextStyle(fontSize: 14),
                 ),
+              ),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 800),
+                child: _crearBotonEditar(context),
               ),
             ],
           ),
@@ -253,11 +249,7 @@ class _ReportDisplayMovilState extends State<ReportDisplayMovil> {
     return Stack(
       children: [
         FlutterMap(
-          options: MapOptions(
-            initialCenter: _loc,
-            initialZoom: 16,
-            onTap: (_, _) {},
-          ),
+          options: MapOptions(initialCenter: _loc, initialZoom: 16),
           children: [
             TileLayer(
               urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -587,12 +579,10 @@ class DetallesReporte extends StatelessWidget {
   const DetallesReporte({
     super.key,
     required this.reporte,
-    this.selectedTags = const [],
     this.editable = false,
   });
 
   final Reporte reporte;
-  final List<Tag> selectedTags;
   final bool editable;
 
   @override
