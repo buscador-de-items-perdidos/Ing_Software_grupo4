@@ -50,7 +50,11 @@ class ReportHandler {
 
   static bool submitPeticion(String key, Reporte r, bool nuevo) {
     if (_pendientes.containsKey(key)) _pendientes.remove(key);
-    SessionHandler.getPendientes.add(key);
+    
+    // Obtener el usuario autor del reporte y agregarlo a su lista de pendientes
+    final autorUsuario = SessionHandler.getUsuario(r.autor);
+    autorUsuario.reportes_pendientes.add(key);
+    
     _pendientes[key] = r;
     _pendingNotifier.value = !_pendingNotifier.value;
     return canPublish; //La idea es que esto nos diria si logramos publicar la petición, pero no tenemos nada aun
@@ -58,17 +62,31 @@ class ReportHandler {
 
   static void acceptPeticion(String uuid) {
     if (!_pendientes.containsKey(uuid)) return;
-    _existentes[uuid] = _pendientes[uuid]!;
-    SessionHandler.getAceptados.add(uuid);
-    SessionHandler.getPendientes.remove(uuid);
+    
+    final reporte = _pendientes[uuid]!;
+    _existentes[uuid] = reporte;
+    
+    // Obtener el usuario autor del reporte y actualizar sus listas
+    final autorUsuario = SessionHandler.getUsuario(reporte.autor);
+    autorUsuario.reportes_aceptados.add(uuid);
+    autorUsuario.reportes_pendientes.remove(uuid);
+    
     _pendientes.remove(uuid);
     _reportNotifier.value = !_reportNotifier.value;
     _pendingNotifier.value = !_pendingNotifier.value;
   }
 
   static void rejectPeticion(String uuid) {
+    if (!_pendientes.containsKey(uuid)) return;
+    
+    final reporte = _pendientes[uuid];
+    if (reporte != null) {
+      // Obtener el usuario autor del reporte y remover de su lista de pendientes
+      final autorUsuario = SessionHandler.getUsuario(reporte.autor);
+      autorUsuario.reportes_pendientes.remove(uuid);
+    }
+    
     _pendientes.remove(uuid);
-    SessionHandler.getPendientes.remove(uuid);
     _pendingNotifier.value = !pendingNotifier.value;
   }
 

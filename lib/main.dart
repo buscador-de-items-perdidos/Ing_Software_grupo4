@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ing_software_grupo4/appshell.dart';
+import 'package:ing_software_grupo4/login_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -22,7 +23,7 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
       ),
-      home: AppShell(),
+      home: const LoginScreen(),
       debugShowCheckedModeBanner: false,
     );
   }
