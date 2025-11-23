@@ -317,6 +317,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         keyboardType: TextInputType.phone,
                         decoration: InputDecoration(
                           labelText: 'Teléfono *',
+                          hintText: '+56 9 1234 5678',
                           prefixIcon: const Icon(Icons.phone),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -327,6 +328,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Por favor ingresa tu teléfono';
+                          }
+                          // Validar formato +## # #### ####
+                          final phoneRegex = RegExp(r'^\+\d{2}\s\d\s\d{4}\s\d{4}$');
+                          if (!phoneRegex.hasMatch(value)) {
+                            return 'Formato inválido. Usa: +## # #### ####';
                           }
                           return null;
                         },

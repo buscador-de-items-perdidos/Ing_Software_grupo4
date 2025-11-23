@@ -21,10 +21,8 @@ class TarjetaReporte extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Reporte? reporte = pendiente
-        ? ReportHandler.getPeticion(nombre)
-        : (ReportHandler.getReporte(nombre) ??
-              ReportHandler.getEncontrado(nombre));
+    // Usar buscarReporte para buscar en todos los maps (pendientes, existentes, encontrados)
+    Reporte? reporte = ReportHandler.buscarReporte(nombre);
 
     if (reporte == null) {
       return const SizedBox.shrink();
