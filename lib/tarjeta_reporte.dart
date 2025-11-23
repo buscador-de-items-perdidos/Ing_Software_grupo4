@@ -15,110 +15,147 @@ class TarjetaReporte extends StatelessWidget {
   });
 
   final String nombre;
-
   final Modo modo;
-
   final bool pendiente;
 
   @override
   Widget build(BuildContext context) {
     // Usar buscarReporte para buscar en todos los maps (pendientes, existentes, encontrados)
-    Reporte? reporte = ReportHandler.buscarReporte(nombre);
+    final Reporte? reporte = _obtenerReporte();
 
     if (reporte == null) {
       return const SizedBox.shrink();
     }
 
-    final esAutor = reporte.autor == SessionHandler.uuid;
+    return _buildCard(context, reporte);
+  }
+
+  Reporte? _obtenerReporte() {
+    return pendiente
+        ? ReportHandler.getPeticion(nombre)
+        : (ReportHandler.getReporte(nombre) ??
+              ReportHandler.getEncontrado(nombre));
+  }
+
+  Widget _buildCard(BuildContext context, Reporte reporte) {
+    final bool puedeEliminar = _puedeEliminarReporte(reporte);
 
     return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadiusGeometry.circular(3),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
       clipBehavior: Clip.antiAlias,
       elevation: 3,
       child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => mostrarReporte(reporte, nombre, modo: modo),
-            ),
-          );
-        },
+        onTap: () => _navegarADetalle(context, reporte),
         child: Stack(
           children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(
-                  child: reporte.imagenesBytes.isNotEmpty
-                      ? Image.memory(
-                          reporte.imagenesBytes.first,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stack) => Image.asset(
-                            'assets/trial.png',
-                            fit: BoxFit.cover,
-                          ),
-                        )
-                      : Image.asset('assets/trial.png', fit: BoxFit.cover),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    reporte.titulo,
-                    style: Theme.of(context).textTheme.titleMedium,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Chip(
-                    avatar: DecoratedBox(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: hexToColor(
-                          colorNameToHex[reporte.etiquetas.first.colorName],
-                        ),
-                      ),
-                    ),
-                    label: Text(reporte.etiquetas.first.nombre),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Text(
-                    'Objeto ${reporte.tipo.name}',
-                    style: Theme.of(context).textTheme.labelMedium,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-            if ((esAutor || SessionHandler.isAdmin) && modo != Modo.Revisar)
-              Positioned(
-                top: 4,
-                right: 4,
-                child: Material(
-                  color: Colors.transparent,
-                  child: Tooltip(
-                    message: 'Eliminar reporte',
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.delete_forever,
-                        color: Colors.white,
-                        shadows: [Shadow(blurRadius: 4, color: Colors.black87)],
-                      ),
-                      onPressed: () => _eliminarReporte(context),
-                    ),
-                  ),
-                ),
-              ),
+            _buildContenidoTarjeta(context, reporte),
+            if (puedeEliminar) _buildBotonEliminar(context),
           ],
         ),
+      ),
+    );
+  }
+
+  bool _puedeEliminarReporte(Reporte reporte) {
+    final bool esAutor = reporte.autor == SessionHandler.uuid;
+    return (esAutor || SessionHandler.isAdmin) && modo != Modo.Revisar;
+  }
+
+  Widget _buildContenidoTarjeta(BuildContext context, Reporte reporte) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Expanded(child: _buildImagen(reporte)),
+        _buildTitulo(context, reporte),
+        _buildEtiqueta(reporte),
+        _buildTipoObjeto(context, reporte),
+      ],
+    );
+  }
+
+  Widget _buildImagen(Reporte reporte) {
+    if (reporte.imagenesBytes.isEmpty) {
+      return Image.asset('assets/trial.png', fit: BoxFit.cover);
+    }
+
+    return Image.memory(
+      reporte.imagenesBytes.first,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stack) =>
+          Image.asset('assets/trial.png', fit: BoxFit.cover),
+    );
+  }
+
+  Widget _buildTitulo(BuildContext context, Reporte reporte) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Text(
+        reporte.titulo,
+        style: Theme.of(context).textTheme.titleMedium,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+  }
+
+  Widget _buildEtiqueta(Reporte reporte) {
+    final colorHex = colorNameToHex[reporte.etiquetas.first.colorName];
+    final color = hexToColor(colorHex);
+
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: Chip(
+        avatar: CircleAvatar(backgroundColor: color, radius: 12),
+        label: Text(reporte.etiquetas.first.nombre),
+      ),
+    );
+  }
+
+  Widget _buildTipoObjeto(BuildContext context, Reporte reporte) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 40.0),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            minHeight: 20, // Consistent height for this text
+          ),
+          child: Text(
+            'Objeto ${reporte.tipo.name}',
+            style: Theme.of(context).textTheme.labelMedium,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBotonEliminar(BuildContext context) {
+    return Positioned(
+      top: 4,
+      right: 4,
+      child: Material(
+        color: Colors.transparent,
+        child: Tooltip(
+          message: 'Eliminar reporte',
+          child: IconButton(
+            icon: const Icon(
+              Icons.delete_forever,
+              color: Colors.white,
+              shadows: [Shadow(blurRadius: 4, color: Colors.black87)],
+            ),
+            onPressed: () => _eliminarReporte(context),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _navegarADetalle(BuildContext context, Reporte reporte) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => mostrarReporte(reporte, nombre, modo: modo),
       ),
     );
   }

@@ -200,6 +200,7 @@ class ListaPendientes extends StatelessWidget {
       },
       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
         maxCrossAxisExtent: 350,
+        childAspectRatio: 0.6,
       ),
     );
   }

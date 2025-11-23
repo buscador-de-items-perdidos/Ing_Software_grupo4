@@ -206,6 +206,7 @@ class ListaReportes extends StatelessWidget {
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
         maxCrossAxisExtent: 350,
+        childAspectRatio: 0.6,
       ),
       padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
       itemCount: filtrados.length,
