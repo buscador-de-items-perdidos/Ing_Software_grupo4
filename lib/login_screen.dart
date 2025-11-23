@@ -34,7 +34,6 @@ class _LoginScreenState extends State<LoginScreen> {
       _errorMessage = null;
     });
 
-    // Simular un pequeño delay para hacer más realista
     await Future.delayed(const Duration(milliseconds: 500));
 
     final username = _usernameController.text.trim();
@@ -206,7 +205,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Usuario de prueba: pandita_45\nContraseña: admin123',
+                        'Usuario "ADMIN" de prueba: pandita_45\nContraseña: admin123',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 12,

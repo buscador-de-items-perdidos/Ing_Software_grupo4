@@ -68,6 +68,7 @@ class _CambioContactosState extends State<CambioContactos> {
                               child: FilledButton(
                                 onPressed: () {
                                   if (_formKey24.currentState!.validate()) {
+                                    final usuarioActual = SessionHandler.usuarioActual!;
                                     SessionHandler.cambiarUsuario(
                                       SessionHandler.uuid,
                                       Usuario(
@@ -80,6 +81,8 @@ class _CambioContactosState extends State<CambioContactos> {
                                         reportes_aceptados:
                                             SessionHandler.getAceptados,
                                         isAdmin: SessionHandler.isAdmin,
+                                        tipoUsuario: usuarioActual.tipoUsuario,
+                                        matricula: usuarioActual.matricula,
                                       ),
                                     );
                                   }
@@ -102,6 +105,53 @@ class _CambioContactosState extends State<CambioContactos> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
+                          // Información del tipo de usuario
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            margin: const EdgeInsets.only(right: 100, bottom: 16),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade50,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.blue.shade200),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      SessionHandler.usuarioActual?.tipoUsuario == TipoUsuario.miembroUniversidad
+                                          ? Icons.school
+                                          : Icons.person_outline,
+                                      color: Colors.blue.shade700,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      SessionHandler.usuarioActual?.tipoUsuario == TipoUsuario.miembroUniversidad
+                                          ? 'Miembro de la Universidad'
+                                          : 'Usuario Externo',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.blue.shade700,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                if (SessionHandler.usuarioActual?.tipoUsuario == TipoUsuario.miembroUniversidad &&
+                                    SessionHandler.usuarioActual?.matricula != null) ...[
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Matrícula: ${SessionHandler.usuarioActual?.matricula}',
+                                    style: TextStyle(
+                                      color: Colors.blue.shade900,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
                           const Text(
                             "Nombre de usuario",
                             textAlign: TextAlign.left,

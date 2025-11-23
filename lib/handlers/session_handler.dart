@@ -13,6 +13,8 @@ abstract class SessionHandler {
       reportes_pendientes: {},
       reportes_aceptados: {},
       isAdmin: true,
+      tipoUsuario: TipoUsuario.miembroUniversidad,
+      matricula: "2020123456",
     ),
   };
 
@@ -69,8 +71,10 @@ abstract class SessionHandler {
     required String nombreUsuario,
     required String password,
     required String correo,
+    required TipoUsuario tipoUsuario,
     String? numero,
     String? miscelaneo,
+    String? matricula,
   }) {
     // Validar que el nombre de usuario no exista
     if (_usernameToUuid.containsKey(nombreUsuario)) {
@@ -94,6 +98,16 @@ abstract class SessionHandler {
       return "La contraseña debe tener al menos 6 caracteres";
     }
 
+    // Validar matrícula para miembros de la universidad
+    if (tipoUsuario == TipoUsuario.miembroUniversidad) {
+      if (matricula == null || matricula.isEmpty) {
+        return "La matrícula es obligatoria para miembros de la universidad";
+      }
+      if (matricula.length < 8) {
+        return "La matrícula debe tener al menos 8 caracteres";
+      }
+    }
+
     // Generar UUID para el nuevo usuario
     final nuevoUuid = _uuidGenerator.v7();
 
@@ -106,6 +120,8 @@ abstract class SessionHandler {
       reportes_pendientes: {},
       reportes_aceptados: {},
       isAdmin: false, // Los nuevos usuarios no son administradores por defecto
+      tipoUsuario: tipoUsuario,
+      matricula: tipoUsuario == TipoUsuario.miembroUniversidad ? matricula : null,
     );
 
     // Guardar usuario y credenciales

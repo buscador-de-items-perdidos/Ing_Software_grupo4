@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
+import 'package:ing_software_grupo4/modelos/usuario.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -21,6 +22,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   String? _errorMessage;
+  TipoUsuario _tipoUsuario = TipoUsuario.externo;
 
   @override
   void dispose() {
@@ -50,6 +52,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       nombreUsuario: _usernameController.text.trim(),
       password: _passwordController.text,
       correo: _emailController.text.trim(),
+      tipoUsuario: _tipoUsuario,
       numero: _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
       miscelaneo: _miscController.text.trim().isEmpty ? null : _miscController.text.trim(),
     );
@@ -127,6 +130,55 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       const SizedBox(height: 24),
                       
+                      // Selector de Tipo de Usuario
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.green.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.green.shade200),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Tipo de Usuario *',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.green.shade700,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            RadioListTile<TipoUsuario>(
+                              title: const Text('Miembro de la Universidad'),
+                              subtitle: const Text('Estudiante o personal UdeC'),
+                              value: TipoUsuario.miembroUniversidad,
+                              groupValue: _tipoUsuario,
+                              onChanged: _isLoading ? null : (value) {
+                                setState(() {
+                                  _tipoUsuario = value!;
+                                });
+                              },
+                              activeColor: Colors.green.shade700,
+                            ),
+                            RadioListTile<TipoUsuario>(
+                              title: const Text('Usuario Externo'),
+                              subtitle: const Text('No pertenezco a la UdeC'),
+                              value: TipoUsuario.externo,
+                              groupValue: _tipoUsuario,
+                              onChanged: _isLoading ? null : (value) {
+                                setState(() {
+                                  _tipoUsuario = value!;
+                                });
+                              },
+                              activeColor: Colors.green.shade700,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      
                       // Campo de Usuario
                       TextFormField(
                         controller: _usernameController,
@@ -174,6 +226,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           }
                           if (!value.contains('@') || !value.contains('.')) {
                             return 'Correo inválido';
+                          }
+                          // Validar correo UdeC para miembros de la universidad
+                          if (_tipoUsuario == TipoUsuario.miembroUniversidad) {
+                            if (!value.trim().toLowerCase().endsWith('@udec.cl')) {
+                              return 'Debes usar un correo @udec.cl';
+                            }
                           }
                           if (!SessionHandler.isEmailAvailable(value.trim())) {
                             return 'Este correo ya está registrado';
