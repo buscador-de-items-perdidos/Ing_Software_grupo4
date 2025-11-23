@@ -12,12 +12,12 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:ing_software_grupo4/mostrar_reporte.dart';
 import 'package:latlong2/latlong.dart';
 
-part 'campo_titulo.dart';
-part 'descripcion_reporte.dart';
-
 Color hexToColor(String hex) {
   final cleaned = hex.replaceAll('#', '');
-  final value = int.parse(cleaned.length == 6 ? 'FF$cleaned' : cleaned, radix: 16);
+  final value = int.parse(
+    cleaned.length == 6 ? 'FF$cleaned' : cleaned,
+    radix: 16,
+  );
   return Color(value);
 }
 
@@ -80,23 +80,19 @@ bool _isColorable(String tagName) {
   return !blocked.contains(_normalizeTagName(tagName));
 }
 
-class ReportDisplay extends StatefulWidget {
+///Esta clase solo sirve para mostrar reportes en movil, si se quiere editar un reporte, mejor usar ReportDisplay
+class ReportDisplayMovil extends StatefulWidget {
   final Reporte reporte;
   final String uuid;
-  final Modo modo;
   Usuario get usuario => SessionHandler.getUsuario(reporte.autor);
-  const ReportDisplay(this.reporte, this.uuid, {required this.modo, super.key});
+  const ReportDisplayMovil(this.reporte, this.uuid, {super.key});
 
-  ReportDisplay.vacio(
-    this.uuid, {
-    super.key,
-    required this.modo,
-    required TipoReporte tipo,
-  }) : reporte = Reporte.vacio(tipo, SessionHandler.uuid);
+  ReportDisplayMovil.vacio(this.uuid, {super.key, required TipoReporte tipo})
+    : reporte = Reporte.vacio(tipo, SessionHandler.uuid);
 
   @override
   State<StatefulWidget> createState() {
-    return _ReportDisplayState();
+    return _ReportDisplayMovilState();
   }
 }
 
@@ -118,25 +114,16 @@ class _MemoryImageWithFallback extends StatelessWidget {
   }
 }
 
-class _ReportDisplayState extends State<ReportDisplay> {
-  late final TextEditingController _titleController = TextEditingController(
-    text: widget.reporte.titulo,
-  );
-
-  late final TextEditingController _descriptionController =
-      TextEditingController(text: widget.reporte.descripcion);
-
-  final _formKey = GlobalKey<FormState>();
+class _ReportDisplayMovilState extends State<ReportDisplayMovil> {
   late bool _encontrado = widget.reporte.encontrado;
 
-  late LatLng _loc =
+  late final LatLng _loc =
       widget.reporte.ubicacion ?? LatLng(-36.8288323, -73.0372646);
   LatLng? _finalLoc;
-  late List<Uint8List> _imagenesBytes = List<Uint8List>.from(
+  late final List<Uint8List> _imagenesBytes = List<Uint8List>.from(
     widget.reporte.imagenesBytes,
   );
-  late List<Tag> _selectedTags = List<Tag>.from(widget.reporte.etiquetas);
-  bool _intentoPublicarSinEtiquetas = false;
+  late final List<Tag> _selectedTags = List<Tag>.from(widget.reporte.etiquetas);
 
   final List<String> _availableTags = [
     'Celular',
@@ -172,28 +159,18 @@ class _ReportDisplayState extends State<ReportDisplay> {
   ];
   final PageController _pageController = PageController();
 
-  Future<void> _pickOneImage() async {
-    final res = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-      allowMultiple: false,
-      withData: true,
-      allowCompression: false,
-    );
-    if (res == null || res.files.isEmpty) return;
-    final file = res.files.first;
-    if (file.bytes == null) return;
-    setState(() {
-      _imagenesBytes.add(file.bytes!);
-    });
-  }
-
   @override
- Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(),
-    body: Form(
-      key: _formKey,
-      child: Padding(
+  Widget build(BuildContext context) {
+    return Scaffold(
+      floatingActionButton: IconButton(
+        style: OutlinedButton.styleFrom(
+          side: BorderSide(color: Colors.transparent),
+        ),
+        onPressed: () {},
+        icon: Icon(Icons.arrow_back),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
+      body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: SingleChildScrollView(
           child: Column(
@@ -209,25 +186,12 @@ class _ReportDisplayState extends State<ReportDisplay> {
                         _GaleriaImagenes(
                           imagenesBytes: _imagenesBytes,
                           controller: _pageController,
-                          editable: widget.modo == Modo.Editar,
                           onDelete: (i) {
                             setState(() {
                               _imagenesBytes.removeAt(i);
                             });
                           },
                         ),
-                        if (widget.modo == Modo.Editar)
-                          Positioned(
-                            top: 8,
-                            right: 8,
-                            child: Tooltip(
-                              message: 'Agregar imagen',
-                              child: IconButton.filled(
-                                onPressed: _pickOneImage,
-                                icon: const Icon(Icons.add_a_photo_outlined),
-                              ),
-                            ),
-                          ),
                       ],
                     ),
                   ),
@@ -238,10 +202,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
               Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 800),
-                  child: _CampoTitulo(
-                    controller: _titleController,
-                    editable: widget.modo == Modo.Editar,
-                  ),
+                  child: Text(widget.reporte.titulo),
                 ),
               ),
 
@@ -249,11 +210,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
               Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 800),
-                  child: _DescripcionReporte(
-                    controller: _descriptionController,
-                    tipo: widget.reporte.tipo,
-                    editable: widget.modo == Modo.Editar,
-                  ),
+                  child: Text(widget.reporte.descripcion),
                 ),
               ),
 
@@ -268,9 +225,6 @@ class _ReportDisplayState extends State<ReportDisplay> {
                       DetallesReporte(
                         reporte: widget.reporte,
                         selectedTags: _selectedTags,
-                        editable: widget.modo == Modo.Editar,
-                        onEditTags: _openTagEditor,
-                        onEditColors: _openColorEditor,
                       ),
                     ],
                   ),
@@ -278,9 +232,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
               ),
 
               const SizedBox(height: 16),
-              if (widget.modo == Modo.Ver &&
-                  widget.reporte.autor == SessionHandler.uuid &&
-                  !SessionHandler.getPendientes.contains(widget.uuid))
+              if (widget.reporte.autor == SessionHandler.uuid)
                 Center(
                   child: FractionallySizedBox(
                     widthFactor: 0.6,
@@ -305,10 +257,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
               Center(
                 child: FractionallySizedBox(
                   widthFactor: 0.6,
-                  child: SizedBox(
-                    height: 360,
-                    child: mapaUdec(),
-                  ),
+                  child: SizedBox(height: 360, child: mapaUdec()),
                 ),
               ),
 
@@ -316,11 +265,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
               Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 800),
-                  child: switch (widget.modo) {
-                    Modo.Editar => _crearBotonesGuardado(context),
-                    Modo.Ver => _crearBotonEditar(context),
-                    Modo.Revisar => _crearBotonesPublicacion(context),
-                  },
+                  child: _crearBotonEditar(context),
                 ),
               ),
 
@@ -329,10 +274,10 @@ class _ReportDisplayState extends State<ReportDisplay> {
           ),
         ),
       ),
-    ),
-  );
-}
-void _actualizarEstadoEncontrado(bool encontrado) {
+    );
+  }
+
+  void _actualizarEstadoEncontrado(bool encontrado) {
     ReportHandler.estadoObjeto(widget.uuid, encontrado);
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -353,13 +298,7 @@ void _actualizarEstadoEncontrado(bool encontrado) {
           options: MapOptions(
             initialCenter: _loc,
             initialZoom: 16,
-            onTap: (_, pos) {
-              if (widget.modo == Modo.Editar) {
-                setState(() {
-                  _loc = pos;
-                });
-              }
-            },
+            onTap: (_, _) {},
           ),
           children: [
             TileLayer(
@@ -368,14 +307,6 @@ void _actualizarEstadoEncontrado(bool encontrado) {
             ),
             MarkerLayer(
               markers: [
-                if (_finalLoc != null)
-                  Marker(
-                    point: _finalLoc!,
-                    child: const Icon(
-                      Icons.location_on_outlined,
-                      color: Colors.green,
-                    ),
-                  ),
                 Marker(
                   point: _loc,
                   child: const Icon(
@@ -387,272 +318,8 @@ void _actualizarEstadoEncontrado(bool encontrado) {
             ),
           ],
         ),
-        if (widget.modo == Modo.Editar)
-          Align(
-            alignment: Alignment.bottomRight,
-            child: Tooltip(
-              message: "Confirmar selección",
-              child: IconButton.filled(
-                onPressed: () {
-                  setState(() {
-                    _finalLoc = LatLng(_loc.latitude, _loc.longitude);
-                  });
-                },
-                icon: Icon(Icons.read_more),
-              ),
-            ),
-          ),
       ],
     );
-  }
-
-  Widget _crearBotonesGuardado(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: ElevatedButton(
-            onPressed: () => _publicarYSalir(context),
-            child: const Text("Publicar y Salir"),
-          ),
-        ),
-      ],
-    );
-  }
-
-  bool _publicar(BuildContext context) {
-    if (!_formKey.currentState!.validate() ||
-        _finalLoc == null ||
-        _imagenesBytes.isEmpty) {
-      if (_finalLoc == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              "Recuerda que tienes que confirmar una ubicación antes de publicar",
-            ),
-          ),
-        );
-      } else if (_imagenesBytes.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Debes seleccionar al menos una imagen"),
-          ),
-        );
-      }
-      return false;
-    }
-    
-    // Validación especial para etiquetas: permite omitir en segundo intento
-    if (_selectedTags.isEmpty && !_intentoPublicarSinEtiquetas) {
-      setState(() {
-        _intentoPublicarSinEtiquetas = true;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Seleccione una etiqueta. Presiona nuevamente para publicar sin etiquetas."),
-          duration: Duration(seconds: 4),
-        ),
-      );
-      return false;
-    }
-    
-    // Resetear el flag si se publica exitosamente
-    _intentoPublicarSinEtiquetas = false;
-    
-    Reporte r = _recolectarCambios();
-    if (!ReportHandler.submitPeticion(widget.uuid, r, true)) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: const Text("FAILED PUBLISH")));
-      return false;
-    }
-    return true;
-  }
-
-  void _publicarYSalir(BuildContext context) {
-    if (_publicar(context)) Navigator.of(context, rootNavigator: true).pop();
-  }
-
-  Reporte _recolectarCambios() {
-    return Reporte(
-      _titleController.text,
-      _descriptionController.text,
-      SessionHandler.uuid,
-      "",
-      _encontrado,
-      widget.reporte.tipo,
-      _finalLoc!,
-      imagenesBytes: _imagenesBytes,
-      etiquetas: _selectedTags,
-    );
-  }
-
-  Future<void> _openTagEditor() async {
-    String? selected = _selectedTags.isNotEmpty ? _selectedTags.first.nombre : null;
-    final Map<String, String> currentColors = {for (var t in _selectedTags) t.nombre: t.colorName};
-
-    final result = await showDialog<List<Tag>>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Seleccione la categoría'),
-          content: SingleChildScrollView(
-            child: StatefulBuilder(
-              builder: (context, setState) {
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: _availableTags.map((t) {
-                    return RadioListTile<String>(
-                      title: Text(t),
-                      value: t,
-                      groupValue: selected,
-                      onChanged: (v) => setState(() {
-                        selected = v;
-                      }),
-                    );
-                  }).toList(),
-                );
-              },
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () {
-                final List<Tag> out = selected != null ? [Tag(selected!, currentColors[selected] ?? 'blanco')] : <Tag>[];
-                Navigator.pop(context, out);
-              },
-              child: const Text('Guardar'),
-            ),
-          ],
-        );
-      },
-    );
-    if (result != null) {
-      setState(() {
-        _selectedTags = result;
-        // Resetear el flag cuando se modifican las etiquetas
-        if (_selectedTags.isNotEmpty) {
-          _intentoPublicarSinEtiquetas = false;
-        }
-      });
-    }
-  }
-
-  Future<void> _openColorEditor() async {
-    if (_selectedTags.isEmpty) {
-      await showDialog<void>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('No hay etiquetas'),
-          content: const Text('Selecciona primero las categorías y luego asigna colores.'),
-          actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))],
-        ),
-      );
-      return;
-    }
-
-    final Map<String, String> colors = {for (var t in _selectedTags) t.nombre: t.colorName};
-    final List<String> presetColorNames = colorNameToHex.keys.toList();
-
-    Future<String?> _pickColor(BuildContext ctx, String tag) async {
-      final res = await showDialog<String>(
-        context: ctx,
-        builder: (ctx) {
-          return AlertDialog(
-            title: Text('Elegir color para "$tag"'),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                  children: presetColorNames.map((name) {
-                  return ListTile(
-                    title: Text(prettifyColorName(name)),
-                    onTap: () => Navigator.pop(ctx, name),
-                  );
-                }).toList(),
-              ),
-            ),
-            actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancelar'))],
-          );
-        },
-      );
-      return res;
-    }
-
-    final result = await showDialog<List<Tag>>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Seleccionar color'),
-          content: SingleChildScrollView(
-            child: StatefulBuilder(
-              builder: (context, setState) {
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: _selectedTags.map((t) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 6.0),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 28,
-                            height: 28,
-                            decoration: BoxDecoration(
-                              color: hexToColor(colorNameToHex[colors[t.nombre]!] ?? colorNameToHex['blanco']!),
-                              border: Border.all(color: Colors.black26),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              t.nombre,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          _isColorable(t.nombre)
-                              ? TextButton(
-                                  onPressed: () async {
-                                    final chosen = await _pickColor(context, t.nombre);
-                                    if (chosen != null) setState(() => colors[t.nombre] = chosen);
-                                  },
-                                  child: const Text('Cambiar color'),
-                                )
-                              : TextButton(
-                                  onPressed: null,
-                                  child: const Text('No aplicable'),
-                                ),
-                        ],
-                      ),
-                    );
-                  }).toList(),
-                );
-              },
-            ),
-          ),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
-            TextButton(
-              onPressed: () {
-                final out = _selectedTags.map((t) => Tag(t.nombre, colors[t.nombre] ?? t.colorName)).toList();
-                Navigator.pop(context, out);
-              },
-              child: const Text('Guardar'),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (result != null) {
-      setState(() {
-        _selectedTags = result;
-      });
-    }
   }
 
   Widget _crearBotonEditar(BuildContext context) {
@@ -697,37 +364,6 @@ void _actualizarEstadoEncontrado(bool encontrado) {
       },
     );
   }
-
-  Widget _crearBotonesPublicacion(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Tooltip(
-            message: "Aprobar revisión",
-            child: ElevatedButton.icon(
-              onPressed: () {
-                ReportHandler.acceptPeticion(widget.uuid);
-                Navigator.pop(context);
-              },
-              label: Icon(Icons.check),
-            ),
-          ),
-        ),
-        Expanded(
-          child: Tooltip(
-            message: "Rechazar y destruir revisión",
-            child: ElevatedButton.icon(
-              onPressed: () {
-                ReportHandler.rejectPeticion(widget.uuid);
-                Navigator.pop(context, true);
-              },
-              label: Icon(Icons.delete),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 }
 
 class _GaleriaImagenes extends StatefulWidget {
@@ -735,12 +371,10 @@ class _GaleriaImagenes extends StatefulWidget {
     required this.imagenesBytes,
     required this.controller,
     this.onDelete,
-    this.editable = false,
   });
   final List<Uint8List> imagenesBytes;
   final PageController controller;
   final void Function(int index)? onDelete;
-  final bool editable;
 
   @override
   State<_GaleriaImagenes> createState() => _GaleriaImagenesState();
@@ -785,21 +419,6 @@ class _GaleriaImagenesState extends State<_GaleriaImagenes> {
             ),
           ),
         ),
-        if (widget.editable && widget.onDelete != null)
-          Positioned(
-            top: 8,
-            left: 8,
-            child: Tooltip(
-              message: 'Eliminar imagen',
-              child: IconButton.filled(
-                style: const ButtonStyle(
-                  backgroundColor: MaterialStatePropertyAll(Colors.black54),
-                ),
-                onPressed: () => widget.onDelete!(index),
-                icon: const Icon(Icons.delete_outline, color: Colors.white),
-              ),
-            ),
-          ),
         Align(
           alignment: Alignment.centerLeft,
           child: IconButton(
@@ -966,15 +585,11 @@ class DetallesReporte extends StatelessWidget {
     required this.reporte,
     this.selectedTags = const [],
     this.editable = false,
-    this.onEditTags,
-    this.onEditColors,
   });
 
   final Reporte reporte;
   final List<Tag> selectedTags;
   final bool editable;
-  final VoidCallback? onEditTags;
-  final VoidCallback? onEditColors;
 
   @override
   Widget build(BuildContext context) {
@@ -989,7 +604,7 @@ class DetallesReporte extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         Text(
-          "Autor: ${SessionHandler.getUsuario(reporte.autor).nombreUsuario}",
+          "Autor: ${SessionHandler.nombreUsuario}",
           style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
           textAlign: TextAlign.center,
         ),
@@ -1000,63 +615,53 @@ class DetallesReporte extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         Text(
-          "Fecha: ${reporte.fecha.day.toString().padLeft(2,'0')}/${reporte.fecha.month.toString().padLeft(2,'0')}/${reporte.fecha.year}",
+          "Fecha: ${reporte.fecha.day.toString().padLeft(2, '0')}/${reporte.fecha.month.toString().padLeft(2, '0')}/${reporte.fecha.year}",
           style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 8),
-        Builder(builder: (context) {
-          final cats = selectedTags.map((t) => t.nombre).join(', ');
-          final colorSet = selectedTags.map((t) => t.colorName).where((c) => c != 'blanco').toSet();
-          final colorsPretty = colorSet.map((c) => prettifyColorName(c)).join(', ');
-          return Column(
-            children: [
-              if (cats.isNotEmpty)
-                Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    'Categoría: $cats',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
-                  ),
-                ),
-              if (colorsPretty.isNotEmpty) const SizedBox(height: 6),
-              if (colorsPretty.isNotEmpty)
-                Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    'Color: $colorsPretty',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
-                  ),
-                ),
-            ],
-          );
-        }),
-        const SizedBox(height: 2),
-        if (editable)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12.0),
-            child: Wrap(
-              alignment: WrapAlignment.end,
-              spacing: 8,
-              runSpacing: 6,
+        Builder(
+          builder: (context) {
+            final cats = selectedTags.map((t) => t.nombre).join(', ');
+            final colorSet = selectedTags
+                .map((t) => t.colorName)
+                .where((c) => c != 'blanco')
+                .toSet();
+            final colorsPretty = colorSet
+                .map((c) => prettifyColorName(c))
+                .join(', ');
+            return Column(
               children: [
-                TextButton.icon(
-                  style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6)),
-                  onPressed: onEditTags,
-                  icon: const Icon(Icons.label_outline, size: 18),
-                  label: const Text('Seleccionar Categoria'),
-                ),
-                TextButton.icon(
-                  style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6)),
-                  onPressed: onEditColors,
-                  icon: const Icon(Icons.color_lens_outlined, size: 18),
-                  label: const Text('Seleccionar Color'),
-                ),
+                if (cats.isNotEmpty)
+                  Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Categoría: $cats',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ),
+                if (colorsPretty.isNotEmpty) const SizedBox(height: 6),
+                if (colorsPretty.isNotEmpty)
+                  Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Color: $colorsPretty',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ),
               ],
-            ),
-          ),
+            );
+          },
+        ),
+        const SizedBox(height: 2),
       ],
     );
   }

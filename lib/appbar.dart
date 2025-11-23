@@ -89,7 +89,7 @@ class BotonPublicar extends StatelessWidget {
 }
 
 class _BotonMenu extends StatelessWidget {
-  _BotonMenu({required this.tipo});
+  const _BotonMenu({required this.tipo});
 
   final TipoReporte tipo;
 
