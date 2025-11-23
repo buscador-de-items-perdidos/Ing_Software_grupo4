@@ -16,7 +16,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _miscController = TextEditingController();
   
   bool _isLoading = false;
   bool _obscurePassword = true;
@@ -31,7 +30,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     _phoneController.dispose();
-    _miscController.dispose();
     super.dispose();
   }
 
@@ -53,8 +51,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       password: _passwordController.text,
       correo: _emailController.text.trim(),
       tipoUsuario: _tipoUsuario,
-      numero: _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
-      miscelaneo: _miscController.text.trim().isEmpty ? null : _miscController.text.trim(),
+      numero: _phoneController.text.trim(),
     );
 
     if (resultado == null) {
@@ -314,12 +311,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       const SizedBox(height: 16),
                       
-                      // Campo de Teléfono (opcional)
+                      // Campo de Teléfono (obligatorio)
                       TextFormField(
                         controller: _phoneController,
                         keyboardType: TextInputType.phone,
                         decoration: InputDecoration(
-                          labelText: 'Teléfono (Opcional)',
+                          labelText: 'Teléfono *',
                           prefixIcon: const Icon(Icons.phone),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -327,23 +324,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           filled: true,
                           fillColor: Colors.grey.shade50,
                         ),
-                        enabled: !_isLoading,
-                      ),
-                      const SizedBox(height: 16),
-                      
-                      // Campo de Misceláneo (opcional)
-                      TextFormField(
-                        controller: _miscController,
-                        decoration: InputDecoration(
-                          labelText: 'Otro contacto (Opcional)',
-                          prefixIcon: const Icon(Icons.info_outline),
-                          hintText: 'Discord, Telegram, etc.',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey.shade50,
-                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor ingresa tu teléfono';
+                          }
+                          return null;
+                        },
                         enabled: !_isLoading,
                       ),
                       

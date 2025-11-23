@@ -14,18 +14,17 @@ abstract class SessionHandler {
       reportes_aceptados: {},
       isAdmin: true,
       tipoUsuario: TipoUsuario.miembroUniversidad,
-      matricula: "2020123456",
     ),
   };
 
   // Mapa de credenciales para autenticación (en producción esto debería estar en una base de datos)
   static final Map<String, String> _credenciales = {
-    "pandita_45": "admin123",
+    "admin": "admin123",
   };
 
   // Mapa para asociar nombres de usuario con UUIDs
   static final Map<String, String> _usernameToUuid = {
-    "pandita_45": "019a2e2f-d31c-7441-8355-62c252a55cc6",
+    "admin": "019a2e2f-d31c-7441-8355-62c252a55cc6",
   };
 
   static Usuario? get usuarioActual => usuarios[uuid];
@@ -74,7 +73,6 @@ abstract class SessionHandler {
     required TipoUsuario tipoUsuario,
     String? numero,
     String? miscelaneo,
-    String? matricula,
   }) {
     // Validar que el nombre de usuario no exista
     if (_usernameToUuid.containsKey(nombreUsuario)) {
@@ -98,16 +96,6 @@ abstract class SessionHandler {
       return "La contraseña debe tener al menos 6 caracteres";
     }
 
-    // Validar matrícula para miembros de la universidad
-    if (tipoUsuario == TipoUsuario.miembroUniversidad) {
-      if (matricula == null || matricula.isEmpty) {
-        return "La matrícula es obligatoria para miembros de la universidad";
-      }
-      if (matricula.length < 8) {
-        return "La matrícula debe tener al menos 8 caracteres";
-      }
-    }
-
     // Generar UUID para el nuevo usuario
     final nuevoUuid = _uuidGenerator.v7();
 
@@ -121,7 +109,7 @@ abstract class SessionHandler {
       reportes_aceptados: {},
       isAdmin: false, // Los nuevos usuarios no son administradores por defecto
       tipoUsuario: tipoUsuario,
-      matricula: tipoUsuario == TipoUsuario.miembroUniversidad ? matricula : null,
+      matricula: null,
     );
 
     // Guardar usuario y credenciales

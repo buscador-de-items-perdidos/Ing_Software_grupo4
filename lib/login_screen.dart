@@ -44,6 +44,13 @@ class _LoginScreenState extends State<LoginScreen> {
     if (loginResult) {
       // Login exitoso, navegar a la pantalla principal
       if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('¡Sesión iniciada correctamente!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const AppShell()),
         );
@@ -205,7 +212,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Usuario "ADMIN" de prueba: pandita_45\nContraseña: admin123',
+                        'Usuario "ADMIN" de prueba: admin\nContraseña: admin123',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 12,
