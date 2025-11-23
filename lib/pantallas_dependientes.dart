@@ -8,8 +8,16 @@ import 'package:ing_software_grupo4/report_display_movil.dart';
 
 ///Esta funcion entrega un report_display distinto dependiendo de la plataforma.
 Widget mostrarReporte(Reporte reporte, String nombre, {required Modo modo}) {
-  if (modo == Modo.Ver) {
-    return ReportDisplayMovil(reporte, nombre);
+  if (modo != Modo.Editar) {
+    return ReportDisplayMovil(reporte, nombre, modo);
   } else
     return ReportDisplay(reporte, nombre, modo: modo);
+}
+
+Widget mostrarDatosContacto(){
+  if(Platform.isIOS || Platform.isAndroid){
+    throw UnimplementedError();
+  } else {
+    throw UnimplementedError();
+  }
 }

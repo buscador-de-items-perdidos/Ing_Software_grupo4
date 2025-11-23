@@ -1,15 +1,13 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:ing_software_grupo4/handlers/report_handler.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
-import 'package:ing_software_grupo4/modelos/reporte.dart';
-import 'package:ing_software_grupo4/modelos/tag.dart';
-import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
 import 'package:ing_software_grupo4/modelos/modo.dart';
+import 'package:ing_software_grupo4/modelos/reporte.dart';
+import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
 import 'package:ing_software_grupo4/modelos/usuario.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:ing_software_grupo4/mostrar_reporte.dart';
+import 'package:ing_software_grupo4/pantallas_dependientes.dart';
 import 'package:latlong2/latlong.dart';
 
 Color? hexToColor(String? hex) {
@@ -48,35 +46,14 @@ const Map<String, String> colorNameToHex = {
   'Otro': '#FFFFFF',
 };
 
-String prettifyColorName(String key) {
-  return key
-      .split('_')
-      .map((s) => s.isEmpty ? s : (s[0].toUpperCase() + s.substring(1)))
-      .join(' ');
-}
-
-String _normalizeTagName(String s) {
-  var t = s.toLowerCase();
-  t = t.replaceAll(RegExp(r'[áàäâ]'), 'a');
-  t = t.replaceAll(RegExp(r'[éèëê]'), 'e');
-  t = t.replaceAll(RegExp(r'[íìïî]'), 'i');
-  t = t.replaceAll(RegExp(r'[óòöô]'), 'o');
-  t = t.replaceAll(RegExp(r'[úùüû]'), 'u');
-  t = t.replaceAll(RegExp(r'[ñ]'), 'n');
-  t = t.replaceAll(RegExp(r'[ç]'), 'c');
-  t = t.replaceAll(RegExp(r'[^a-z0-9]'), '');
-  return t;
-}
-
-///Esta clase solo sirve para mostrar reportes en movil, si se quiere editar un reporte, mejor usar ReportDisplay
+///Clase estandar para mostrar reportes, sin poder editarlos
 class ReportDisplayMovil extends StatefulWidget {
   final Reporte reporte;
   final String uuid;
-  Usuario get usuario => SessionHandler.getUsuario(reporte.autor);
-  const ReportDisplayMovil(this.reporte, this.uuid, {super.key});
 
-  ReportDisplayMovil.vacio(this.uuid, {super.key, required TipoReporte tipo})
-    : reporte = Reporte.vacio(tipo, SessionHandler.uuid);
+  final Modo modo;
+  Usuario get usuario => SessionHandler.getUsuario(reporte.autor);
+  const ReportDisplayMovil(this.reporte, this.uuid, this.modo, {super.key});
 
   @override
   State<StatefulWidget> createState() {
@@ -110,7 +87,6 @@ class _ReportDisplayMovilState extends State<ReportDisplayMovil> {
   late final List<Uint8List> _imagenesBytes = List<Uint8List>.from(
     widget.reporte.imagenesBytes,
   );
-  late final List<Tag> _selectedTags = List<Tag>.from(widget.reporte.etiquetas);
 
   final PageController _pageController = PageController();
 
@@ -119,19 +95,17 @@ class _ReportDisplayMovilState extends State<ReportDisplayMovil> {
     return mediaQuery.size.width > mediaQuery.size.height;
   }
 
-  bool get isPortrait {
-    final mediaQuery = MediaQuery.of(context);
-    return mediaQuery.size.height > mediaQuery.size.width;
-  }
-
+  bool get isPortrait => !isLandscape;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async => _editarReporte(context),
-        child: const Icon(Icons.edit_document),
-        tooltip: "Editar reporte",
-      ),
+      floatingActionButton: widget.modo == Modo.Revisar
+          ? _crearBotonesRevisar()
+          : FloatingActionButton(
+              onPressed: () async => _editarReporte(context),
+              tooltip: "Editar reporte",
+              child: const Icon(Icons.edit_document),
+            ),
       body: CustomScrollView(
         slivers: [
           _Barra(
@@ -228,10 +202,15 @@ class _ReportDisplayMovilState extends State<ReportDisplayMovil> {
                   ? Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Card(child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 30.0, horizontal: 8),
-                          child: DetallesReporte(reporte: widget.reporte),
-                        )),
+                        Card(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 30.0,
+                              horizontal: 8,
+                            ),
+                            child: DetallesReporte(reporte: widget.reporte),
+                          ),
+                        ),
                         _DatosContacto(
                           usuario: SessionHandler.getUsuario(
                             widget.reporte.autor,
@@ -399,6 +378,30 @@ class _ReportDisplayMovilState extends State<ReportDisplayMovil> {
           modo: Modo.Editar,
         ),
       ),
+    );
+  }
+
+  Widget _crearBotonesRevisar() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        FloatingActionButton(
+          heroTag: null,
+          onPressed: () {
+            ReportHandler.acceptPeticion(widget.uuid);
+            Navigator.pop(context);
+          },
+          child: Icon(Icons.check),
+        ),
+        FloatingActionButton(
+          heroTag: null,
+          onPressed: () {
+            ReportHandler.rejectPeticion(widget.uuid);
+            Navigator.pop(context, true);
+          },
+          child: Icon(Icons.delete),
+        ),
+      ],
     );
   }
 }

@@ -9,8 +9,9 @@ import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
 import 'package:ing_software_grupo4/modelos/modo.dart';
 import 'package:ing_software_grupo4/modelos/usuario.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:ing_software_grupo4/mostrar_reporte.dart';
 import 'package:latlong2/latlong.dart';
+
+import 'pantallas_dependientes.dart';
 
 part 'campo_titulo.dart';
 part 'descripcion_reporte.dart';

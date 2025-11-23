@@ -3,7 +3,7 @@ import 'package:ing_software_grupo4/handlers/report_handler.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/modelos/modo.dart';
 import 'package:ing_software_grupo4/modelos/reporte.dart';
-import 'package:ing_software_grupo4/mostrar_reporte.dart';
+import 'package:ing_software_grupo4/pantallas_dependientes.dart';
 import 'package:ing_software_grupo4/report_display_movil.dart';
 
 class TarjetaReporte extends StatelessWidget {
