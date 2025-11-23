@@ -11,7 +11,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:ing_software_grupo4/mostrar_reporte.dart';
 import 'package:latlong2/latlong.dart';
 
-Color hexToColor(String hex) {
+Color? hexToColor(String? hex) {
+  if (hex == null) return null;
   final cleaned = hex.replaceAll('#', '');
   final value = int.parse(
     cleaned.length == 6 ? 'FF$cleaned' : cleaned,
@@ -124,30 +125,64 @@ class _ReportDisplayMovilState extends State<ReportDisplayMovil> {
           ),
           SliverList.list(
             children: [
-              const SizedBox(height: 24),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SingleChildScrollView(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(
+                      widget.reporte.etiquetas.length,
+                      (i) => Chip(
+                        avatar: Container(
+                          height: 30,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: BoxBorder.fromBorderSide(
+                              BorderSide(color: Colors.grey),
+                            ),
+                            color: hexToColor(
+                              colorNameToHex[widget
+                                  .reporte
+                                  .etiquetas[i]
+                                  .colorName],
+                            ),
+                          ),
+                        ),
+                        label: Text(widget.reporte.etiquetas[i].nombre),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
               Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 800),
-                  child: Text(widget.reporte.titulo),
+                  child: Text(
+                    widget.reporte.titulo,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
               ),
 
-              const SizedBox(height: 16),
               Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 800),
-                  child: Text(widget.reporte.descripcion),
+                  child: Text(
+                    "Objeto ${widget.reporte.tipo.name}",
+                    style: const TextStyle(fontSize: 18),
+                  ),
                 ),
               ),
 
-              const SizedBox(height: 24),
+              Divider(indent: 30, endIndent: 30),
               Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 800),
                   child: Column(
                     children: [
-                      _DatosContacto(usuario: widget.usuario),
-                      const SizedBox(height: 24),
                       DetallesReporte(
                         reporte: widget.reporte,
                         selectedTags: _selectedTags,
@@ -156,9 +191,9 @@ class _ReportDisplayMovilState extends State<ReportDisplayMovil> {
                   ),
                 ),
               ),
-
-              const SizedBox(height: 16),
-              if (widget.reporte.autor == SessionHandler.uuid)
+              Divider(indent: 30, endIndent: 30),
+              if (widget.reporte.autor == SessionHandler.uuid ||
+                  SessionHandler.getUsuario(widget.reporte.autor).isAdmin)
                 Center(
                   child: FractionallySizedBox(
                     widthFactor: 0.6,
@@ -179,7 +214,6 @@ class _ReportDisplayMovilState extends State<ReportDisplayMovil> {
                   ),
                 ),
 
-              const SizedBox(height: 16),
               Center(
                 child: FractionallySizedBox(
                   widthFactor: 0.6,
@@ -187,15 +221,13 @@ class _ReportDisplayMovilState extends State<ReportDisplayMovil> {
                 ),
               ),
 
-              const SizedBox(height: 24),
+              Spacer(flex: 2),
               Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 800),
                   child: _crearBotonEditar(context),
                 ),
               ),
-
-              const SizedBox(height: 24),
             ],
           ),
         ],
@@ -317,7 +349,12 @@ class _Barra extends StatelessWidget {
           return FlexibleSpaceBar(
             centerTitle: true,
             title: constraints.biggest.height <= kToolbarHeight
-                ? Text(titulo, style: TextStyle(color: Theme.of(context).scaffoldBackgroundColor),)
+                ? Text(
+                    titulo,
+                    style: TextStyle(
+                      color: Theme.of(context).scaffoldBackgroundColor,
+                    ),
+                  )
                 : null,
             stretchModes: [
               StretchMode.zoomBackground,
@@ -577,58 +614,11 @@ class DetallesReporte extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          "Tipo: Objeto ${reporte.tipo.name}",
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
-          textAlign: TextAlign.center,
-        ),
-        Text(
           "Fecha: ${reporte.fecha.day.toString().padLeft(2, '0')}/${reporte.fecha.month.toString().padLeft(2, '0')}/${reporte.fecha.year}",
           style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 8),
-        Builder(
-          builder: (context) {
-            final cats = selectedTags.map((t) => t.nombre).join(', ');
-            final colorSet = selectedTags
-                .map((t) => t.colorName)
-                .where((c) => c != 'blanco')
-                .toSet();
-            final colorsPretty = colorSet
-                .map((c) => prettifyColorName(c))
-                .join(', ');
-            return Column(
-              children: [
-                if (cats.isNotEmpty)
-                  Align(
-                    alignment: Alignment.center,
-                    child: Text(
-                      'Categoría: $cats',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ),
-                if (colorsPretty.isNotEmpty) const SizedBox(height: 6),
-                if (colorsPretty.isNotEmpty)
-                  Align(
-                    alignment: Alignment.center,
-                    child: Text(
-                      'Color: $colorsPretty',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ),
-              ],
-            );
-          },
-        ),
-        const SizedBox(height: 2),
       ],
     );
   }
