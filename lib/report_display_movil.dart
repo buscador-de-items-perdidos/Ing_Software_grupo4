@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:ing_software_grupo4/handlers/report_handler.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/modelos/reporte.dart';
@@ -67,19 +66,6 @@ String _normalizeTagName(String s) {
   return t;
 }
 
-bool _isColorable(String tagName) {
-  const blocked = {
-    'documentos',
-    'cedula',
-    'pasaporte',
-    'licenciadeconducir',
-    'credencial',
-    'credencialuniversitarialaboral',
-    'tarjetabancaria',
-  };
-  return !blocked.contains(_normalizeTagName(tagName));
-}
-
 ///Esta clase solo sirve para mostrar reportes en movil, si se quiere editar un reporte, mejor usar ReportDisplay
 class ReportDisplayMovil extends StatefulWidget {
   final Reporte reporte;
@@ -119,85 +105,25 @@ class _ReportDisplayMovilState extends State<ReportDisplayMovil> {
 
   late final LatLng _loc =
       widget.reporte.ubicacion ?? LatLng(-36.8288323, -73.0372646);
-  LatLng? _finalLoc;
   late final List<Uint8List> _imagenesBytes = List<Uint8List>.from(
     widget.reporte.imagenesBytes,
   );
   late final List<Tag> _selectedTags = List<Tag>.from(widget.reporte.etiquetas);
 
-  final List<String> _availableTags = [
-    'Celular',
-    'Notebook / Laptop',
-    'Tablet',
-    'Audífonos',
-    'Cargador / Cable',
-    'Reloj inteligente',
-    'Lentes',
-    'Llaves',
-    'Billetera',
-    'Cartera',
-    'Paraguas',
-    'Mochila',
-    'Estuche',
-    'Documentos',
-    'Cédula',
-    'Pasaporte',
-    'Tarjeta bancaria',
-    'Licencia de conducir',
-    'Credencial universitaria / laboral',
-    'Polerón / Chaqueta',
-    'Gorro',
-    'Polera',
-    'Pantalones',
-    'Zapatos / Zapatillas',
-    'Guantes',
-    'Botella',
-    'Termo',
-    'Llaveros',
-    'Cuadernos / Libretas',
-    'Otro',
-  ];
   final PageController _pageController = PageController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: IconButton(
-        style: OutlinedButton.styleFrom(
-          side: BorderSide(color: Colors.transparent),
-        ),
-        onPressed: () {},
-        icon: Icon(Icons.arrow_back),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+      body: CustomScrollView(
+        slivers: [
+          _Barra(
+            imagenesBytes: _imagenesBytes,
+            pageController: _pageController,
+            titulo: widget.reporte.titulo,
+          ),
+          SliverList.list(
             children: [
-              Center(
-                child: FractionallySizedBox(
-                  widthFactor: 0.6,
-                  child: SizedBox(
-                    height: 480,
-                    child: Stack(
-                      children: [
-                        _GaleriaImagenes(
-                          imagenesBytes: _imagenesBytes,
-                          controller: _pageController,
-                          onDelete: (i) {
-                            setState(() {
-                              _imagenesBytes.removeAt(i);
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
               const SizedBox(height: 24),
               Center(
                 child: ConstrainedBox(
@@ -272,7 +198,7 @@ class _ReportDisplayMovilState extends State<ReportDisplayMovil> {
               const SizedBox(height: 24),
             ],
           ),
-        ),
+        ],
       ),
     );
   }
@@ -366,15 +292,56 @@ class _ReportDisplayMovilState extends State<ReportDisplayMovil> {
   }
 }
 
+class _Barra extends StatelessWidget {
+  const _Barra({
+    required List<Uint8List> imagenesBytes,
+    required PageController pageController,
+    required this.titulo,
+  }) : _imagenesBytes = imagenesBytes,
+       _pageController = pageController;
+
+  final String titulo;
+  final List<Uint8List> _imagenesBytes;
+  final PageController _pageController;
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverAppBar(
+      foregroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: Theme.of(context).primaryColor,
+      pinned: true,
+      stretch: true,
+      expandedHeight: 450,
+      flexibleSpace: LayoutBuilder(
+        builder: (context, constraints) {
+          return FlexibleSpaceBar(
+            centerTitle: true,
+            title: constraints.biggest.height <= kToolbarHeight
+                ? Text(titulo, style: TextStyle(color: Theme.of(context).scaffoldBackgroundColor),)
+                : null,
+            stretchModes: [
+              StretchMode.zoomBackground,
+              StretchMode.blurBackground,
+              StretchMode.fadeTitle,
+            ],
+            background: _GaleriaImagenes(
+              imagenesBytes: _imagenesBytes,
+              controller: _pageController,
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
 class _GaleriaImagenes extends StatefulWidget {
   const _GaleriaImagenes({
     required this.imagenesBytes,
     required this.controller,
-    this.onDelete,
   });
   final List<Uint8List> imagenesBytes;
   final PageController controller;
-  final void Function(int index)? onDelete;
 
   @override
   State<_GaleriaImagenes> createState() => _GaleriaImagenesState();
