@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
+import 'package:ing_software_grupo4/login_screen.dart';
 
 class MenuLateral extends StatelessWidget {
   final Function(int) select;
@@ -54,6 +55,18 @@ class MenuLateral extends StatelessWidget {
             leading: const Icon(Icons.list),
             title: const Text('Mis Reportes'),
             onTap: () => select(3),
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.logout),
+            title: const Text('Cerrar Sesión'),
+            onTap: () {
+              SessionHandler.logout();
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => const LoginScreen()),
+                (route) => false,
+              );
+            },
           ),
         ],
       ),
