@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ing_software_grupo4/appshell.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
+import 'package:ing_software_grupo4/register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -211,6 +212,31 @@ class _LoginScreenState extends State<LoginScreen> {
                           fontSize: 12,
                           color: Colors.grey.shade600,
                           fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      const Divider(),
+                      const SizedBox(height: 8),
+                      TextButton.icon(
+                        onPressed: _isLoading
+                            ? null
+                            : () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => const RegisterScreen(),
+                                  ),
+                                );
+                              },
+                        icon: const Icon(Icons.person_add),
+                        label: const Text(
+                          '¿No tienes cuenta? Regístrate',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.green.shade700,
                         ),
                       ),
                     ],

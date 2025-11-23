@@ -987,7 +987,7 @@ class DetallesReporte extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         Text(
-          "Autor: ${SessionHandler.nombreUsuario}",
+          "Autor: ${SessionHandler.getUsuario(reporte.autor).nombreUsuario}",
           style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
           textAlign: TextAlign.center,
         ),
