@@ -5,7 +5,6 @@ import 'package:ing_software_grupo4/handlers/report_handler.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/modelos/modo.dart';
 import 'package:ing_software_grupo4/modelos/reporte.dart';
-import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
 import 'package:ing_software_grupo4/modelos/usuario.dart';
 import 'package:ing_software_grupo4/pantallas_dependientes.dart';
 import 'package:latlong2/latlong.dart';
@@ -47,17 +46,17 @@ const Map<String, String> colorNameToHex = {
 };
 
 ///Clase estandar para mostrar reportes, sin poder editarlos
-class ReportDisplayMovil extends StatefulWidget {
+class ReportDisplay extends StatefulWidget {
   final Reporte reporte;
   final String uuid;
 
   final Modo modo;
   Usuario get usuario => SessionHandler.getUsuario(reporte.autor);
-  const ReportDisplayMovil(this.reporte, this.uuid, this.modo, {super.key});
+  const ReportDisplay(this.reporte, this.uuid, this.modo, {super.key});
 
   @override
   State<StatefulWidget> createState() {
-    return _ReportDisplayMovilState();
+    return _ReportDisplayState();
   }
 }
 
@@ -79,7 +78,7 @@ class _MemoryImageWithFallback extends StatelessWidget {
   }
 }
 
-class _ReportDisplayMovilState extends State<ReportDisplayMovil> {
+class _ReportDisplayState extends State<ReportDisplay> {
   late bool _resuelto = widget.reporte.encontrado;
 
   late final LatLng _loc =
