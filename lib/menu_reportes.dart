@@ -219,7 +219,7 @@ class ListaReportes extends StatelessWidget {
           children: [
             TarjetaReporte(
               key: ValueKey(filtrados[i]),
-              nombre: filtrados[i],
+              uuid: filtrados[i],
               modo: Modo.Ver,
               pendiente: esPendiente,
             ),

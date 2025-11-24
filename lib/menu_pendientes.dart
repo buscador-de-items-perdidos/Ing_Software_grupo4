@@ -159,7 +159,7 @@ class ListaPendientes extends StatelessWidget {
         return Stack(
           children: [
             // Tarjeta que muestra los detalles del reporte en modo revisión
-            TarjetaReporte(nombre: id, modo: Modo.Revisar, pendiente: true),
+            TarjetaReporte(uuid: id, modo: Modo.Revisar, pendiente: true),
             Positioned(
               bottom: 6,
               right: 6,

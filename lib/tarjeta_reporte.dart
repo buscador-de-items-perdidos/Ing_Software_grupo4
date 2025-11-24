@@ -8,12 +8,12 @@ import 'package:ing_software_grupo4/pantallas_dependientes.dart';
 class TarjetaReporte extends StatelessWidget {
   const TarjetaReporte({
     super.key,
-    required this.nombre,
+    required this.uuid,
     required this.modo,
     required this.pendiente,
   });
 
-  final String nombre;
+  final String uuid;
   final Modo modo;
   final bool pendiente;
 
@@ -30,9 +30,9 @@ class TarjetaReporte extends StatelessWidget {
 
   Reporte? _obtenerReporte() {
     return pendiente
-        ? ReportHandler.getPeticion(nombre)
-        : (ReportHandler.getReporte(nombre) ??
-              ReportHandler.getEncontrado(nombre));
+        ? ReportHandler.getPeticion(uuid)
+        : (ReportHandler.getReporte(uuid) ??
+              ReportHandler.getEncontrado(uuid));
   }
 
   Widget _buildCard(BuildContext context, Reporte reporte) {
@@ -153,7 +153,7 @@ class TarjetaReporte extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => mostrarReporte(reporte, nombre, modo: modo),
+        builder: (_) => mostrarReporte(reporte, uuid, modo: modo),
       ),
     );
   }
@@ -181,7 +181,7 @@ class TarjetaReporte extends StatelessWidget {
     );
 
     if (confirmar == true && context.mounted) {
-      ReportHandler.eliminarReporte(nombre);
+      ReportHandler.eliminarReporte(uuid);
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Reporte eliminado')));

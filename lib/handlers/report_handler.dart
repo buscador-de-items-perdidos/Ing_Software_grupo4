@@ -3,7 +3,6 @@ import 'package:ing_software_grupo4/modelos/reporte.dart';
 import 'package:flutter/foundation.dart';
 
 class ReportHandler {
-
   ///Aqui se guardará la revisión del reporte mas reciente enviada a los admin para aprobar.
 
   //Por la naturaleza de esta implementacíon los usuarios perderan las revisiones anteriores, que pena.
@@ -44,11 +43,11 @@ class ReportHandler {
 
   static bool submitPeticion(String key, Reporte r) {
     if (_pendientes.containsKey(key)) _pendientes.remove(key);
-    
+
     // Obtener el usuario autor del reporte y agregarlo a su lista de pendientes
     final autorUsuario = SessionHandler.getUsuario(r.autor);
     autorUsuario.reportes_pendientes.add(key);
-    
+
     _pendientes[key] = r;
     _pendingNotifier.value = !_pendingNotifier.value;
     return canPublish; //La idea es que esto nos diria si logramos publicar la petición, pero no tenemos nada aun
@@ -56,15 +55,15 @@ class ReportHandler {
 
   static void acceptPeticion(String uuid) {
     if (!_pendientes.containsKey(uuid)) return;
-    
+
     final reporte = _pendientes[uuid]!;
     _existentes[uuid] = reporte;
-    
+
     // Obtener el usuario autor del reporte y actualizar sus listas
     final autorUsuario = SessionHandler.getUsuario(reporte.autor);
     autorUsuario.reportes_aceptados.add(uuid);
     autorUsuario.reportes_pendientes.remove(uuid);
-    
+
     _pendientes.remove(uuid);
     _reportNotifier.value = !_reportNotifier.value;
     _pendingNotifier.value = !_pendingNotifier.value;
@@ -72,14 +71,14 @@ class ReportHandler {
 
   static void rejectPeticion(String uuid) {
     if (!_pendientes.containsKey(uuid)) return;
-    
+
     final reporte = _pendientes[uuid];
     if (reporte != null) {
       // Obtener el usuario autor del reporte y remover de su lista de pendientes
       final autorUsuario = SessionHandler.getUsuario(reporte.autor);
       autorUsuario.reportes_pendientes.remove(uuid);
     }
-    
+
     _pendientes.remove(uuid);
     _pendingNotifier.value = !pendingNotifier.value;
   }
@@ -138,5 +137,25 @@ class ReportHandler {
       _encontrados.remove(uuid);
     }
     _reportNotifier.value = !_reportNotifier.value;
+  }
+
+  ///Retorna uuid's de reportes similares al dado, que no tienen el mismo autor
+
+  ///Si el reporte es de objetos perdidos, el metodo retorna objetos encontrados, y viceversa
+  static List<String> getSimilares(String uuid) {
+    List<String> similares = [];
+    Reporte? reporte = _existentes[uuid];
+    if (reporte == null) return const [];
+
+    for (String x in _existentes.keys) {
+      if (x != uuid &&
+          _existentes[x]?.autor != reporte.autor &&
+          _existentes[x]?.etiquetas.firstOrNull ==
+              reporte.etiquetas.firstOrNull &&
+          reporte.tipo != _existentes[x]?.tipo) {
+        similares.add(x);
+      }
+    }
+    return similares;
   }
 }
