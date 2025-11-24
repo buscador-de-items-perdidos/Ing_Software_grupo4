@@ -76,13 +76,13 @@ class _ReportDisplayState extends State<ReportDisplay> {
                 ),
               ),
             ),
-            for (int i = 0; i < 5; i++)
+            for (String reporte in ReportHandler.getSimilares(widget.uuid))
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: AspectRatio(
                   aspectRatio: 1,
                   child: TarjetaReporte(
-                    nombre: widget.uuid,
+                    uuid: reporte,
                     modo: Modo.Ver,
                     pendiente: false,
                   ),
