@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ing_software_grupo4/report_display.dart';
 import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
-import 'package:ing_software_grupo4/modelos/modo.dart';
 import 'package:uuid/uuid.dart';
 
 AppBar appbar(BuildContext context) => AppBar(
