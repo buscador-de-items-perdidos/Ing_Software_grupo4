@@ -690,7 +690,7 @@ class DetallesReporte extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         Text(
-          "Autor: ${SessionHandler.nombreUsuario}",
+          "Autor: ${SessionHandler.getUsername(reporte.autor)}",
           style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
           textAlign: TextAlign.center,
         ),
