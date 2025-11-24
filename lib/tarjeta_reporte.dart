@@ -100,14 +100,14 @@ class TarjetaReporte extends StatelessWidget {
   }
 
   Widget _buildEtiqueta(Reporte reporte) {
-    final colorHex = colorNameToHex[reporte.etiquetas.first.colorName];
+    final colorHex = colorNameToHex[reporte.etiquetas.firstOrNull?.colorName ?? Colors.white];
     final color = hexToColor(colorHex);
 
     return Padding(
       padding: const EdgeInsets.all(8),
       child: Chip(
         avatar: CircleAvatar(backgroundColor: color, radius: 12),
-        label: Text(reporte.etiquetas.first.nombre),
+        label: Text(reporte.etiquetas.firstOrNull?.nombre ?? "Sin etiqueta"),
       ),
     );
   }
