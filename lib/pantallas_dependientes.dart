@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:ing_software_grupo4/cambio_contactos.dart';
+import 'package:ing_software_grupo4/cambio_contactos_movil.dart';
 import 'package:ing_software_grupo4/modelos/modo.dart';
 import 'package:ing_software_grupo4/modelos/reporte.dart';
 import 'package:ing_software_grupo4/report_display.dart';
@@ -16,8 +18,8 @@ Widget mostrarReporte(Reporte reporte, String nombre, {required Modo modo}) {
 
 Widget mostrarDatosContacto(){
   if(Platform.isIOS || Platform.isAndroid){
-    throw UnimplementedError();
+    return CambioContactosMovil();
   } else {
-    throw UnimplementedError();
+    return CambioContactos();
   }
 }
