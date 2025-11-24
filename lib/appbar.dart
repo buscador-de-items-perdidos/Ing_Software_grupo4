@@ -40,46 +40,77 @@ class BotonPublicar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      style: ButtonStyle(
-        backgroundColor: WidgetStateProperty<Color>.fromMap(
-          <WidgetStatesConstraint, Color>{
-            WidgetState.any: Theme.of(context).scaffoldBackgroundColor,
-          },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).primaryColor,
+        elevation: 2,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
         ),
       ),
       onPressed: () => showDialog(
-        barrierColor: Colors.transparent,
+        barrierColor: Colors.black26,
         context: context,
         builder: (context) => Dialog(
-          constraints: BoxConstraints.loose(Size.square(250)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          elevation: 8,
           alignment: Alignment.topRight,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "Selecciona el tipo de reporte",
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
-              ),
-              Divider(),
-              Expanded(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: 340,
+              maxHeight: 300,
+            ),
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Expanded(child: _BotonMenu(tipo: TipoReporte.perdido)),
-                    Expanded(child: _BotonMenu(tipo: TipoReporte.encontrado)),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.add_circle_outline,
+                          color: Theme.of(context).primaryColor,
+                          size: 24,
+                        ),
+                        const SizedBox(width: 10),
+                        const Expanded(
+                          child: Text(
+                            "Tipo de reporte",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    _BotonMenu(tipo: TipoReporte.perdido),
+                    const SizedBox(height: 10),
+                    _BotonMenu(tipo: TipoReporte.encontrado),
                   ],
                 ),
               ),
-            ],
+            ),
           ),
         ),
       ),
-
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.add, color: Theme.of(context).primaryColor),
+          Icon(Icons.add, color: Theme.of(context).primaryColor, size: 20),
+          const SizedBox(width: 6),
           Text(
             "Publicar",
-            style: TextStyle(color: Theme.of(context).primaryColor),
+            style: TextStyle(
+              color: Theme.of(context).primaryColor,
+              fontWeight: FontWeight.w600,
+              fontSize: 15,
+            ),
           ),
         ],
       ),
@@ -96,47 +127,105 @@ class _BotonMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     String titulo;
     String descripcion;
+    IconData icono;
+    Color color;
 
     switch (tipo) {
       case TipoReporte.perdido:
         titulo = "Perdido";
-        descripcion = "Publica un objeto que has perdido.";
+        descripcion = "Publica un objeto que has perdido";
+        icono = Icons.search;
+        color = Theme.of(context).primaryColor;
       case TipoReporte.encontrado:
         titulo = "Encontrado";
-        descripcion = "Publica un objeto que has encontrado.";
+        descripcion = "Publica un objeto que has encontrado";
+        icono = Icons.check_circle_outline;
+        color = Theme.of(context).primaryColor.withOpacity(0.8);
       case TipoReporte.administracion:
         titulo = "Anuncio";
-        descripcion = "Publica anuncios de administración.";
+        descripcion = "Publica anuncios de administración";
+        icono = Icons.announcement_outlined;
+        color = Theme.of(context).primaryColor.withOpacity(0.6);
     }
-    return SizedBox(
-      width: double.infinity,
-      child: InkWell(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                titulo,
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-              ),
-            ),
-            Text(descripcion),
-          ],
+    
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).primaryColor.withOpacity(0.2),
+          width: 1.5,
         ),
-        onTap: () {
-          Navigator.pop(context);
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) {
-                final uuid = Uuid().v7();
-
-                return ReportEditor.vacio(uuid, tipo: tipo);
-              },
+        color: Theme.of(context).primaryColor.withOpacity(0.05),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () {
+            Navigator.pop(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) {
+                  final uuid = Uuid().v7();
+                  return ReportEditor.vacio(uuid, tipo: tipo);
+                },
+              ),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    icono,
+                    color: color,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        titulo,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: color,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        descripcion,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade600,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_forward_ios,
+                  size: 14,
+                  color: Colors.grey.shade400,
+                ),
+              ],
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }
