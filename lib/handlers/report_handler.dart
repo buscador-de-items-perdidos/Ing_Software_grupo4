@@ -1,12 +1,10 @@
-import 'package:flutter/src/foundation/change_notifier.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/modelos/reporte.dart';
+import 'package:flutter/foundation.dart';
 
 class ReportHandler {
-  ///Aqui se guardará la revisión del reporte mas reciente enviada a los admin para aprobar.
 
-  //No quiero retornar una excepcion, podria usar Either pero seria poco manejable para los demas
-  //TODO: Buscar una solucion al problema de diferenciar retornos fallidos sin usar excepciones. Prioridad: Could
+  ///Aqui se guardará la revisión del reporte mas reciente enviada a los admin para aprobar.
 
   //Por la naturaleza de esta implementacíon los usuarios perderan las revisiones anteriores, que pena.
   static final Map<String, Reporte?> _pendientes = {};
@@ -29,10 +27,6 @@ class ReportHandler {
     throw UnimplementedError();
   }
 
-  static Reporte? getTeam(String key) {
-    return _existentes[key];
-  }
-
   static Iterable<String> getPeticiones() {
     if (!SessionHandler.isAdmin) return const Iterable.empty();
     return _pendientes.keys;
@@ -48,7 +42,7 @@ class ReportHandler {
     return _pendientes[key];
   }
 
-  static bool submitPeticion(String key, Reporte r, bool nuevo) {
+  static bool submitPeticion(String key, Reporte r) {
     if (_pendientes.containsKey(key)) _pendientes.remove(key);
     
     // Obtener el usuario autor del reporte y agregarlo a su lista de pendientes
