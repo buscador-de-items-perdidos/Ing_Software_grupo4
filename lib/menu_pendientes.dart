@@ -19,13 +19,13 @@ class _MenuPendientesState extends State<MenuPendientes> {
   final Set<String> _activeTipoFilters = {};
 
   Filter get filtro => Filter(
-        input.value,
-        false,
-        _activeTagFilters,
-        _activeColorFilters,
-        _activeTipoFilters,
-        soloPendientes: true,
-      );
+    input.value,
+    false,
+    _activeTagFilters,
+    _activeColorFilters,
+    _activeTipoFilters,
+    soloPendientes: true,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -37,12 +37,11 @@ class _MenuPendientesState extends State<MenuPendientes> {
             child: Row(
               children: [
                 Expanded(
-                  child: TextField(
+                  child: SearchBar(
+                    constraints: BoxConstraints(maxHeight: 30),
                     onChanged: (text) => input.value = text,
-                    decoration: const InputDecoration(
-                      hintText: 'Que estas buscando?',
-                      prefixIcon: Icon(Icons.search),
-                    ),
+                    hintText: 'Que estas buscando?',
+                    leading: Icon(Icons.search),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -51,12 +50,14 @@ class _MenuPendientesState extends State<MenuPendientes> {
                   child: TextButton.icon(
                     onPressed: _openFilterDialog,
                     icon: const Icon(Icons.filter_list),
-                    label: Text((_activeTagFilters.length +
-                                    _activeColorFilters.length +
-                                    _activeTipoFilters.length) ==
-                                0
-                            ? 'Filtros'
-                            : 'Filtros (${_activeTagFilters.length + _activeColorFilters.length + _activeTipoFilters.length})'),
+                    label: Text(
+                      (_activeTagFilters.length +
+                                  _activeColorFilters.length +
+                                  _activeTipoFilters.length) ==
+                              0
+                          ? 'Filtros'
+                          : 'Filtros (${_activeTagFilters.length + _activeColorFilters.length + _activeTipoFilters.length})',
+                    ),
                   ),
                 ),
               ],
@@ -119,11 +120,15 @@ class ListaPendientes extends StatelessWidget {
         return false;
 
       if (filtro.activeTagFilters.isNotEmpty &&
-          !reporte.etiquetas.any((tag) => filtro.activeTagFilters.contains(tag.nombre)))
+          !reporte.etiquetas.any(
+            (tag) => filtro.activeTagFilters.contains(tag.nombre),
+          ))
         return false;
 
       if (filtro.activeColorFilters.isNotEmpty &&
-          !reporte.etiquetas.any((tag) => filtro.activeColorFilters.contains(tag.colorName)))
+          !reporte.etiquetas.any(
+            (tag) => filtro.activeColorFilters.contains(tag.colorName),
+          ))
         return false;
 
       if (filtro.activeTipoFilters.isNotEmpty &&
@@ -133,7 +138,8 @@ class ListaPendientes extends StatelessWidget {
       return true;
     }).toList();
 
-    final bool hasActiveFilters = filtro.activeTagFilters.isNotEmpty ||
+    final bool hasActiveFilters =
+        filtro.activeTagFilters.isNotEmpty ||
         filtro.activeColorFilters.isNotEmpty ||
         filtro.activeTipoFilters.isNotEmpty;
 
@@ -141,10 +147,7 @@ class ListaPendientes extends StatelessWidget {
       return const Center(
         child: Text(
           'No existen publicaciones pendientes con estas etiquetas',
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.grey,
-          ),
+          style: TextStyle(fontSize: 16, color: Colors.grey),
         ),
       );
     }
@@ -153,50 +156,51 @@ class ListaPendientes extends StatelessWidget {
       itemCount: filtrados.length,
       itemBuilder: (context, i) {
         final String id = filtrados.elementAt(i);
-              return Stack(
-                children: [
-                  // Tarjeta que muestra los detalles del reporte en modo revisión
-                  TarjetaReporte(nombre: id, modo: Modo.Revisar, pendiente: true),
-                  Positioned(
-                    bottom: 6,
-                    right: 6,
-                    child: Tooltip(
-                      message: 'Aprobar reporte',
-                      child: IconButton(
-                        // Icono para indicar acción de aprobación
-                        icon: Icon(Icons.check_circle, color: Colors.green[700]),
-                        onPressed: () {
-                          ReportHandler.acceptPeticion(id);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Reporte aprobado')),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                  // Icono para indicar la acción de rechazar 
-                  Positioned(
-                    bottom: 6,
-                    right: 44,
-                    child: Tooltip(
-                      message: 'Rechazar reporte',
-                      child: IconButton(
-                        icon: Icon(Icons.cancel, color: Colors.red[700]),
-                        onPressed: () {
-                          ReportHandler.rejectPeticion(id);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Reporte rechazado')),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            },
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 6,
+        return Stack(
+          children: [
+            // Tarjeta que muestra los detalles del reporte en modo revisión
+            TarjetaReporte(nombre: id, modo: Modo.Revisar, pendiente: true),
+            Positioned(
+              bottom: 6,
+              right: 6,
+              child: Tooltip(
+                message: 'Aprobar reporte',
+                child: IconButton(
+                  // Icono para indicar acción de aprobación
+                  icon: Icon(Icons.check_circle, color: Colors.green[700]),
+                  onPressed: () {
+                    ReportHandler.acceptPeticion(id);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Reporte aprobado')),
+                    );
+                  },
+                ),
+              ),
             ),
-          );
+            // Icono para indicar la acción de rechazar
+            Positioned(
+              bottom: 6,
+              right: 44,
+              child: Tooltip(
+                message: 'Rechazar reporte',
+                child: IconButton(
+                  icon: Icon(Icons.cancel, color: Colors.red[700]),
+                  onPressed: () {
+                    ReportHandler.rejectPeticion(id);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Reporte rechazado')),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: 350,
+        childAspectRatio: 0.6,
+      ),
+    );
   }
 }

@@ -4,6 +4,7 @@ import 'package:ing_software_grupo4/cambio_contactos.dart';
 import 'package:ing_software_grupo4/menu_lateral.dart';
 import 'package:ing_software_grupo4/menu_pendientes.dart';
 import 'package:ing_software_grupo4/menu_reportes.dart';
+import 'package:ing_software_grupo4/pantallas_dependientes.dart';
 
 // Global navigator key so other widgets can access a root context
 final GlobalKey<NavigatorState> navKey = GlobalKey<NavigatorState>();
@@ -41,7 +42,7 @@ class _AppShellState extends State<AppShell> {
     return switch (selection) {
       0 => MenuReportes(key: ValueKey('todos-$selection')),
       1 => MenuPendientes(),
-      2 => CambioContactos(),
+      2 => mostrarDatosContacto(),
       3 => MenuReportes(key: ValueKey('mis-$selection'), soloMisReportes: true),
       _ => MenuReportes(key: ValueKey('default-$selection')),
     };

@@ -3,7 +3,7 @@ import 'package:uuid/uuid.dart';
 
 abstract class SessionHandler {
   static final _uuidGenerator = Uuid();
-  
+
   static final Map<String, Usuario> usuarios = {
     "019a2e2f-d31c-7441-8355-62c252a55cc6": Usuario(
       nombreUsuario: "pandita_45",
@@ -18,9 +18,7 @@ abstract class SessionHandler {
   };
 
   // Mapa de credenciales para autenticación (en producción esto debería estar en una base de datos)
-  static final Map<String, String> _credenciales = {
-    "admin": "admin123",
-  };
+  static final Map<String, String> _credenciales = {"admin": "admin123"};
 
   // Mapa para asociar nombres de usuario con UUIDs
   static final Map<String, String> _usernameToUuid = {
@@ -31,11 +29,11 @@ abstract class SessionHandler {
   static String get nombreUsuario => usuarioActual?.nombreUsuario ?? "";
   static String uuid = '';
   static bool get isAdmin => usuarioActual?.isAdmin ?? false;
-  static String get correo =>
-      usuarioActual?.correo ??
-      ""; 
+  static String get correo => usuarioActual?.correo ?? "";
   static String get numero => usuarioActual?.numero ?? "";
   static String get miscelaneo => usuarioActual?.miscelaneo ?? "";
+  static TipoUsuario get tipoUsuario =>
+      usuarioActual?.tipoUsuario ?? TipoUsuario.externo;
 
   static void cambiarUsuario(String uuid, Usuario usuario) {
     if (!usuarios.containsKey(uuid)) throw Exception();
@@ -46,7 +44,8 @@ abstract class SessionHandler {
   // Método para autenticar usuario
   static bool login(String username, String password) {
     // Verificar si el usuario existe y la contraseña es correcta
-    if (_credenciales.containsKey(username) && _credenciales[username] == password) {
+    if (_credenciales.containsKey(username) &&
+        _credenciales[username] == password) {
       // Obtener el UUID del usuario y establecer la sesión
       final userUuid = _usernameToUuid[username];
       if (userUuid != null) {
