@@ -11,18 +11,18 @@ class CambioContactos extends StatefulWidget {
 
 class _CambioContactosState extends State<CambioContactos> {
   final GlobalKey<FormState> _formKey24 = GlobalKey();
-  final TextEditingController _usernameController = TextEditingController(
-    text: SessionHandler.nombreUsuario,
+  late final Usuario usuarioActual = SessionHandler.usuarioActual!;
+  late final TextEditingController _usernameController = TextEditingController(
+    text: usuarioActual.nombreUsuario,
   );
-  final TextEditingController _correoController = TextEditingController(
-    text: SessionHandler.correo,
+  late final TextEditingController _correoController = TextEditingController(
+    text: usuarioActual.correo,
   );
-  final TextEditingController _numeroController = TextEditingController(
-    text: SessionHandler.numero,
+  late final TextEditingController _numeroController = TextEditingController(
+    text: usuarioActual.numero,
   );
-  final TextEditingController _miscelaneoController = TextEditingController(
-    text: SessionHandler.miscelaneo,
-  );
+  late final TextEditingController _miscelaneoController =
+      TextEditingController(text: usuarioActual.miscelaneo);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,7 +68,8 @@ class _CambioContactosState extends State<CambioContactos> {
                               child: FilledButton(
                                 onPressed: () {
                                   if (_formKey24.currentState!.validate()) {
-                                    final usuarioActual = SessionHandler.usuarioActual!;
+                                    final usuarioActual =
+                                        SessionHandler.usuarioActual!;
                                     SessionHandler.cambiarUsuario(
                                       SessionHandler.uuid,
                                       Usuario(
@@ -108,7 +109,10 @@ class _CambioContactosState extends State<CambioContactos> {
                           // Información del tipo de usuario
                           Container(
                             padding: const EdgeInsets.all(12),
-                            margin: const EdgeInsets.only(right: 100, bottom: 16),
+                            margin: const EdgeInsets.only(
+                              right: 100,
+                              bottom: 16,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.blue.shade50,
                               borderRadius: BorderRadius.circular(8),
@@ -120,14 +124,20 @@ class _CambioContactosState extends State<CambioContactos> {
                                 Row(
                                   children: [
                                     Icon(
-                                      SessionHandler.usuarioActual?.tipoUsuario == TipoUsuario.miembroUniversidad
+                                      SessionHandler
+                                                  .usuarioActual
+                                                  ?.tipoUsuario ==
+                                              TipoUsuario.miembroUniversidad
                                           ? Icons.school
                                           : Icons.person_outline,
                                       color: Colors.blue.shade700,
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
-                                      SessionHandler.usuarioActual?.tipoUsuario == TipoUsuario.miembroUniversidad
+                                      SessionHandler
+                                                  .usuarioActual
+                                                  ?.tipoUsuario ==
+                                              TipoUsuario.miembroUniversidad
                                           ? 'Miembro de la Universidad'
                                           : 'Usuario Externo',
                                       style: TextStyle(
@@ -138,8 +148,10 @@ class _CambioContactosState extends State<CambioContactos> {
                                     ),
                                   ],
                                 ),
-                                if (SessionHandler.usuarioActual?.tipoUsuario == TipoUsuario.miembroUniversidad &&
-                                    SessionHandler.usuarioActual?.matricula != null) ...[
+                                if (SessionHandler.usuarioActual?.tipoUsuario ==
+                                        TipoUsuario.miembroUniversidad &&
+                                    SessionHandler.usuarioActual?.matricula !=
+                                        null) ...[
                                   const SizedBox(height: 8),
                                   Text(
                                     'Matrícula: ${SessionHandler.usuarioActual?.matricula}',
@@ -170,12 +182,31 @@ class _CambioContactosState extends State<CambioContactos> {
                             padding: const EdgeInsets.only(right: 100.0),
                             child: TextFormField(
                               controller: _correoController,
-                              validator: (v) =>
-                                  RegExp(
-                                    r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$',
-                                  ).hasMatch(v ?? "")
-                                  ? null
-                                  : "Ingresa un correo electronico valido",
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Por favor ingresa tu correo';
+                                }
+                                if (!value.contains('@') ||
+                                    !value.contains('.')) {
+                                  return 'Correo inválido';
+                                }
+                                // Validar correo UdeC para miembros de la universidad
+                                if (usuarioActual.tipoUsuario ==
+                                    TipoUsuario.miembroUniversidad) {
+                                  if (!value.trim().toLowerCase().endsWith(
+                                    '@udec.cl',
+                                  )) {
+                                    return 'Debes usar un correo @udec.cl';
+                                  }
+                                }
+                                if ((value.trim() != SessionHandler.correo) &&
+                                    !SessionHandler.isEmailAvailable(
+                                      value.trim(),
+                                    )) {
+                                  return 'Este correo ya está registrado';
+                                }
+                                return null;
+                              },
                             ),
                           ),
                           const Text("Numero de telefono (+## # #### ####)"),
@@ -183,12 +214,19 @@ class _CambioContactosState extends State<CambioContactos> {
                             padding: const EdgeInsets.only(right: 100),
                             child: TextFormField(
                               controller: _numeroController,
-                              validator: (v) =>
-                                  v == null ||
-                                      v
-                                          .isEmpty //TODO: poner un validador en esto
-                                  ? "Ingresa un numero valido"
-                                  : null,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Por favor ingresa tu teléfono';
+                                }
+                                // Validar formato +## # #### ####
+                                final phoneRegex = RegExp(
+                                  r'^\+\d{2}\s\d\s\d{4}\s\d{4}$',
+                                );
+                                if (!phoneRegex.hasMatch(value)) {
+                                  return 'Formato inválido. Usa: +## # #### ####';
+                                }
+                                return null;
+                              },
                             ),
                           ),
                           const Text("Informacion de contacto miscelanea"),
@@ -196,7 +234,7 @@ class _CambioContactosState extends State<CambioContactos> {
                             padding: const EdgeInsets.only(right: 100),
                             child: TextFormField(
                               controller: _miscelaneoController,
-                              maxLines: 10,
+                              maxLines: 5,
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(),
                               ),
