@@ -208,7 +208,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
 
           // Resolution toggle (conditional)
           if ((widget.reporte.autor == SessionHandler.uuid ||
-                  SessionHandler.getUsuario(widget.reporte.autor).isAdmin) &&
+                  SessionHandler.isAdmin) &&
               !SessionHandler.getPendientes.contains(widget.uuid))
             SliverPadding(
               padding: const EdgeInsets.symmetric(
@@ -438,4 +438,3 @@ class _Barra extends StatelessWidget {
     );
   }
 }
-
