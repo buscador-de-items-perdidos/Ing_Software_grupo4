@@ -1,6 +1,8 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:ing_software_grupo4/__datos_contacto.dart';
+import 'package:ing_software_grupo4/__galeria_imagenes.dart';
 import 'package:ing_software_grupo4/handlers/report_handler.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/modelos/reporte.dart';
@@ -9,17 +11,11 @@ import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
 import 'package:ing_software_grupo4/modelos/usuario.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-
+import 'package:ing_software_grupo4/detalles_reporte.dart';
 
 part 'campo_titulo.dart';
 part 'descripcion_reporte.dart';
 
-String prettifyColorName(String key) {
-  return key
-      .split('_')
-      .map((s) => s.isEmpty ? s : (s[0].toUpperCase() + s.substring(1)))
-      .join(' ');
-}
 
 String _normalizeTagName(String s) {
   var t = s.toLowerCase();
@@ -65,23 +61,6 @@ class ReportEditor extends StatefulWidget {
   }
 }
 
-class _MemoryImageWithFallback extends StatelessWidget {
-  const _MemoryImageWithFallback(this.bytes, {this.fit = BoxFit.cover});
-
-  final Uint8List bytes;
-  final BoxFit fit;
-
-  @override
-  Widget build(BuildContext context) {
-    return Image.memory(
-      bytes,
-      fit: fit,
-      errorBuilder: (context, error, stackTrace) {
-        return Image.asset('assets/trial.png', fit: fit);
-      },
-    );
-  }
-}
 
 class _ReportEditorState extends State<ReportEditor> {
   late final TextEditingController _titleController = TextEditingController(
@@ -171,7 +150,7 @@ class _ReportEditorState extends State<ReportEditor> {
                     height: 480,
                     child: Stack(
                       children: [
-                        _GaleriaImagenes(
+                        GaleriaImagenes(
                           imagenesBytes: _imagenesBytes,
                           controller: _pageController,
                           editable: true,
@@ -227,7 +206,7 @@ class _ReportEditorState extends State<ReportEditor> {
                   constraints: const BoxConstraints(maxWidth: 800),
                   child: Column(
                     children: [
-                      _DatosContacto(usuario: widget.usuario),
+                      DatosContacto(usuario: widget.usuario),
                       const SizedBox(height: 24),
                       DetallesReporte(
                         reporte: widget.reporte,
@@ -574,334 +553,4 @@ class _ReportEditorState extends State<ReportEditor> {
   }
 }
 
-class _GaleriaImagenes extends StatefulWidget {
-  const _GaleriaImagenes({
-    required this.imagenesBytes,
-    required this.controller,
-    this.onDelete,
-    this.editable = false,
-  });
-  final List<Uint8List> imagenesBytes;
-  final PageController controller;
-  final void Function(int index)? onDelete;
-  final bool editable;
 
-  @override
-  State<_GaleriaImagenes> createState() => _GaleriaImagenesState();
-}
-
-class _GaleriaImagenesState extends State<_GaleriaImagenes> {
-  int index = 0;
-
-  void _go(int delta) {
-    final total = widget.imagenesBytes.length;
-    if (total == 0) return;
-    final next = (index + delta) % total;
-    setState(() => index = (next + total) % total);
-    widget.controller.animateToPage(
-      index,
-      duration: const Duration(milliseconds: 250),
-      curve: Curves.easeInOut,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final count = widget.imagenesBytes.length;
-    if (count == 0) {
-      return Container(
-        color: Colors.black12,
-        alignment: Alignment.center,
-        child: const Text('Sin imágenes'),
-      );
-    }
-    return Stack(
-      children: [
-        PageView.builder(
-          controller: widget.controller,
-          onPageChanged: (i) => setState(() => index = i),
-          itemCount: count,
-          itemBuilder: (context, i) => GestureDetector(
-            onTap: () => _openFullScreen(i),
-            child: _MemoryImageWithFallback(
-              widget.imagenesBytes[i],
-              fit: BoxFit.cover,
-            ),
-          ),
-        ),
-        if (widget.editable && widget.onDelete != null)
-          Positioned(
-            top: 8,
-            left: 8,
-            child: Tooltip(
-              message: 'Eliminar imagen',
-              child: IconButton.filled(
-                style: const ButtonStyle(
-                  backgroundColor: MaterialStatePropertyAll(Colors.black54),
-                ),
-                onPressed: () => widget.onDelete!(index),
-                icon: const Icon(Icons.delete_outline, color: Colors.white),
-              ),
-            ),
-          ),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: IconButton(
-            visualDensity: VisualDensity.compact,
-            onPressed: () => _go(-1),
-            icon: const Icon(Icons.chevron_left, size: 36),
-          ),
-        ),
-        Align(
-          alignment: Alignment.centerRight,
-          child: IconButton(
-            visualDensity: VisualDensity.compact,
-            onPressed: () => _go(1),
-            icon: const Icon(Icons.chevron_right, size: 36),
-          ),
-        ),
-        Positioned(
-          bottom: 8,
-          left: 0,
-          right: 0,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(
-              count,
-              (i) => Container(
-                width: 8,
-                height: 8,
-                margin: const EdgeInsets.symmetric(horizontal: 3),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: i == index ? Colors.white : Colors.white54,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _FullscreenGallery extends StatefulWidget {
-  const _FullscreenGallery({required this.images, required this.initialIndex});
-  final List<Uint8List> images;
-  final int initialIndex;
-
-  @override
-  State<_FullscreenGallery> createState() => _FullscreenGalleryState();
-}
-
-class _FullscreenGalleryState extends State<_FullscreenGallery> {
-  late final PageController _controller = PageController(
-    initialPage: widget.initialIndex,
-  );
-  int _current = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _current = widget.initialIndex;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        iconTheme: const IconThemeData(color: Colors.white),
-        actions: [
-          IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: const Icon(Icons.close),
-          ),
-        ],
-      ),
-      body: Stack(
-        children: [
-          PageView.builder(
-            controller: _controller,
-            onPageChanged: (i) => setState(() => _current = i),
-            itemCount: widget.images.length,
-            itemBuilder: (context, i) => Center(
-              child: InteractiveViewer(
-                minScale: 0.5,
-                maxScale: 5,
-                child: _MemoryImageWithFallback(
-                  widget.images[i],
-                  fit: BoxFit.contain,
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 12,
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                widget.images.length,
-                (i) => Container(
-                  width: 8,
-                  height: 8,
-                  margin: const EdgeInsets.symmetric(horizontal: 3),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: i == _current ? Colors.white : Colors.white54,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-extension on _GaleriaImagenesState {
-  void _openFullScreen(int initialIndex) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => _FullscreenGallery(
-          images: widget.imagenesBytes,
-          initialIndex: initialIndex,
-        ),
-      ),
-    );
-  }
-}
-
-class _DatosContacto extends StatelessWidget {
-  const _DatosContacto({required this.usuario});
-
-  final Usuario usuario;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text(
-          "Datos de contacto",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-        ),
-        Text("Correo Electronico: ${usuario.correo}"),
-        Text("Numero de telefono: ${usuario.numero}"),
-        Text(
-          "Detalles adicionales",
-          textAlign: TextAlign.center,
-          style: TextStyle(fontWeight: FontWeight.w500),
-        ),
-        Text(usuario.miscelaneo, textAlign: TextAlign.justify),
-        SizedBox.shrink(),
-      ],
-    );
-  }
-}
-
-class DetallesReporte extends StatelessWidget {
-  const DetallesReporte({
-    super.key,
-    required this.reporte,
-    this.selectedTags = const [],
-    this.editable = false,
-    this.onEditTags,
-    this.onEditColors,
-  });
-
-  final Reporte reporte;
-  final List<Tag> selectedTags;
-  final bool editable;
-  final VoidCallback? onEditTags;
-  final VoidCallback? onEditColors;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const SizedBox(height: 6),
-        Text(
-          "Detalles del reporte",
-          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 6),
-        Text(
-          "Autor: ${SessionHandler.getUsuario(reporte.autor).nombreUsuario}",
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          "Tipo: Objeto ${reporte.tipo.name}",
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
-          textAlign: TextAlign.center,
-        ),
-        Text(
-          "Fecha: ${reporte.fecha.day.toString().padLeft(2,'0')}/${reporte.fecha.month.toString().padLeft(2,'0')}/${reporte.fecha.year}",
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 8),
-        Builder(builder: (context) {
-          final cats = selectedTags.map((t) => t.nombre).join(', ');
-          final colorSet = selectedTags.map((t) => t.colorName).where((c) => c != 'blanco').toSet();
-          final colorsPretty = colorSet.map((c) => prettifyColorName(c)).join(', ');
-          return Column(
-            children: [
-              if (cats.isNotEmpty)
-                Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    'Categoría: $cats',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
-                  ),
-                ),
-              if (colorsPretty.isNotEmpty) const SizedBox(height: 6),
-              if (colorsPretty.isNotEmpty)
-                Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    'Color: $colorsPretty',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
-                  ),
-                ),
-            ],
-          );
-        }),
-        const SizedBox(height: 2),
-        if (editable)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12.0),
-            child: Wrap(
-              alignment: WrapAlignment.end,
-              spacing: 8,
-              runSpacing: 6,
-              children: [
-                TextButton.icon(
-                  style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6)),
-                  onPressed: onEditTags,
-                  icon: const Icon(Icons.label_outline, size: 18),
-                  label: const Text('Seleccionar Categoria'),
-                ),
-                TextButton.icon(
-                  style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6)),
-                  onPressed: onEditColors,
-                  icon: const Icon(Icons.color_lens_outlined, size: 18),
-                  label: const Text('Seleccionar Color'),
-                ),
-              ],
-            ),
-          ),
-      ],
-    );
-  }
-}
