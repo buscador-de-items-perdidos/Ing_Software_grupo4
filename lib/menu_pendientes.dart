@@ -37,12 +37,10 @@ class _MenuPendientesState extends State<MenuPendientes> {
             child: Row(
               children: [
                 Expanded(
-                  child: TextField(
+                  child: SearchBar(
                     onChanged: (text) => input.value = text,
-                    decoration: const InputDecoration(
-                      hintText: 'Que estas buscando?',
-                      prefixIcon: Icon(Icons.search),
-                    ),
+                    hintText: 'Que estas buscando?',
+                    leading: Icon(Icons.search),
                   ),
                 ),
                 const SizedBox(width: 12),

@@ -108,22 +108,17 @@ class _MenuReportesState extends State<MenuReportes> {
 }
 
 class BarraBusqueda extends StatelessWidget {
-  const BarraBusqueda({
-    super.key,
-    required this.input,
-  });
+  const BarraBusqueda({super.key, required this.input});
 
   final ValueNotifier<String> input;
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: TextField(
+      child: SearchBar(
         onChanged: (text) => input.value = text,
-        decoration: const InputDecoration(
-          hintText: 'Que estas buscando?',
-          prefixIcon: Icon(Icons.search),
-        ),
+        hintText: 'Que estas buscando?',
+        leading: Icon(Icons.search),
       ),
     );
   }
@@ -184,23 +179,21 @@ class ListaReportes extends StatelessWidget {
 
       return true;
     }).toList();
-    
-    final bool hasActiveFilters = filtro.activeTagFilters.isNotEmpty || 
-                                   filtro.activeColorFilters.isNotEmpty || 
-                                   filtro.activeTipoFilters.isNotEmpty;
-    
+
+    final bool hasActiveFilters =
+        filtro.activeTagFilters.isNotEmpty ||
+        filtro.activeColorFilters.isNotEmpty ||
+        filtro.activeTipoFilters.isNotEmpty;
+
     if (filtrados.isEmpty && hasActiveFilters) {
       return const Center(
         child: Text(
           'No existen publicaciones con estas etiquetas',
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.grey,
-          ),
+          style: TextStyle(fontSize: 16, color: Colors.grey),
         ),
       );
     }
-    
+
     // Mostrar los reportes en una lista vertical con scroll.
     // Cada tarjeta está centrada horizontalmente
     return GridView.builder(
