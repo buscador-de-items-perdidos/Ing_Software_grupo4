@@ -81,23 +81,21 @@ bool _isColorable(String tagName) {
   return !blocked.contains(_normalizeTagName(tagName));
 }
 
-class ReportDisplay extends StatefulWidget {
+class ReportEditor extends StatefulWidget {
   final Reporte reporte;
   final String uuid;
-  final Modo modo;
   Usuario get usuario => SessionHandler.getUsuario(reporte.autor);
-  const ReportDisplay(this.reporte, this.uuid, {required this.modo, super.key});
+  const ReportEditor(this.reporte, this.uuid, {super.key});
 
-  ReportDisplay.vacio(
+  ReportEditor.vacio(
     this.uuid, {
     super.key,
-    required this.modo,
     required TipoReporte tipo,
   }) : reporte = Reporte.vacio(tipo, SessionHandler.uuid);
 
   @override
   State<StatefulWidget> createState() {
-    return _ReportDisplayState();
+    return _ReportEditorState();
   }
 }
 
@@ -119,7 +117,7 @@ class _MemoryImageWithFallback extends StatelessWidget {
   }
 }
 
-class _ReportDisplayState extends State<ReportDisplay> {
+class _ReportEditorState extends State<ReportEditor> {
   late final TextEditingController _titleController = TextEditingController(
     text: widget.reporte.titulo,
   );
@@ -133,7 +131,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
   late LatLng _loc =
       widget.reporte.ubicacion ?? LatLng(-36.8288323, -73.0372646);
   LatLng? _finalLoc;
-  late List<Uint8List> _imagenesBytes = List<Uint8List>.from(
+  late final List<Uint8List> _imagenesBytes = List<Uint8List>.from(
     widget.reporte.imagenesBytes,
   );
   late List<Tag> _selectedTags = List<Tag>.from(widget.reporte.etiquetas);
@@ -210,14 +208,13 @@ class _ReportDisplayState extends State<ReportDisplay> {
                         _GaleriaImagenes(
                           imagenesBytes: _imagenesBytes,
                           controller: _pageController,
-                          editable: widget.modo == Modo.Editar,
+                          editable: true,
                           onDelete: (i) {
                             setState(() {
                               _imagenesBytes.removeAt(i);
                             });
                           },
                         ),
-                        if (widget.modo == Modo.Editar)
                           Positioned(
                             top: 8,
                             right: 8,
@@ -241,7 +238,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
                   constraints: const BoxConstraints(maxWidth: 800),
                   child: _CampoTitulo(
                     controller: _titleController,
-                    editable: widget.modo == Modo.Editar,
+                    editable: true,
                   ),
                 ),
               ),
@@ -253,7 +250,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
                   child: _DescripcionReporte(
                     controller: _descriptionController,
                     tipo: widget.reporte.tipo,
-                    editable: widget.modo == Modo.Editar,
+                    editable: true,
                   ),
                 ),
               ),
@@ -269,7 +266,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
                       DetallesReporte(
                         reporte: widget.reporte,
                         selectedTags: _selectedTags,
-                        editable: widget.modo == Modo.Editar,
+                        editable: true,
                         onEditTags: _openTagEditor,
                         onEditColors: _openColorEditor,
                       ),
@@ -277,30 +274,6 @@ class _ReportDisplayState extends State<ReportDisplay> {
                   ),
                 ),
               ),
-
-              const SizedBox(height: 16),
-              if (widget.modo == Modo.Ver &&
-                  widget.reporte.autor == SessionHandler.uuid &&
-                  !SessionHandler.getPendientes.contains(widget.uuid))
-                Center(
-                  child: FractionallySizedBox(
-                    widthFactor: 0.6,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: SwitchListTile(
-                        title: const Text('Marcar como encontrado'),
-                        subtitle: Text(
-                          _encontrado ? 'Encontrado' : 'Pendiente',
-                        ),
-                        value: _encontrado,
-                        onChanged: (bool value) {
-                          setState(() => _encontrado = value);
-                          _actualizarEstadoEncontrado(value);
-                        },
-                      ),
-                    ),
-                  ),
-                ),
 
               const SizedBox(height: 16),
               Center(
@@ -317,11 +290,7 @@ class _ReportDisplayState extends State<ReportDisplay> {
               Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 800),
-                  child: switch (widget.modo) {
-                    Modo.Editar => _crearBotonesGuardado(context),
-                    Modo.Ver => _crearBotonEditar(context),
-                    Modo.Revisar => _crearBotonesPublicacion(context),
-                  },
+                  child: _crearBotonesGuardado(context),
                 ),
               ),
 
@@ -333,19 +302,6 @@ class _ReportDisplayState extends State<ReportDisplay> {
     ),
   );
 }
-void _actualizarEstadoEncontrado(bool encontrado) {
-    ReportHandler.estadoObjeto(widget.uuid, encontrado);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          encontrado
-              ? 'Reporte marcado como encontrado'
-              : 'Reporte marcado como pendiente',
-        ),
-      ),
-    );
-  }
 
   Widget mapaUdec() {
     return Stack(
@@ -354,13 +310,9 @@ void _actualizarEstadoEncontrado(bool encontrado) {
           options: MapOptions(
             initialCenter: _loc,
             initialZoom: 16,
-            onTap: (_, pos) {
-              if (widget.modo == Modo.Editar) {
-                setState(() {
+            onTap: (_, pos) => setState(() {
                   _loc = pos;
-                });
-              }
-            },
+                }),
           ),
           children: [
             TileLayer(
@@ -388,7 +340,6 @@ void _actualizarEstadoEncontrado(bool encontrado) {
             ),
           ],
         ),
-        if (widget.modo == Modo.Editar)
           Align(
             alignment: Alignment.bottomRight,
             child: Tooltip(
@@ -558,7 +509,7 @@ void _actualizarEstadoEncontrado(bool encontrado) {
     final Map<String, String> colors = {for (var t in _selectedTags) t.nombre: t.colorName};
     final List<String> presetColorNames = colorNameToHex.keys.toList();
 
-    Future<String?> _pickColor(BuildContext ctx, String tag) async {
+    Future<String?> pickColor(BuildContext ctx, String tag) async {
       final res = await showDialog<String>(
         context: ctx,
         builder: (ctx) {
@@ -618,7 +569,7 @@ void _actualizarEstadoEncontrado(bool encontrado) {
                           _isColorable(t.nombre)
                               ? TextButton(
                                   onPressed: () async {
-                                    final chosen = await _pickColor(context, t.nombre);
+                                    final chosen = await pickColor(context, t.nombre);
                                     if (chosen != null) setState(() => colors[t.nombre] = chosen);
                                   },
                                   child: const Text('Cambiar color'),
@@ -654,80 +605,6 @@ void _actualizarEstadoEncontrado(bool encontrado) {
         _selectedTags = result;
       });
     }
-  }
-
-  Widget _crearBotonEditar(BuildContext context) {
-    return ElevatedButton(
-      child: const Text("Editar"),
-      onPressed: () async {
-        bool editarRevisionEnCola = false;
-        if (ReportHandler.getPeticion(widget.uuid) != null) {
-          editarRevisionEnCola = await showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: const Text("Revisión en cola"),
-              content: const Text(
-                "Se ha detectado que tienes una revisión de este reporte en cola. ¿Deseas editar aquella revisión en vez de la versión aceptada?",
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context, true),
-                  child: const Text("Sí"),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.pop(context, false),
-                  child: const Text("No"),
-                ),
-              ],
-            ),
-          );
-        }
-        if (!context.mounted) return;
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => mostrarReporte(
-              editarRevisionEnCola
-                  ? ReportHandler.getPeticion(widget.uuid)!
-                  : widget.reporte,
-              widget.uuid,
-              modo: Modo.Editar,
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _crearBotonesPublicacion(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Tooltip(
-            message: "Aprobar revisión",
-            child: ElevatedButton.icon(
-              onPressed: () {
-                ReportHandler.acceptPeticion(widget.uuid);
-                Navigator.pop(context);
-              },
-              label: Icon(Icons.check),
-            ),
-          ),
-        ),
-        Expanded(
-          child: Tooltip(
-            message: "Rechazar y destruir revisión",
-            child: ElevatedButton.icon(
-              onPressed: () {
-                ReportHandler.rejectPeticion(widget.uuid);
-                Navigator.pop(context, true);
-              },
-              label: Icon(Icons.delete),
-            ),
-          ),
-        ),
-      ],
-    );
   }
 }
 

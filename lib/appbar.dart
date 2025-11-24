@@ -133,7 +133,7 @@ class _BotonMenu extends StatelessWidget {
               builder: (_) {
                 final uuid = Uuid().v7();
 
-                return ReportDisplay.vacio(uuid, modo: Modo.Editar, tipo: tipo);
+                return ReportEditor.vacio(uuid, tipo: tipo);
               },
             ),
           );

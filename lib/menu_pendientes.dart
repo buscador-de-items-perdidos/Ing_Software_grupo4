@@ -38,6 +38,7 @@ class _MenuPendientesState extends State<MenuPendientes> {
               children: [
                 Expanded(
                   child: SearchBar(
+                    constraints: BoxConstraints(maxHeight: 30),
                     onChanged: (text) => input.value = text,
                     hintText: 'Que estas buscando?',
                     leading: Icon(Icons.search),

@@ -116,6 +116,7 @@ class BarraBusqueda extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: SearchBar(
+        constraints: BoxConstraints(maxWidth: 20),
         onChanged: (text) => input.value = text,
         hintText: 'Que estas buscando?',
         leading: Icon(Icons.search),

@@ -13,7 +13,7 @@ Widget mostrarReporte(Reporte reporte, String nombre, {required Modo modo}) {
   if (modo != Modo.Editar) {
     return ReportDisplayMovil(reporte, nombre, modo);
   } else
-    return ReportDisplay(reporte, nombre, modo: modo);
+    return ReportEditor(reporte, nombre, modo: modo);
 }
 
 Widget mostrarDatosContacto(){
