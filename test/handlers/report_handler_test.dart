@@ -30,13 +30,12 @@ void main() {
         'Test Reporte',
         'Descripción de prueba',
         SessionHandler.uuid,
-        'Objeto de prueba',
         false,
         TipoReporte.perdido,
         const LatLng(-36.8201, -73.0444),
       );
       
-      final resultado = ReportHandler.submitPeticion('test-uuid-1', nuevoReporte, true);
+      final resultado = ReportHandler.submitPeticion('test-uuid-1', nuevoReporte,);
       
       expect(resultado, true);
       final peticiones = ReportHandler.getPeticiones();
@@ -50,13 +49,12 @@ void main() {
         'Test Peticion',
         'Descripción',
         SessionHandler.uuid,
-        'Objeto',
         false,
         TipoReporte.perdido,
         null,
       );
       
-      ReportHandler.submitPeticion('test-uuid-2', nuevoReporte, true);
+      ReportHandler.submitPeticion('test-uuid-2', nuevoReporte,);
       
       final peticion = ReportHandler.getPeticion('test-uuid-2');
       expect(peticion, isNotNull);
@@ -78,13 +76,12 @@ void main() {
         'Reporte a Aceptar',
         'Descripción',
         SessionHandler.uuid,
-        'Objeto',
         false,
         TipoReporte.perdido,
         null,
       );
       
-      ReportHandler.submitPeticion('test-uuid-3', nuevoReporte, true);
+      ReportHandler.submitPeticion('test-uuid-3', nuevoReporte,);
       expect(ReportHandler.getPeticion('test-uuid-3'), isNotNull);
       
       ReportHandler.acceptPeticion('test-uuid-3');
@@ -102,13 +99,12 @@ void main() {
         'Reporte a Rechazar',
         'Descripción',
         SessionHandler.uuid,
-        'Objeto',
         false,
         TipoReporte.encontrado,
         null,
       );
       
-      ReportHandler.submitPeticion('test-uuid-4', nuevoReporte, true);
+      ReportHandler.submitPeticion('test-uuid-4', nuevoReporte,);
       expect(ReportHandler.getPeticion('test-uuid-4'), isNotNull);
       
       ReportHandler.rejectPeticion('test-uuid-4');
@@ -123,13 +119,12 @@ void main() {
         'Reporte a Eliminar',
         'Descripción',
         SessionHandler.uuid,
-        'Objeto',
         false,
         TipoReporte.perdido,
         null,
       );
       
-      ReportHandler.submitPeticion('test-uuid-5', nuevoReporte, true);
+      ReportHandler.submitPeticion('test-uuid-5', nuevoReporte,);
       ReportHandler.acceptPeticion('test-uuid-5');
       expect(ReportHandler.getReporte('test-uuid-5'), isNotNull);
       
@@ -145,13 +140,12 @@ void main() {
         'Reporte a Buscar',
         'Descripción',
         SessionHandler.uuid,
-        'Objeto',
         false,
         TipoReporte.perdido,
         null,
       );
       
-      ReportHandler.submitPeticion('test-uuid-6', nuevoReporte, true);
+      ReportHandler.submitPeticion('test-uuid-6', nuevoReporte,);
       
       final reporteEncontrado = ReportHandler.buscarReporte('test-uuid-6');
       expect(reporteEncontrado, isNotNull);
@@ -167,13 +161,12 @@ void main() {
         'Objeto Perdido',
         'Descripción',
         SessionHandler.uuid,
-        'Objeto',
         false,
         TipoReporte.perdido,
         null,
       );
       
-      ReportHandler.submitPeticion('test-uuid-7', nuevoReporte, true);
+      ReportHandler.submitPeticion('test-uuid-7', nuevoReporte,);
       ReportHandler.acceptPeticion('test-uuid-7');
       expect(ReportHandler.getReporte('test-uuid-7'), isNotNull);
       
@@ -192,13 +185,12 @@ void main() {
         'Objeto Encontrado',
         'Descripción',
         SessionHandler.uuid,
-        'Objeto',
         true,
         TipoReporte.perdido,
         null,
       );
       
-      ReportHandler.submitPeticion('test-uuid-8', nuevoReporte, true);
+      ReportHandler.submitPeticion('test-uuid-8', nuevoReporte,);
       ReportHandler.acceptPeticion('test-uuid-8');
       ReportHandler.estadoObjeto('test-uuid-8', true);
       expect(ReportHandler.getEncontrado('test-uuid-8'), isNotNull);

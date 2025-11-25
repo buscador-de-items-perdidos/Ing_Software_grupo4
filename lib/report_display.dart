@@ -374,7 +374,6 @@ class _ReportEditorState extends State<ReportEditor> {
       _titleController.text,
       _descriptionController.text,
       SessionHandler.uuid,
-      "",
       _encontrado,
       widget.reporte.tipo,
       _finalLoc!,

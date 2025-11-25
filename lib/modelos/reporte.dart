@@ -9,10 +9,9 @@ class Reporte {
     this.titulo,
     this.descripcion,
     this.autor,
-    this.objeto,
     this.encontrado,
     this.tipo,
-    LatLng this.ubicacion, {
+    this.ubicacion, {
     DateTime? fecha,
     this.imagenes = const [],
     this.imagenesBytes = const [],

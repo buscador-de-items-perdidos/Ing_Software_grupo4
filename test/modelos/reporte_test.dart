@@ -18,7 +18,6 @@ void main() {
         'Laptop perdida',
         'Laptop HP color negro perdida en biblioteca',
         'usuario-uuid-123',
-        'Laptop',
         false,
         TipoReporte.perdido,
         ubicacion,
@@ -29,7 +28,6 @@ void main() {
       expect(reporte.titulo, 'Laptop perdida');
       expect(reporte.descripcion, 'Laptop HP color negro perdida en biblioteca');
       expect(reporte.autor, 'usuario-uuid-123');
-      expect(reporte.objeto, 'Laptop');
       expect(reporte.encontrado, false);
       expect(reporte.tipo, TipoReporte.perdido);
       expect(reporte.ubicacion, ubicacion);
@@ -44,7 +42,6 @@ void main() {
 
       expect(reporte.titulo, '');
       expect(reporte.descripcion, '');
-      expect(reporte.objeto, '');
       expect(reporte.encontrado, false);
       expect(reporte.tipo, TipoReporte.encontrado);
       expect(reporte.autor, 'autor-uuid');
@@ -59,7 +56,6 @@ void main() {
         'Billetera perdida',
         'Billetera de cuero café',
         'usuario-uuid',
-        'Billetera',
         false,
         TipoReporte.perdido,
         null,
@@ -74,7 +70,6 @@ void main() {
         'Celular encontrado',
         'Celular Samsung encontrado en cafetería',
         'usuario-uuid',
-        'Celular',
         false,
         TipoReporte.encontrado,
         LatLng(-36.8205, -73.0450),
@@ -88,7 +83,6 @@ void main() {
         'Llaves perdidas',
         'Llaves con llavero rojo',
         'usuario-uuid',
-        'Llaves',
         false,
         TipoReporte.perdido,
         null,
@@ -112,7 +106,6 @@ void main() {
         'Tablet encontrada',
         'Tablet iPad encontrada',
         'usuario-uuid',
-        'Tablet',
         false,
         TipoReporte.encontrado,
         null,
@@ -130,7 +123,6 @@ void main() {
         'Mochila encontrada',
         'Mochila azul Adidas',
         'usuario-uuid',
-        'Mochila',
         false,
         TipoReporte.encontrado,
         null,
@@ -147,7 +139,6 @@ void main() {
         'Paraguas perdido',
         'Paraguas negro',
         'usuario-uuid',
-        'Paraguas',
         false,
         TipoReporte.perdido,
         ubicacion,
@@ -163,7 +154,6 @@ void main() {
         'Cuaderno perdido',
         'Cuaderno de matemáticas',
         'usuario-uuid',
-        'Cuaderno',
         false,
         TipoReporte.perdido,
         null,
@@ -178,7 +168,6 @@ void main() {
         'Objeto test',
         'Descripción test',
         'usuario-uuid',
-        'Objeto',
         false,
         TipoReporte.perdido,
         null,
