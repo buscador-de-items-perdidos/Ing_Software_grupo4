@@ -22,7 +22,6 @@ class Reporte {
   Reporte.vacio(this.tipo, this.autor)
     : titulo = "",
       descripcion = "",
-      objeto = "",
       encontrado = false,
       ubicacion = null,
       fecha = DateTime.now(),
@@ -33,7 +32,6 @@ class Reporte {
   final String titulo;
   final String descripcion;
   final String autor; //Se deberia cambiar una clase propia a futuro
-  final String objeto;
   bool encontrado;
   final LatLng? ubicacion;
   final DateTime fecha;
