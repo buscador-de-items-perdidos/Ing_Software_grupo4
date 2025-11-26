@@ -9,7 +9,7 @@ class Tag {
   final TagColor color;
 
   @override
-  String toString() => 'Tag(nombre: ${tipo.name}, colorName: ${color.color.toARGB32()})';
+  String toString() => 'Tag(nombre: ${tipo.name}, colorName: ${color.name})';
 
   @override
   bool operator ==(Object other) {

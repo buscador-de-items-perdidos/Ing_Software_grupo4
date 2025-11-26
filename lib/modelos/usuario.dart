@@ -8,8 +8,8 @@ class Usuario {
   String correo;
   String numero;
   String miscelaneo;
-  Set<String> reportes_pendientes;
-  Set<String> reportes_aceptados;
+  Set<String> reportesPendientes;
+  Set<String> reportesAceptados;
   bool isAdmin;
   TipoUsuario tipoUsuario;
   String? matricula; // Solo para miembros de la universidad
@@ -19,8 +19,8 @@ class Usuario {
     required this.correo,
     required this.numero,
     required this.miscelaneo,
-    required this.reportes_pendientes,
-    required this.reportes_aceptados,
+    required this.reportesPendientes,
+    required this.reportesAceptados,
     required this.isAdmin,
     this.tipoUsuario = TipoUsuario.externo,
     this.matricula,

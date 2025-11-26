@@ -10,8 +10,8 @@ abstract class SessionHandler {
       correo: "javcastillo@udec.cl",
       numero: "+56 9 8417 9674",
       miscelaneo: "Discord : pandita_45",
-      reportes_pendientes: {},
-      reportes_aceptados: {},
+      reportesPendientes: {},
+      reportesAceptados: {},
       isAdmin: true,
       tipoUsuario: TipoUsuario.miembroUniversidad,
     ),
@@ -104,8 +104,8 @@ abstract class SessionHandler {
       correo: correo,
       numero: numero ?? "",
       miscelaneo: miscelaneo ?? "",
-      reportes_pendientes: {},
-      reportes_aceptados: {},
+      reportesPendientes: {},
+      reportesAceptados: {},
       isAdmin: false, // Los nuevos usuarios no son administradores por defecto
       tipoUsuario: tipoUsuario,
       matricula: null,
@@ -143,10 +143,10 @@ abstract class SessionHandler {
   }
 
   static Set<String> get getPendientes {
-    return usuarioActual?.reportes_pendientes ?? {};
+    return usuarioActual?.reportesPendientes ?? {};
   }
 
   static Set<String> get getAceptados {
-    return usuarioActual?.reportes_aceptados ?? {};
+    return usuarioActual?.reportesAceptados ?? {};
   }
 }

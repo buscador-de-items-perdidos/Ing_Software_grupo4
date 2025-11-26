@@ -46,7 +46,7 @@ class ReportHandler {
 
     // Obtener el usuario autor del reporte y agregarlo a su lista de pendientes
     final autorUsuario = SessionHandler.getUsuario(r.autor);
-    autorUsuario.reportes_pendientes.add(key);
+    autorUsuario.reportesPendientes.add(key);
 
     _pendientes[key] = r;
     _pendingNotifier.value = !_pendingNotifier.value;
@@ -61,8 +61,8 @@ class ReportHandler {
 
     // Obtener el usuario autor del reporte y actualizar sus listas
     final autorUsuario = SessionHandler.getUsuario(reporte.autor);
-    autorUsuario.reportes_aceptados.add(uuid);
-    autorUsuario.reportes_pendientes.remove(uuid);
+    autorUsuario.reportesAceptados.add(uuid);
+    autorUsuario.reportesPendientes.remove(uuid);
 
     _pendientes.remove(uuid);
     _reportNotifier.value = !_reportNotifier.value;
@@ -76,7 +76,7 @@ class ReportHandler {
     if (reporte != null) {
       // Obtener el usuario autor del reporte y remover de su lista de pendientes
       final autorUsuario = SessionHandler.getUsuario(reporte.autor);
-      autorUsuario.reportes_pendientes.remove(uuid);
+      autorUsuario.reportesPendientes.remove(uuid);
     }
 
     _pendientes.remove(uuid);
@@ -96,17 +96,17 @@ class ReportHandler {
     // Eliminar de existentes (aceptados)
     if (_existentes.containsKey(uuid)) {
       _existentes.remove(uuid);
-      autorUsuario.reportes_aceptados.remove(uuid);
+      autorUsuario.reportesAceptados.remove(uuid);
     }
     // Eliminar de pendientes
     if (_pendientes.containsKey(uuid)) {
       _pendientes.remove(uuid);
-      autorUsuario.reportes_pendientes.remove(uuid);
+      autorUsuario.reportesPendientes.remove(uuid);
     }
     // Eliminar de encontrados
     if (_encontrados.containsKey(uuid)) {
       _encontrados.remove(uuid);
-      autorUsuario.reportes_aceptados.remove(uuid);
+      autorUsuario.reportesAceptados.remove(uuid);
     }
     _reportNotifier.value = !_reportNotifier.value;
   }
