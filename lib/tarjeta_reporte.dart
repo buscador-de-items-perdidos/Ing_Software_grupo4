@@ -31,8 +31,7 @@ class TarjetaReporte extends StatelessWidget {
   Reporte? _obtenerReporte() {
     return pendiente
         ? ReportHandler.getPeticion(uuid)
-        : (ReportHandler.getReporte(uuid) ??
-              ReportHandler.getEncontrado(uuid));
+        : (ReportHandler.getReporte(uuid) ?? ReportHandler.getEncontrado(uuid));
   }
 
   Widget _buildCard(BuildContext context, Reporte reporte) {
@@ -99,14 +98,15 @@ class TarjetaReporte extends StatelessWidget {
   }
 
   Widget _buildEtiqueta(Reporte reporte) {
-    final colorHex = colorNameToHex[reporte.etiquetas.firstOrNull?.colorName ?? Colors.white];
-    final color = hexToColor(colorHex);
-
     return Padding(
       padding: const EdgeInsets.all(8),
       child: Chip(
-        avatar: CircleAvatar(backgroundColor: color, radius: 12),
-        label: Text(reporte.etiquetas.firstOrNull?.nombre ?? "Sin etiqueta"),
+        avatar: CircleAvatar(
+          backgroundColor:
+              reporte.etiquetas.firstOrNull?.color.color ?? Colors.white,
+          radius: 12,
+        ),
+        label: Text(reporte.etiquetas.firstOrNull?.tipo.name ?? "Sin etiqueta"),
       ),
     );
   }

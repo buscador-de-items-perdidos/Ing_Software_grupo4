@@ -1,106 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:ing_software_grupo4/modelos/tagcolor.dart';
+import 'package:ing_software_grupo4/modelos/tagtype.dart';
 import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
 
-/// Constantes para las categorías disponibles
-const List<String> availableCategories = [
-  'Celular',
-    'Notebook / Laptop',
-    'Tablet',
-    'Audífonos',
-    'Cargador / Cable',
-    'Reloj inteligente',
-    'Lentes',
-    'Llaves',
-    'Billetera',
-    'Cartera',
-    'Paraguas',
-    'Mochila',
-    'Estuche',
-    'Documentos',
-    'Cédula',
-    'Pasaporte',
-    'Tarjeta bancaria',
-    'Licencia de conducir',
-    'Credencial universitaria / laboral',
-    'Polerón / Chaqueta',
-    'Gorro',
-    'Polera',
-    'Pantalones',
-    'Zapatos / Zapatillas',
-    'Guantes',
-    'Botella',
-    'Termo',
-    'Llaveros',
-    'Cuadernos / Libretas',
-    'Otro',
-];
-
-/// Mapa de nombres de colores a sus valores hexadecimales
-const Map<String, String> colorNameToHex = {
-  'rojo': '#FF0000',
-  'verde': '#00FF00',
-  'azul': '#0000FF',
-  'amarillo': '#FFFF00',
-  'naranja': '#FFA500',
-  'morado': '#800080',
-  'rosa': '#FFC0CB',
-  'negro': '#000000',
-  'blanco': '#FFFFFF',
-  'gris': '#808080',
-  'cafe': '#8B4513',
-  'celeste': '#87CEEB',
-  'turquesa': '#40E0D0',
-  'plateado': '#C0C0C0',
-  'dorado': '#FFD700',
-  'beige': '#F5F5DC',
-  'marron': '#A52A2A',
-  'verde_oscuro': '#006400',
-  'azul_marino': '#000080',
-  'violeta': '#8A2BE2',
-  'fucsia': '#FF00FF',
-  'crema': '#FFFDD0',
-  'coral': '#FF7F50',
-  'salmon': '#FA8072',
-  'lavanda': '#E6E6FA',
-  'menta': '#98FF98',
-  'durazno': '#FFE5B4',
-  'bordo': '#B80F0A',
-  'burdeos': '#800020',
-};
-
-/// Función para obtener todos los colores disponibles
-Set<String> getAvailableColors() {
-  return colorNameToHex.keys.toSet();
-}
-
-/// Función para obtener todos los tipos de reporte disponibles
-Set<String> getAvailableTipos() {
-  return TipoReporte.values
-      .where((t) => t.name != 'administracion')
-      .map((t) => t.name)
-      .toSet();
-}
-
-/// Función para formatear nombres de colores
-String prettifyColorName(String colorName) {
-  return colorName[0].toUpperCase() +
-      colorName.substring(1).replaceAll('_', ' ');
-}
-
 /// Abre el diálogo de filtros y retorna los filtros seleccionados
-Future<Map<String, Set<String>>?> openFilterDialog(
+Future<Map<String, Set>?> openFilterDialog(
   BuildContext context, {
-  required Set<String> activeTagFilters,
-  required Set<String> activeColorFilters,
-  required Set<String> activeTipoFilters,
+  required Set<TagType> activeTagFilters,
+  required Set<TagColor> activeColorFilters,
+  required Set<TipoReporte> activeTipoFilters,
 }) async {
-  final tempTags = Set<String>.from(activeTagFilters);
-  final tempColors = Set<String>.from(activeColorFilters);
-  final tempTipos = Set<String>.from(activeTipoFilters);
-
-  final availableTags = availableCategories.toSet();
-  final availableColors = getAvailableColors();
-  final availableTipos = getAvailableTipos();
+  final tempTags = Set<TagType>.from(activeTagFilters);
+  final tempColors = Set<TagColor>.from(activeColorFilters);
+  final tempTipos = Set<TipoReporte>.from(activeTipoFilters);
 
   return await showDialog<Map<String, Set<String>>>(
     context: context,
@@ -119,15 +31,15 @@ Future<Map<String, Set<String>>?> openFilterDialog(
                     const Text('Categorías',
                         style: TextStyle(fontWeight: FontWeight.w700)),
                     const SizedBox(height: 6),
-                    ...availableTags.map((name) {
+                    ...TagType.values.map((type) {
                       return CheckboxListTile(
-                        title: Text(name),
-                        value: tempTags.contains(name),
+                        title: Text(type.name),
+                        value: tempTags.contains(type),
                         onChanged: (v) => setState(() {
                           if (v == true) {
-                            tempTags.add(name);
+                            tempTags.add(type);
                           } else {
-                            tempTags.remove(name);
+                            tempTags.remove(type);
                           }
                         }),
                       );
@@ -136,15 +48,15 @@ Future<Map<String, Set<String>>?> openFilterDialog(
                     const Text('Colores',
                         style: TextStyle(fontWeight: FontWeight.w700)),
                     const SizedBox(height: 6),
-                    ...availableColors.map((name) {
+                    ...TagColor.values.map((color) {
                       return CheckboxListTile(
-                        title: Text(prettifyColorName(name)),
-                        value: tempColors.contains(name),
+                        title: Text(color.name),
+                        value: tempColors.contains(color),
                         onChanged: (v) => setState(() {
                           if (v == true) {
-                            tempColors.add(name);
+                            tempColors.add(color);
                           } else {
-                            tempColors.remove(name);
+                            tempColors.remove(color);
                           }
                         }),
                       );
@@ -153,15 +65,15 @@ Future<Map<String, Set<String>>?> openFilterDialog(
                     const Text('Tipos',
                         style: TextStyle(fontWeight: FontWeight.w700)),
                     const SizedBox(height: 6),
-                    ...availableTipos.map((name) {
+                    ...TipoReporte.values.map((tipo) {
                       return CheckboxListTile(
-                        title: Text(name[0].toUpperCase() + name.substring(1)),
-                        value: tempTipos.contains(name),
+                        title: Text(tipo.name[0].toUpperCase() + tipo.name.substring(1)),
+                        value: tempTipos.contains(tipo),
                         onChanged: (v) => setState(() {
                           if (v == true) {
-                            tempTipos.add(name);
+                            tempTipos.add(tipo);
                           } else {
-                            tempTipos.remove(name);
+                            tempTipos.remove(tipo);
                           }
                         }),
                       );

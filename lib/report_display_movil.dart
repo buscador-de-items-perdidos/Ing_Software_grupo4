@@ -115,16 +115,10 @@ class _ReportDisplayState extends State<ReportDisplay> {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(color: Colors.grey),
-                              color: hexToColor(
-                                colorNameToHex[widget
-                                        .reporte
-                                        .etiquetas[i]
-                                        .colorName] ??
-                                    '#000000',
-                              ),
+                              color: widget.reporte.etiquetas[i].color.color,
                             ),
                           ),
-                          label: Text(widget.reporte.etiquetas[i].nombre),
+                          label: Text(widget.reporte.etiquetas[i].tipo.name),
                         ),
                       ),
                     ),

@@ -113,9 +113,9 @@ void main() {
       );
 
       expect(reporte.etiquetas.length, 3);
-      expect(reporte.etiquetas[0].nombre, 'electrónico');
-      expect(reporte.etiquetas[1].nombre, 'urgente');
-      expect(reporte.etiquetas[2].nombre, 'biblioteca');
+      expect(reporte.etiquetas[0].tipo, 'electrónico');
+      expect(reporte.etiquetas[1].tipo, 'urgente');
+      expect(reporte.etiquetas[2].tipo, 'biblioteca');
     });
 
     test('Reporte con imágenes (rutas)', () {

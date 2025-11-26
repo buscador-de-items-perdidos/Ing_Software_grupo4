@@ -6,8 +6,8 @@ void main() {
     test('Crear tag con nombre y color', () {
       const tag = Tag('electrónico', 'azul');
 
-      expect(tag.nombre, 'electrónico');
-      expect(tag.colorName, 'azul');
+      expect(tag.tipo, 'electrónico');
+      expect(tag.color, 'azul');
     });
 
     test('Tag toString retorna formato correcto', () {
@@ -21,28 +21,28 @@ void main() {
       const tag2 = Tag('cafetería', 'amarillo');
       const tag3 = Tag('sala_clases', 'naranja');
 
-      expect(tag1.nombre, 'biblioteca');
-      expect(tag1.colorName, 'verde');
-      expect(tag2.nombre, 'cafetería');
-      expect(tag2.colorName, 'amarillo');
-      expect(tag3.nombre, 'sala_clases');
-      expect(tag3.colorName, 'naranja');
+      expect(tag1.tipo, 'biblioteca');
+      expect(tag1.color, 'verde');
+      expect(tag2.tipo, 'cafetería');
+      expect(tag2.color, 'amarillo');
+      expect(tag3.tipo, 'sala_clases');
+      expect(tag3.color, 'naranja');
     });
 
     test('Tags con mismo nombre pero diferente color', () {
       const tag1 = Tag('urgente', 'rojo');
       const tag2 = Tag('urgente', 'azul');
 
-      expect(tag1.nombre, tag2.nombre);
-      expect(tag1.colorName, isNot(tag2.colorName));
+      expect(tag1.tipo, tag2.tipo);
+      expect(tag1.color, isNot(tag2.color));
     });
 
     test('Tags con mismo color pero diferente nombre', () {
       const tag1 = Tag('electrónico', 'azul');
       const tag2 = Tag('documento', 'azul');
 
-      expect(tag1.colorName, tag2.colorName);
-      expect(tag1.nombre, isNot(tag2.nombre));
+      expect(tag1.color, tag2.color);
+      expect(tag1.tipo, isNot(tag2.tipo));
     });
   });
 }
