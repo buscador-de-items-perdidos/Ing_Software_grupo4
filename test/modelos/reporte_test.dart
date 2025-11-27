@@ -1,5 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ing_software_grupo4/modelos/reporte.dart';
+import 'package:ing_software_grupo4/modelos/tagcolor.dart';
+import 'package:ing_software_grupo4/modelos/tagtype.dart';
 import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
 import 'package:ing_software_grupo4/modelos/tag.dart';
 import 'package:latlong2/latlong.dart';
@@ -10,8 +12,8 @@ void main() {
       final fecha = DateTime(2024, 11, 23);
       final ubicacion = LatLng(-36.8201, -73.0444);
       final etiquetas = [
-        const Tag('electrónico', 'azul'),
-        const Tag('urgente', 'rojo'),
+        const Tag(TagType.Estuche, TagColor.azulMarino),
+        const Tag(TagType.Llaveros, TagColor.rojo),
       ];
 
       final reporte = Reporte(
@@ -97,9 +99,9 @@ void main() {
 
     test('Reporte con múltiples etiquetas', () {
       final etiquetas = [
-        const Tag('electrónico', 'azul'),
-        const Tag('urgente', 'rojo'),
-        const Tag('biblioteca', 'verde'),
+        const Tag(TagType.Celular, TagColor.azul),
+        const Tag(TagType.Poleron, TagColor.rojo),
+        const Tag(TagType.Cargador, TagColor.verde),
       ];
 
       final reporte = Reporte(
@@ -113,9 +115,9 @@ void main() {
       );
 
       expect(reporte.etiquetas.length, 3);
-      expect(reporte.etiquetas[0].nombre, 'electrónico');
-      expect(reporte.etiquetas[1].nombre, 'urgente');
-      expect(reporte.etiquetas[2].nombre, 'biblioteca');
+      expect(reporte.etiquetas[0].tipo, TagType.Celular);
+      expect(reporte.etiquetas[1].tipo, TagType.Poleron);
+      expect(reporte.etiquetas[2].tipo, TagType.Cargador);
     });
 
     test('Reporte con imágenes (rutas)', () {

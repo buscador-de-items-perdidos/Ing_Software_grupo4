@@ -3,6 +3,9 @@ import 'package:ing_software_grupo4/handlers/report_handler.dart';
 import 'package:ing_software_grupo4/modelos/filter.dart';
 import 'package:ing_software_grupo4/modelos/filter_utils.dart';
 import 'package:ing_software_grupo4/modelos/modo.dart';
+import 'package:ing_software_grupo4/modelos/tagcolor.dart';
+import 'package:ing_software_grupo4/modelos/tagtype.dart';
+import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
 import 'package:ing_software_grupo4/tarjeta_reporte.dart';
 
 class MenuPendientes extends StatefulWidget {
@@ -14,9 +17,9 @@ class MenuPendientes extends StatefulWidget {
 
 class _MenuPendientesState extends State<MenuPendientes> {
   ValueNotifier<String> input = ValueNotifier("");
-  final Set<String> _activeTagFilters = {};
-  final Set<String> _activeColorFilters = {};
-  final Set<String> _activeTipoFilters = {};
+  final Set<TagType> _activeTagFilters = {};
+  final Set<TagColor> _activeColorFilters = {};
+  final Set<TipoReporte> _activeTipoFilters = {};
 
   Filter get filtro => Filter(
     input.value,
@@ -90,13 +93,13 @@ class _MenuPendientesState extends State<MenuPendientes> {
       setState(() {
         _activeTagFilters
           ..clear()
-          ..addAll(result['tags'] ?? {});
+          ..addAll(result['tags']?.cast<TagType>() ?? {});
         _activeColorFilters
           ..clear()
-          ..addAll(result['colors'] ?? {});
+          ..addAll(result['colors']?.cast<TagColor>() ?? {});
         _activeTipoFilters
           ..clear()
-          ..addAll(result['tipos'] ?? {});
+          ..addAll(result['tipos']?.cast<TipoReporte>() ?? {});
       });
     }
   }
@@ -121,18 +124,18 @@ class ListaPendientes extends StatelessWidget {
 
       if (filtro.activeTagFilters.isNotEmpty &&
           !reporte.etiquetas.any(
-            (tag) => filtro.activeTagFilters.contains(tag.nombre),
+            (tag) => filtro.activeTagFilters.contains(tag.tipo),
           ))
         return false;
 
       if (filtro.activeColorFilters.isNotEmpty &&
           !reporte.etiquetas.any(
-            (tag) => filtro.activeColorFilters.contains(tag.colorName),
+            (tag) => filtro.activeColorFilters.contains(tag.color),
           ))
         return false;
 
       if (filtro.activeTipoFilters.isNotEmpty &&
-          !filtro.activeTipoFilters.contains(reporte.tipo.name))
+          !filtro.activeTipoFilters.contains(reporte.tipo))
         return false;
 
       return true;

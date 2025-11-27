@@ -1,19 +1,22 @@
-class Tag {
-  const Tag(this.nombre, this.colorName);
+import 'package:ing_software_grupo4/modelos/tagcolor.dart';
+import 'package:ing_software_grupo4/modelos/tagtype.dart';
 
-  final String nombre;
+class Tag {
+  const Tag(this.tipo, this.color);
+
+  final TagType tipo;
   // nombre del color en texto, por ejemplo: 'rojo', 'azul'
-  final String colorName;
+  final TagColor color;
 
   @override
-  String toString() => 'Tag(nombre: $nombre, colorName: $colorName)';
+  String toString() => 'Tag(nombre: ${tipo.name}, colorName: ${color.name})';
 
   @override
   bool operator ==(Object other) {
     if (other is! Tag) return false;
-    return colorName == other.colorName && nombre == other.nombre;
+    return color == other.color && tipo == other.tipo;
   }
 
   @override
-  int get hashCode => nombre.hashCode ^ colorName.hashCode;
+  int get hashCode => tipo.hashCode ^ color.hashCode;
 }

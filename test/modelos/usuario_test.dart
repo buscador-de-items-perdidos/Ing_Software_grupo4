@@ -9,8 +9,8 @@ void main() {
         correo: 'test@example.com',
         numero: '+56 9 1234 5678',
         miscelaneo: 'Información adicional',
-        reportes_pendientes: {},
-        reportes_aceptados: {},
+        reportesPendientes: {},
+        reportesAceptados: {},
         isAdmin: false,
         tipoUsuario: TipoUsuario.externo,
       );
@@ -21,8 +21,8 @@ void main() {
       expect(usuario.isAdmin, false);
       expect(usuario.tipoUsuario, TipoUsuario.externo);
       expect(usuario.matricula, null);
-      expect(usuario.reportes_pendientes.isEmpty, true);
-      expect(usuario.reportes_aceptados.isEmpty, true);
+      expect(usuario.reportesPendientes.isEmpty, true);
+      expect(usuario.reportesAceptados.isEmpty, true);
     });
 
     test('Crear usuario miembro de universidad', () {
@@ -31,8 +31,8 @@ void main() {
         correo: 'estudiante@udec.cl',
         numero: '+56 9 8765 4321',
         miscelaneo: 'Discord: estudiante123',
-        reportes_pendientes: {},
-        reportes_aceptados: {},
+        reportesPendientes: {},
+        reportesAceptados: {},
         isAdmin: false,
         tipoUsuario: TipoUsuario.miembroUniversidad,
         matricula: '2021012345',
@@ -48,8 +48,8 @@ void main() {
         correo: 'admin@udec.cl',
         numero: '+56 9 1111 2222',
         miscelaneo: '',
-        reportes_pendientes: {},
-        reportes_aceptados: {},
+        reportesPendientes: {},
+        reportesAceptados: {},
         isAdmin: true,
       );
 
@@ -62,17 +62,17 @@ void main() {
         correo: 'test@example.com',
         numero: '+56 9 1234 5678',
         miscelaneo: '',
-        reportes_pendientes: {},
-        reportes_aceptados: {},
+        reportesPendientes: {},
+        reportesAceptados: {},
         isAdmin: false,
       );
 
-      usuario.reportes_pendientes.add('reporte-1');
-      usuario.reportes_pendientes.add('reporte-2');
+      usuario.reportesPendientes.add('reporte-1');
+      usuario.reportesPendientes.add('reporte-2');
 
-      expect(usuario.reportes_pendientes.length, 2);
-      expect(usuario.reportes_pendientes.contains('reporte-1'), true);
-      expect(usuario.reportes_pendientes.contains('reporte-2'), true);
+      expect(usuario.reportesPendientes.length, 2);
+      expect(usuario.reportesPendientes.contains('reporte-1'), true);
+      expect(usuario.reportesPendientes.contains('reporte-2'), true);
     });
 
     test('Agregar reportes aceptados', () {
@@ -81,16 +81,16 @@ void main() {
         correo: 'test@example.com',
         numero: '+56 9 1234 5678',
         miscelaneo: '',
-        reportes_pendientes: {},
-        reportes_aceptados: {},
+        reportesPendientes: {},
+        reportesAceptados: {},
         isAdmin: false,
       );
 
-      usuario.reportes_aceptados.add('reporte-aceptado-1');
-      usuario.reportes_aceptados.add('reporte-aceptado-2');
+      usuario.reportesAceptados.add('reporte-aceptado-1');
+      usuario.reportesAceptados.add('reporte-aceptado-2');
 
-      expect(usuario.reportes_aceptados.length, 2);
-      expect(usuario.reportes_aceptados.contains('reporte-aceptado-1'), true);
+      expect(usuario.reportesAceptados.length, 2);
+      expect(usuario.reportesAceptados.contains('reporte-aceptado-1'), true);
     });
 
     test('Mover reporte de pendiente a aceptado', () {
@@ -99,17 +99,17 @@ void main() {
         correo: 'test@example.com',
         numero: '+56 9 1234 5678',
         miscelaneo: '',
-        reportes_pendientes: {'reporte-1'},
-        reportes_aceptados: {},
+        reportesPendientes: {'reporte-1'},
+        reportesAceptados: {},
         isAdmin: false,
       );
 
       const reporteId = 'reporte-1';
-      usuario.reportes_pendientes.remove(reporteId);
-      usuario.reportes_aceptados.add(reporteId);
+      usuario.reportesPendientes.remove(reporteId);
+      usuario.reportesAceptados.add(reporteId);
 
-      expect(usuario.reportes_pendientes.contains(reporteId), false);
-      expect(usuario.reportes_aceptados.contains(reporteId), true);
+      expect(usuario.reportesPendientes.contains(reporteId), false);
+      expect(usuario.reportesAceptados.contains(reporteId), true);
     });
   });
 }

@@ -1,5 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ing_software_grupo4/modelos/filter.dart';
+import 'package:ing_software_grupo4/modelos/tagcolor.dart';
+import 'package:ing_software_grupo4/modelos/tagtype.dart';
+import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
 
 void main() {
   group('Filter Model Tests', () {
@@ -50,14 +53,14 @@ void main() {
       const filter = Filter(
         '',
         false,
-        {'electrónico', 'urgente'},
+        {TagType.RelojInteligente, TagType.Cargador},
         {},
         {},
       );
 
       expect(filter.activeTagFilters.length, 2);
-      expect(filter.activeTagFilters.contains('electrónico'), true);
-      expect(filter.activeTagFilters.contains('urgente'), true);
+      expect(filter.activeTagFilters.contains(TagType.RelojInteligente), true);
+      expect(filter.activeTagFilters.contains(TagType.Cargador), true);
     });
 
     test('Crear filtro con colores activos', () {
@@ -65,14 +68,14 @@ void main() {
         '',
         false,
         {},
-        {'rojo', 'azul', 'verde'},
+        {TagColor.rojo, TagColor.azul, TagColor.verde},
         {},
       );
 
       expect(filter.activeColorFilters.length, 3);
-      expect(filter.activeColorFilters.contains('rojo'), true);
-      expect(filter.activeColorFilters.contains('azul'), true);
-      expect(filter.activeColorFilters.contains('verde'), true);
+      expect(filter.activeColorFilters.contains(TagColor.rojo), true);
+      expect(filter.activeColorFilters.contains(TagColor.azul), true);
+      expect(filter.activeColorFilters.contains(TagColor.verde), true);
     });
 
     test('Crear filtro con tipos activos', () {
@@ -81,30 +84,30 @@ void main() {
         false,
         {},
         {},
-        {'perdido', 'encontrado'},
+        {TipoReporte.perdido, TipoReporte.encontrado},
       );
 
       expect(filter.activeTipoFilters.length, 2);
-      expect(filter.activeTipoFilters.contains('perdido'), true);
-      expect(filter.activeTipoFilters.contains('encontrado'), true);
+      expect(filter.activeTipoFilters.contains(TipoReporte.perdido), true);
+      expect(filter.activeTipoFilters.contains(TipoReporte.encontrado), true);
     });
 
     test('Crear filtro con múltiples criterios', () {
       const filter = Filter(
         'celular',
         true,
-        {'electrónico'},
-        {'azul'},
-        {'perdido'},
+        {TagType.Celular},
+        {TagColor.azul},
+        {TipoReporte.perdido},
         soloPendientes: true,
       );
 
       expect(filter.input, 'celular');
       expect(filter.soloMisReportes, true);
       expect(filter.soloPendientes, true);
-      expect(filter.activeTagFilters.contains('electrónico'), true);
-      expect(filter.activeColorFilters.contains('azul'), true);
-      expect(filter.activeTipoFilters.contains('perdido'), true);
+      expect(filter.activeTagFilters.contains(TagType.Celular), true);
+      expect(filter.activeColorFilters.contains(TagColor.azul), true);
+      expect(filter.activeTipoFilters.contains(TipoReporte.perdido), true);
     });
 
     test('Filtro vacío (sin criterios)', () {

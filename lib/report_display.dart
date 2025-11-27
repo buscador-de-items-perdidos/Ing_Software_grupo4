@@ -7,6 +7,8 @@ import 'package:ing_software_grupo4/handlers/report_handler.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/modelos/reporte.dart';
 import 'package:ing_software_grupo4/modelos/tag.dart';
+import 'package:ing_software_grupo4/modelos/tagcolor.dart';
+import 'package:ing_software_grupo4/modelos/tagtype.dart';
 import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
 import 'package:ing_software_grupo4/modelos/usuario.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -16,51 +18,20 @@ import 'package:ing_software_grupo4/detalles_reporte.dart';
 part 'campo_titulo.dart';
 part 'descripcion_reporte.dart';
 
-
-String _normalizeTagName(String s) {
-  var t = s.toLowerCase();
-  t = t.replaceAll(RegExp(r'[áàäâ]'), 'a');
-  t = t.replaceAll(RegExp(r'[éèëê]'), 'e');
-  t = t.replaceAll(RegExp(r'[íìïî]'), 'i');
-  t = t.replaceAll(RegExp(r'[óòöô]'), 'o');
-  t = t.replaceAll(RegExp(r'[úùüû]'), 'u');
-  t = t.replaceAll(RegExp(r'[ñ]'), 'n');
-  t = t.replaceAll(RegExp(r'[ç]'), 'c');
-  t = t.replaceAll(RegExp(r'[^a-z0-9]'), '');
-  return t;
-}
-
-bool _isColorable(String tagName) {
-  const blocked = {
-    'documentos',
-    'cedula',
-    'pasaporte',
-    'licenciadeconducir',
-    'credencial',
-    'credencialuniversitarialaboral',
-    'tarjetabancaria',
-  };
-  return !blocked.contains(_normalizeTagName(tagName));
-}
-
 class ReportEditor extends StatefulWidget {
   final Reporte reporte;
   final String uuid;
   Usuario get usuario => SessionHandler.getUsuario(reporte.autor);
   const ReportEditor(this.reporte, this.uuid, {super.key});
 
-  ReportEditor.vacio(
-    this.uuid, {
-    super.key,
-    required TipoReporte tipo,
-  }) : reporte = Reporte.vacio(tipo, SessionHandler.uuid);
+  ReportEditor.vacio(this.uuid, {super.key, required TipoReporte tipo})
+    : reporte = Reporte.vacio(tipo, SessionHandler.uuid);
 
   @override
   State<StatefulWidget> createState() {
     return _ReportEditorState();
   }
 }
-
 
 class _ReportEditorState extends State<ReportEditor> {
   late final TextEditingController _titleController = TextEditingController(
@@ -82,38 +53,6 @@ class _ReportEditorState extends State<ReportEditor> {
   late List<Tag> _selectedTags = List<Tag>.from(widget.reporte.etiquetas);
   bool _intentoPublicarSinEtiquetas = false;
 
-  final List<String> _availableTags = [
-    'Celular',
-    'Notebook / Laptop',
-    'Tablet',
-    'Audífonos',
-    'Cargador / Cable',
-    'Reloj inteligente',
-    'Lentes',
-    'Llaves',
-    'Billetera',
-    'Cartera',
-    'Paraguas',
-    'Mochila',
-    'Estuche',
-    'Documentos',
-    'Cédula',
-    'Pasaporte',
-    'Tarjeta bancaria',
-    'Licencia de conducir',
-    'Credencial universitaria / laboral',
-    'Polerón / Chaqueta',
-    'Gorro',
-    'Polera',
-    'Pantalones',
-    'Zapatos / Zapatillas',
-    'Guantes',
-    'Botella',
-    'Termo',
-    'Llaveros',
-    'Cuadernos / Libretas',
-    'Otro',
-  ];
   final PageController _pageController = PageController();
 
   Future<void> _pickOneImage() async {
@@ -132,34 +71,34 @@ class _ReportEditorState extends State<ReportEditor> {
   }
 
   @override
- Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(),
-    body: Form(
-      key: _formKey,
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Center(
-                child: FractionallySizedBox(
-                  widthFactor: 0.6,
-                  child: SizedBox(
-                    height: 480,
-                    child: Stack(
-                      children: [
-                        GaleriaImagenes(
-                          imagenesBytes: _imagenesBytes,
-                          controller: _pageController,
-                          editable: true,
-                          onDelete: (i) {
-                            setState(() {
-                              _imagenesBytes.removeAt(i);
-                            });
-                          },
-                        ),
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: Form(
+        key: _formKey,
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(
+                  child: FractionallySizedBox(
+                    widthFactor: 0.6,
+                    child: SizedBox(
+                      height: 480,
+                      child: Stack(
+                        children: [
+                          GaleriaImagenes(
+                            imagenesBytes: _imagenesBytes,
+                            controller: _pageController,
+                            editable: true,
+                            onDelete: (i) {
+                              setState(() {
+                                _imagenesBytes.removeAt(i);
+                              });
+                            },
+                          ),
                           Positioned(
                             top: 8,
                             right: 8,
@@ -171,82 +110,79 @@ class _ReportEditorState extends State<ReportEditor> {
                               ),
                             ),
                           ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+                Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 800),
+                    child: _CampoTitulo(
+                      controller: _titleController,
+                      editable: true,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+                Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 800),
+                    child: _DescripcionReporte(
+                      controller: _descriptionController,
+                      tipo: widget.reporte.tipo,
+                      editable: true,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+                Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 800),
+                    child: Column(
+                      children: [
+                        DatosContacto(usuario: widget.usuario),
+                        const SizedBox(height: 24),
+                        DetallesReporte(
+                          reporte: widget.reporte,
+                          selectedTags: _selectedTags,
+                          editable: true,
+                          onEditTags: _openTagEditor,
+                          onEditColors: _openColorEditor,
+                        ),
                       ],
                     ),
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 24),
-              Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 800),
-                  child: _CampoTitulo(
-                    controller: _titleController,
-                    editable: true,
+                const SizedBox(height: 16),
+                Center(
+                  child: FractionallySizedBox(
+                    widthFactor: 0.6,
+                    child: SizedBox(height: 360, child: mapaUdec()),
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 16),
-              Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 800),
-                  child: _DescripcionReporte(
-                    controller: _descriptionController,
-                    tipo: widget.reporte.tipo,
-                    editable: true,
+                const SizedBox(height: 24),
+                Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 800),
+                    child: _crearBotonesGuardado(context),
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 24),
-              Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 800),
-                  child: Column(
-                    children: [
-                      DatosContacto(usuario: widget.usuario),
-                      const SizedBox(height: 24),
-                      DetallesReporte(
-                        reporte: widget.reporte,
-                        selectedTags: _selectedTags,
-                        editable: true,
-                        onEditTags: _openTagEditor,
-                        onEditColors: _openColorEditor,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-              Center(
-                child: FractionallySizedBox(
-                  widthFactor: 0.6,
-                  child: SizedBox(
-                    height: 360,
-                    child: mapaUdec(),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 24),
-              Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 800),
-                  child: _crearBotonesGuardado(context),
-                ),
-              ),
-
-              const SizedBox(height: 24),
-            ],
+                const SizedBox(height: 24),
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget mapaUdec() {
     return Stack(
@@ -256,8 +192,8 @@ class _ReportEditorState extends State<ReportEditor> {
             initialCenter: _loc,
             initialZoom: 16,
             onTap: (_, pos) => setState(() {
-                  _loc = pos;
-                }),
+              _loc = pos;
+            }),
           ),
           children: [
             TileLayer(
@@ -285,20 +221,20 @@ class _ReportEditorState extends State<ReportEditor> {
             ),
           ],
         ),
-          Align(
-            alignment: Alignment.bottomRight,
-            child: Tooltip(
-              message: "Confirmar selección",
-              child: IconButton.filled(
-                onPressed: () {
-                  setState(() {
-                    _finalLoc = LatLng(_loc.latitude, _loc.longitude);
-                  });
-                },
-                icon: Icon(Icons.read_more),
-              ),
+        Align(
+          alignment: Alignment.bottomRight,
+          child: Tooltip(
+            message: "Confirmar selección",
+            child: IconButton.filled(
+              onPressed: () {
+                setState(() {
+                  _finalLoc = LatLng(_loc.latitude, _loc.longitude);
+                });
+              },
+              icon: Icon(Icons.read_more),
             ),
           ),
+        ),
       ],
     );
   }
@@ -337,7 +273,7 @@ class _ReportEditorState extends State<ReportEditor> {
       }
       return false;
     }
-    
+
     // Validación especial para etiquetas: permite omitir en segundo intento
     if (_selectedTags.isEmpty && !_intentoPublicarSinEtiquetas) {
       setState(() {
@@ -345,16 +281,18 @@ class _ReportEditorState extends State<ReportEditor> {
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Seleccione una etiqueta. Presiona nuevamente para publicar sin etiquetas."),
+          content: Text(
+            "Seleccione una etiqueta. Presiona nuevamente para publicar sin etiquetas.",
+          ),
           duration: Duration(seconds: 4),
         ),
       );
       return false;
     }
-    
+
     // Resetear el flag si se publica exitosamente
     _intentoPublicarSinEtiquetas = false;
-    
+
     Reporte r = _recolectarCambios();
     if (!ReportHandler.submitPeticion(widget.uuid, r)) {
       ScaffoldMessenger.of(
@@ -383,8 +321,10 @@ class _ReportEditorState extends State<ReportEditor> {
   }
 
   Future<void> _openTagEditor() async {
-    String? selected = _selectedTags.isNotEmpty ? _selectedTags.first.nombre : null;
-    final Map<String, String> currentColors = {for (var t in _selectedTags) t.nombre: t.colorName};
+    TagType? selected = _selectedTags.firstOrNull?.tipo;
+    final Map<TagType, TagColor> currentColors = {
+      for (var t in _selectedTags) t.tipo: t.color,
+    };
 
     final result = await showDialog<List<Tag>>(
       context: context,
@@ -396,9 +336,9 @@ class _ReportEditorState extends State<ReportEditor> {
               builder: (context, setState) {
                 return Column(
                   mainAxisSize: MainAxisSize.min,
-                  children: _availableTags.map((t) {
-                    return RadioListTile<String>(
-                      title: Text(t),
+                  children: TagType.values.map((t) {
+                    return RadioListTile<TagType>(
+                      title: Text(t.name),
                       value: t,
                       groupValue: selected,
                       onChanged: (v) => setState(() {
@@ -417,7 +357,14 @@ class _ReportEditorState extends State<ReportEditor> {
             ),
             TextButton(
               onPressed: () {
-                final List<Tag> out = selected != null ? [Tag(selected!, currentColors[selected] ?? 'blanco')] : <Tag>[];
+                final List<Tag> out = selected != null
+                    ? [
+                        Tag(
+                          selected!,
+                          currentColors[selected] ?? TagColor.blanco,
+                        ),
+                      ]
+                    : <Tag>[];
                 Navigator.pop(context, out);
               },
               child: const Text('Guardar'),
@@ -443,18 +390,26 @@ class _ReportEditorState extends State<ReportEditor> {
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('No hay etiquetas'),
-          content: const Text('Selecciona primero las categorías y luego asigna colores.'),
-          actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))],
+          content: const Text(
+            'Selecciona primero las categorías y luego asigna colores.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
         ),
       );
       return;
     }
 
-    final Map<String, String> colors = {for (var t in _selectedTags) t.nombre: t.colorName};
-    final List<String> presetColorNames = colorNameToHex.keys.toList();
+    final Map<TagType,TagColor> colors = {
+      for (var t in _selectedTags) t.tipo: t.color,
+    };
 
-    Future<String?> pickColor(BuildContext ctx, String tag) async {
-      final res = await showDialog<String>(
+    Future<TagColor?> pickColor(BuildContext ctx, String tag) async {
+      final res = await showDialog<TagColor>(
         context: ctx,
         builder: (ctx) {
           return AlertDialog(
@@ -462,15 +417,20 @@ class _ReportEditorState extends State<ReportEditor> {
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                  children: presetColorNames.map((name) {
+                children: TagColor.values.map((color) {
                   return ListTile(
-                    title: Text(prettifyColorName(name)),
-                    onTap: () => Navigator.pop(ctx, name),
+                    title: Text(color.name),
+                    onTap: () => Navigator.pop(ctx, color),
                   );
                 }).toList(),
               ),
             ),
-            actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancelar'))],
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Cancelar'),
+              ),
+            ],
           );
         },
       );
@@ -496,7 +456,7 @@ class _ReportEditorState extends State<ReportEditor> {
                             width: 28,
                             height: 28,
                             decoration: BoxDecoration(
-                              color: hexToColor(colorNameToHex[colors[t.nombre]!] ?? colorNameToHex['blanco']!),
+                              color: colors[t.tipo]?.color ?? Colors.white,
                               border: Border.all(color: Colors.black26),
                               borderRadius: BorderRadius.circular(4),
                             ),
@@ -504,17 +464,21 @@ class _ReportEditorState extends State<ReportEditor> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              t.nombre,
+                              t.tipo.name,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           const SizedBox(width: 8),
-                          _isColorable(t.nombre)
+                          t.tipo.colorable
                               ? TextButton(
                                   onPressed: () async {
-                                    final chosen = await pickColor(context, t.nombre);
-                                    if (chosen != null) setState(() => colors[t.nombre] = chosen);
+                                    final chosen = await pickColor(
+                                      context,
+                                      t.tipo.name,
+                                    );
+                                    if (chosen != null)
+                                      setState(() => colors[t.tipo] = chosen);
                                   },
                                   child: const Text('Cambiar color'),
                                 )
@@ -531,10 +495,15 @@ class _ReportEditorState extends State<ReportEditor> {
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
             TextButton(
               onPressed: () {
-                final out = _selectedTags.map((t) => Tag(t.nombre, colors[t.nombre] ?? t.colorName)).toList();
+                final out = _selectedTags
+                    .map((t) => Tag(t.tipo, colors[t.tipo] ?? t.color))
+                    .toList();
                 Navigator.pop(context, out);
               },
               child: const Text('Guardar'),
@@ -551,5 +520,3 @@ class _ReportEditorState extends State<ReportEditor> {
     }
   }
 }
-
-

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/modelos/reporte.dart';
 import 'package:ing_software_grupo4/modelos/tag.dart';
+import 'package:ing_software_grupo4/modelos/tagcolor.dart';
 
 class DetallesReporte extends StatelessWidget {
   const DetallesReporte({
@@ -45,13 +46,13 @@ class DetallesReporte extends StatelessWidget {
         const SizedBox(height: 8),
         Builder(
           builder: (context) {
-            final cats = selectedTags.map((t) => t.nombre).join(', ');
+            final cats = selectedTags.map((t) => t.tipo.name).join(', ');
             final colorSet = selectedTags
-                .map((t) => t.colorName)
-                .where((c) => c != 'blanco')
+                .map((t) => t.color)
+                .where((c) => c != TagColor.blanco)
                 .toSet();
             final colorsPretty = colorSet
-                .map((c) => prettifyColorName(c))
+                .map((c) => c.name)
                 .join(', ');
             return Column(
               children: [
@@ -123,9 +124,3 @@ class DetallesReporte extends StatelessWidget {
   }
 }
 
-String prettifyColorName(String key) {
-  return key
-      .split('_')
-      .map((s) => s.isEmpty ? s : (s[0].toUpperCase() + s.substring(1)))
-      .join(' ');
-}

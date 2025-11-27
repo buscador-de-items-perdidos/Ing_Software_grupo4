@@ -201,8 +201,8 @@ void main() {
         correo: 'modificado@udec.cl',
         numero: '+56 9 9999 9999',
         miscelaneo: 'Nuevo misc',
-        reportes_pendientes: {},
-        reportes_aceptados: {},
+        reportesPendientes: {},
+        reportesAceptados: {},
         isAdmin: true,
         tipoUsuario: TipoUsuario.miembroUniversidad,
       );

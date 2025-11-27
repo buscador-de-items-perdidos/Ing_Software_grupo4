@@ -39,8 +39,8 @@ class _CambioContactosMovilState extends State<CambioContactosMovil> {
               correo: _emailController.text,
               numero: _numberController.text,
               miscelaneo: _miscController.text,
-              reportes_pendientes: SessionHandler.getPendientes,
-              reportes_aceptados: SessionHandler.getAceptados,
+              reportesPendientes: SessionHandler.getPendientes,
+              reportesAceptados: SessionHandler.getAceptados,
               isAdmin: usuarioActual.isAdmin,
             ),
           );
