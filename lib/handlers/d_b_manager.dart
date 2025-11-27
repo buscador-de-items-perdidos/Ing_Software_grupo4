@@ -71,8 +71,11 @@ class DBManager {
     db.execute(tagJunction);
     db.execute(imageJunction);
     db.execute(imageBLOBJunction);
-
     _initializedTables = true;
+  }
+
+  List<String> reportKeys(){
+    return db.select('SELECT uuid from Reportes').map((r) => r.values[0] as String).toList();
   }
 
   Reporte? fetchReporte(String uuid) {

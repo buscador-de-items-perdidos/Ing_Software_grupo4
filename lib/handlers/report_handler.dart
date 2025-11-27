@@ -12,12 +12,12 @@ class ReportHandler {
   static final Map<String, Reporte?> _pendientes = {};
 
   ///Guarda todos los reportes existentes y aprobados en el sistema
-  static final Map<String, Reporte> _existentes = {};
+  static final Map<String, Reporte?> _existentes = {};
 
   ///Guarda reportes encontrados
   static final Map<String, Reporte> _encontrados = {};
 
-  static DBManager? _dbManager;
+  static late DBManager _dbManager;
 
   static final ValueNotifier<bool> _reportNotifier = ValueNotifier(false);
   static ValueNotifier<bool> get reportNotifier => _reportNotifier;
@@ -30,6 +30,9 @@ class ReportHandler {
   ///Aqui pondría mi metodo inicializador de base de datos, si tuviera una base de datos.
   static Future<void> initialize(DBManager db) async {
     _dbManager = db;
+    for (String key in _dbManager.reportKeys()) {
+      _existentes[key] = null;
+    }
   }
 
   static Iterable<String> getPeticiones() {
@@ -68,7 +71,7 @@ class ReportHandler {
     final autorUsuario = SessionHandler.getUsuario(reporte.autor);
     autorUsuario.reportesAceptados.add(uuid);
     autorUsuario.reportesPendientes.remove(uuid);
-    _dbManager?.updateReporte(uuid, reporte);
+    _dbManager.updateReporte(uuid, reporte);
 
     _pendientes.remove(uuid);
     _reportNotifier.value = !_reportNotifier.value;
@@ -120,6 +123,11 @@ class ReportHandler {
   static List<String> get getReportes => _existentes.keys.toList();
 
   static Reporte? getReporte(String key) {
+    if (_existentes.keys.contains(key) && _existentes[key] == null) {
+      _existentes[key] = _dbManager.fetchReporte(key);
+      print("aa");
+    }
+    print("bb");
     return _existentes[key];
   }
 
@@ -129,7 +137,7 @@ class ReportHandler {
 
   /// Busca un reporte por UUID en los 3 maps: pendientes, existentes y encontrados
   static Reporte? buscarReporte(String uuid) {
-    return _pendientes[uuid] ?? _existentes[uuid] ?? _encontrados[uuid];
+    return _pendientes[uuid] ?? getReporte(uuid) ?? _encontrados[uuid];
   }
 
   static void estadoObjeto(String uuid, bool encontrado) {
