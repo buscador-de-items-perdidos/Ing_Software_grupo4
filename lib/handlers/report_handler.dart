@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:ing_software_grupo4/handlers/d_b_manager.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/modelos/reporte.dart';
 import 'package:flutter/foundation.dart';
@@ -14,20 +17,22 @@ class ReportHandler {
   ///Guarda reportes encontrados
   static final Map<String, Reporte> _encontrados = {};
 
+  static DBManager? _dbManager;
+
   static final ValueNotifier<bool> _reportNotifier = ValueNotifier(false);
   static ValueNotifier<bool> get reportNotifier => _reportNotifier;
 
   static final ValueNotifier<bool> _pendingNotifier = ValueNotifier(false);
   static ValueNotifier<bool> get pendingNotifier => _pendingNotifier;
+
   static bool canPublish = true;
 
   ///Aqui pondría mi metodo inicializador de base de datos, si tuviera una base de datos.
-  static void initialize() {
-    throw UnimplementedError();
+  static Future<void> initialize(DBManager db) async {
+    _dbManager = db;
   }
 
   static Iterable<String> getPeticiones() {
-    if (!SessionHandler.isAdmin) return const Iterable.empty();
     return _pendientes.keys;
   }
 
@@ -63,6 +68,7 @@ class ReportHandler {
     final autorUsuario = SessionHandler.getUsuario(reporte.autor);
     autorUsuario.reportesAceptados.add(uuid);
     autorUsuario.reportesPendientes.remove(uuid);
+    _dbManager?.updateReporte(uuid, reporte);
 
     _pendientes.remove(uuid);
     _reportNotifier.value = !_reportNotifier.value;
