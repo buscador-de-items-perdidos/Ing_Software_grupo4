@@ -315,6 +315,7 @@ class DBManager {
 WHERE r1.uuid = ? 
 AND r1.autor != r2.autor
 AND r1.tipo != r2.tipo
+AND r2.encontrado = 0
 AND (
     SELECT COUNT(*) FROM TagJunctionexistente WHERE reporte = r1.uuid
 ) = (

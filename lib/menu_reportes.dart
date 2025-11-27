@@ -158,8 +158,13 @@ class ListaReportes extends StatelessWidget {
 
       if (reporte == null) return false;
 
-      // Filtrar por búsqueda de texto
+      //No queremos ver reportes ya resueltos en la pantalla principal
+      if (!filtro.soloPendientes &&
+          !filtro.soloMisReportes &&
+          reporte.encontrado)
+        return false;
 
+      // Filtrar por búsqueda de texto
       if (!reporte.titulo.toLowerCase().contains(filtro.input.toLowerCase()))
         return false;
 
