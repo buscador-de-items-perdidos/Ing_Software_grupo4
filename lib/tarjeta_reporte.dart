@@ -31,7 +31,7 @@ class TarjetaReporte extends StatelessWidget {
   Reporte? _obtenerReporte() {
     return pendiente
         ? ReportHandler.getPeticion(uuid)
-        : (ReportHandler.getReporte(uuid) ?? ReportHandler.getEncontrado(uuid));
+        : ReportHandler.getReporte(uuid);
   }
 
   Widget _buildCard(BuildContext context, Reporte reporte) {

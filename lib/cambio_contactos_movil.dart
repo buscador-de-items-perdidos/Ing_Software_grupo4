@@ -34,15 +34,10 @@ class _CambioContactosMovilState extends State<CambioContactosMovil> {
           }
           SessionHandler.cambiarUsuario(
             SessionHandler.uuid,
-            Usuario(
-              nombreUsuario: _usernameController.text,
-              correo: _emailController.text,
-              numero: _numberController.text,
-              miscelaneo: _miscController.text,
-              reportesPendientes: SessionHandler.getPendientes,
-              reportesAceptados: SessionHandler.getAceptados,
-              isAdmin: usuarioActual.isAdmin,
-            ),
+            nombreUsuario: _usernameController.text,
+            correo: _emailController.text,
+            numero: _numberController.text,
+            miscelaneo: _miscController.text,
           );
         },
         child: Icon(Icons.save),
@@ -101,7 +96,8 @@ class _CambioContactosMovilState extends State<CambioContactosMovil> {
                         ),
                         if (SessionHandler.usuarioActual?.tipoUsuario ==
                                 TipoUsuario.miembroUniversidad &&
-                            SessionHandler.usuarioActual?.matricula != null) ...[
+                            SessionHandler.usuarioActual?.matricula !=
+                                null) ...[
                           const SizedBox(height: 8),
                           Text(
                             'Matrícula: ${SessionHandler.usuarioActual?.matricula}',
