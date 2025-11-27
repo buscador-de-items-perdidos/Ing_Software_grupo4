@@ -21,7 +21,8 @@ class DBManager {
   miscelaneo TEXT,
   isAdmin INTEGER NOT NULL CHECK(isAdmin IN (0, 1)),
   tipoUsuario INTEGER NOT NULL,
-  matricula TEXT
+  matricula TEXT,
+  numero TEXT NOT NULL
 );''';
 
   static const credenciales = '''
@@ -44,12 +45,13 @@ class DBManager {
   FOREIGN KEY(autor) REFERENCES Usuarios(uuid) ON DELETE CASCADE
 );''';
 
-  static tagJunction(String s) => '''CREATE TABLE IF NOT EXISTS TagJunction$s (
+  static tagJunction(String s) =>
+      '''CREATE TABLE IF NOT EXISTS TagJunction$s (
   reporte TEXT NOT NULL,
   tipo INTEGER NOT NULL,
   color INTEGER NOT NULL,
   PRIMARY KEY(reporte, tipo),
-  FOREIGN KEY(reporte) REFERENCES Reportes(uuid) ON DELETE CASCADE
+  FOREIGN KEY(reporte) REFERENCES Reportes$s(uuid) ON DELETE CASCADE
 );''';
 
   static imageJunction(String s) =>
@@ -57,7 +59,7 @@ class DBManager {
   reporte TEXT NOT NULL,
   image TEXT NOT NULL,
   PRIMARY KEY(reporte, image),
-  FOREIGN KEY(reporte) REFERENCES Reportes(uuid) ON DELETE CASCADE
+  FOREIGN KEY(reporte) REFERENCES Reportes$s(uuid) ON DELETE CASCADE
 );''';
 
   static imageBLOBJunction(String s) =>
@@ -65,7 +67,7 @@ class DBManager {
   reporte TEXT NOT NULL,
   image BLOB NOT NULL,
   PRIMARY KEY(reporte, image),
-  FOREIGN KEY(reporte) REFERENCES Reportes(uuid) ON DELETE CASCADE
+  FOREIGN KEY(reporte) REFERENCES Reportes$s(uuid) ON DELETE CASCADE
 );''';
   //NECESITAMOS TRES JUNCTION TABLES D:
 
@@ -77,6 +79,7 @@ class DBManager {
     if (_initializedTables) return;
 
     db.execute(usuarios);
+    db.execute(credenciales);
 
     for (var x in EstadoReporte.values) {
       db.execute(reportes(x.name));
@@ -96,6 +99,16 @@ class DBManager {
 
   void removeReporte(String uuid, EstadoReporte estado) {
     db.execute('DELETE FROM Reportes${estado.name} WHERE uuid = ?', [uuid]);
+    db.execute('DELETE FROM tagJunction${estado.name} WHERE reporte = ?', [
+      uuid,
+    ]);
+    db.execute('DELETE FROM imageJunction${estado.name} WHERE reporte = ?', [
+      uuid,
+    ]);
+    db.execute(
+      'DELETE FROM imageBLOBJunction${estado.name} WHERE reporte = ?',
+      [uuid],
+    );
   }
 
   Reporte? fetchReporte(String uuid, EstadoReporte estado) {
