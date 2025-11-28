@@ -4,16 +4,12 @@ import 'package:ing_software_grupo4/handlers/d_b_manager.dart';
 import 'package:ing_software_grupo4/handlers/report_handler.dart';
 import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/login_screen.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:sqlite3/sqlite3.dart';
+import 'package:ing_software_grupo4/open_db.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  final dir = await getApplicationDocumentsDirectory();
-  final db = sqlite3.open('${dir.path}/appDB.db');
-  final dbHandler = DBManager(db);
-  dbHandler.createUserTables();
+  DBManager? dbHandler = await openDb();
+  dbHandler?.createUserTables();
   ReportHandler.initialize(dbHandler);
   SessionHandler.initialize(dbHandler);
   runApp(const MyApp());

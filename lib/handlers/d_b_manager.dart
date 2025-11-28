@@ -7,12 +7,12 @@ import 'package:ing_software_grupo4/modelos/tagtype.dart';
 import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
 import 'package:ing_software_grupo4/modelos/usuario.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:sqlite3/sqlite3.dart';
+import 'package:sqlite3/common.dart';
 import 'package:uuid/uuid.dart';
 
 ///Maneja todas las llamadas a la base de datos SQL
 class DBManager {
-  final Database db;
+  final CommonDatabase db;
 
   static const usuarios = '''CREATE TABLE IF NOT EXISTS Usuarios (
   uuid TEXT NOT NULL PRIMARY KEY,
