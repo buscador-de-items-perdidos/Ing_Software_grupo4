@@ -2,7 +2,7 @@
 
 ## Vision del sprint 2
 
-- La aplicacion va a emparejar objetos perdidos con objetos encontrados, y notificar a las partes interesadas.
+- La aplicacion va a emparejar objetos perdidos con objetos encontrados, entregando una experiencia multiplataforma satisfactoria.
 
 ## Historias
 
