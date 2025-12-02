@@ -25,6 +25,7 @@ enum TagType {
   Polera('Polera', true),
   Pantalones('Pantalones', true),
   Zapatos('Zapatos / Zapatillas', true),
+  Bicicleta('Bicicleta', true),
   Guantes('Guantes', true),
   Botella('Botella', true),
   Termo('Termo', true),
