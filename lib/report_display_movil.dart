@@ -17,7 +17,6 @@ import 'package:latlong2/latlong.dart';
 class ReportDisplay extends StatefulWidget {
   final Reporte reporte;
   final String uuid;
-
   final Modo modo;
   Usuario get usuario => SessionHandler.getUsuario(reporte.autor);
   const ReportDisplay(this.reporte, this.uuid, this.modo, {super.key});
@@ -82,11 +81,14 @@ class _ReportDisplayState extends State<ReportDisplay> {
       ),
       floatingActionButton: widget.modo == Modo.Revisar
           ? _crearBotonesRevisar()
-          : FloatingActionButton(
+          : SessionHandler.uuid == widget.reporte.autor ||
+                SessionHandler.isAdmin
+          ? FloatingActionButton(
               onPressed: () async => _editarReporte(context),
               tooltip: "Editar reporte",
               child: const Icon(Icons.edit_document),
-            ),
+            )
+          : SizedBox.shrink(),
       body: CustomScrollView(
         slivers: [
           _Barra(
