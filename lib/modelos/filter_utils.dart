@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ing_software_grupo4/modelos/tag.dart';
 import 'package:ing_software_grupo4/modelos/tagcolor.dart';
 import 'package:ing_software_grupo4/modelos/tagtype.dart';
 import 'package:ing_software_grupo4/modelos/tipo_reporte.dart';
@@ -14,7 +15,7 @@ Future<Map<String, Set>?> openFilterDialog(
   final tempColors = Set<TagColor>.from(activeColorFilters);
   final tempTipos = Set<TipoReporte>.from(activeTipoFilters);
 
-  return await showDialog<Map<String, Set<String>>>(
+  return await showDialog<Map<String, Set>>(
     context: context,
     builder: (context) {
       return AlertDialog(
