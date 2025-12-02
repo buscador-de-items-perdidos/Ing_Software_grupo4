@@ -294,12 +294,7 @@ class _ReportEditorState extends State<ReportEditor> {
     _intentoPublicarSinEtiquetas = false;
 
     Reporte r = _recolectarCambios();
-    if (!ReportHandler.submitPeticion(widget.uuid, r)) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: const Text("FAILED PUBLISH")));
-      return false;
-    }
+    ReportHandler.submitPeticion(widget.uuid, r);
     return true;
   }
 

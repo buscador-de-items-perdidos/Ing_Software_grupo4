@@ -1,7 +1,20 @@
+import 'package:ing_software_grupo4/handlers/d_b_manager.dart';
+import 'package:ing_software_grupo4/handlers/report_handler.dart';
 import 'package:ing_software_grupo4/modelos/usuario.dart';
 import 'package:uuid/uuid.dart';
 
 abstract class SessionHandler {
+  static late DBManager? _dbManager;
+  static Usuario? usuarioActual;
+  static String get nombreUsuario => usuarioActual?.nombreUsuario ?? "";
+  static String uuid = '';
+  static bool get isAdmin => usuarioActual?.isAdmin ?? false;
+  static String get correo => usuarioActual?.correo ?? "";
+  static String get numero => usuarioActual?.numero ?? "";
+  static String get miscelaneo => usuarioActual?.miscelaneo ?? "";
+  static TipoUsuario get tipoUsuario =>
+      usuarioActual?.tipoUsuario ?? TipoUsuario.externo;
+
   static final _uuidGenerator = Uuid();
 
   static final Map<String, Usuario> usuarios = {
@@ -10,8 +23,6 @@ abstract class SessionHandler {
       correo: "javcastillo@udec.cl",
       numero: "+56 9 8417 9674",
       miscelaneo: "Discord : pandita_45",
-      reportesPendientes: {},
-      reportesAceptados: {},
       isAdmin: true,
       tipoUsuario: TipoUsuario.miembroUniversidad,
     ),
@@ -25,33 +36,63 @@ abstract class SessionHandler {
     "admin": "019a2e2f-d31c-7441-8355-62c252a55cc6",
   };
 
-  static Usuario? get usuarioActual => usuarios[uuid];
-  static String get nombreUsuario => usuarioActual?.nombreUsuario ?? "";
-  static String uuid = '';
-  static bool get isAdmin => usuarioActual?.isAdmin ?? false;
-  static String get correo => usuarioActual?.correo ?? "";
-  static String get numero => usuarioActual?.numero ?? "";
-  static String get miscelaneo => usuarioActual?.miscelaneo ?? "";
-  static TipoUsuario get tipoUsuario =>
-      usuarioActual?.tipoUsuario ?? TipoUsuario.externo;
+  static void cambiarUsuario(
+    String uuid, {
+    required String nombreUsuario,
+    required String correo,
+    required String numero,
+    required String miscelaneo,
+  }) {
+    if (_dbManager == null) {
+      if (!usuarios.containsKey(uuid)) throw Exception();
 
-  static void cambiarUsuario(String uuid, Usuario usuario) {
-    if (!usuarios.containsKey(uuid)) throw Exception();
+      usuarios[uuid] = Usuario(
+        nombreUsuario: nombreUsuario,
+        correo: correo,
+        numero: numero,
+        miscelaneo: miscelaneo,
+        tipoUsuario: usuarios[uuid]?.tipoUsuario ?? TipoUsuario.externo,
+        isAdmin: usuarios[uuid]?.isAdmin ?? false,
+      );
+      if (uuid == SessionHandler.uuid) usuarioActual = usuarios[uuid];
+      return;
+    }
+    _dbManager!.updateUsuario(
+      uuid,
+      nombreUsuario: nombreUsuario,
+      correo: correo,
+      numero: numero,
+      miscelaneo: miscelaneo,
+    );
 
-    usuarios[uuid] = usuario;
+    //si editamos el usuario actual debemos pedirlo denuevo
+    if (uuid == SessionHandler.uuid) {
+      usuarioActual = _dbManager!.fetchUser(uuid);
+    }
   }
 
   // Método para autenticar usuario
   static bool login(String username, String password) {
     // Verificar si el usuario existe y la contraseña es correcta
-    if (_credenciales.containsKey(username) &&
-        _credenciales[username] == password) {
-      // Obtener el UUID del usuario y establecer la sesión
-      final userUuid = _usernameToUuid[username];
-      if (userUuid != null) {
-        uuid = userUuid;
-        return true;
+    if (_dbManager == null) {
+      if (_credenciales.containsKey(username) &&
+          _credenciales[username] == password) {
+        // Obtener el UUID del usuario y establecer la sesión
+        final userUuid = _usernameToUuid[username];
+        if (userUuid != null) {
+          uuid = userUuid;
+          usuarioActual = usuarios[userUuid];
+          return true;
+        }
       }
+      return false;
+    }
+
+    String? newUuid = _dbManager!.verifySession(username, password);
+    if (newUuid != null) {
+      uuid = newUuid;
+      usuarioActual = _dbManager!.fetchUser(uuid);
+      return true;
     }
     return false;
   }
@@ -59,10 +100,11 @@ abstract class SessionHandler {
   // Método para cerrar sesión
   static void logout() {
     uuid = '';
+    usuarioActual = null;
   }
 
   // Método para verificar si hay una sesión activa
-  static bool get isLoggedIn => uuid.isNotEmpty && usuarios.containsKey(uuid);
+  static bool get isLoggedIn => uuid.isNotEmpty;
 
   // Método para registrar un nuevo usuario
   static String? registrarUsuario({
@@ -73,6 +115,15 @@ abstract class SessionHandler {
     String? numero,
     String? miscelaneo,
   }) {
+    if (_dbManager != null) {
+      return _dbManager!.registrarUsuario(
+        nombreUsuario: nombreUsuario,
+        password: password,
+        correo: correo,
+        numero: numero,
+        tipoUsuario: tipoUsuario,
+      );
+    }
     // Validar que el nombre de usuario no exista
     if (_usernameToUuid.containsKey(nombreUsuario)) {
       return "El nombre de usuario ya está en uso";
@@ -104,9 +155,7 @@ abstract class SessionHandler {
       correo: correo,
       numero: numero ?? "",
       miscelaneo: miscelaneo ?? "",
-      reportesPendientes: {},
-      reportesAceptados: {},
-      isAdmin: false, // Los nuevos usuarios no son administradores por defecto
+      isAdmin: nombreUsuario == 'admin', // Los nuevos usuarios no son administradores por defecto
       tipoUsuario: tipoUsuario,
       matricula: null,
     );
@@ -120,33 +169,31 @@ abstract class SessionHandler {
   }
 
   // Método para verificar si un nombre de usuario está disponible
-  static bool isUsernameAvailable(String username) {
-    return !_usernameToUuid.containsKey(username);
-  }
+  static bool isUsernameAvailable(String username) => _dbManager == null
+      ? !_usernameToUuid.containsKey(username)
+      : _dbManager!.isUsernameAvailable(username);
 
   // Método para verificar si un correo está disponible
-  static bool isEmailAvailable(String email) {
-    return !usuarios.values.any((usuario) => usuario.correo == email);
-  }
+  static bool isEmailAvailable(String email) => _dbManager == null
+      ? !usuarios.values.any((usuario) => usuario.correo == email)
+      : _dbManager!.isEmailAvailable(correo);
 
-  void initialize() async {
-    //Este metodo deberia pedir las sesiones que tiene el sistema a una base de datos, en teoria obvio
-    throw UnimplementedError();
+  static void initialize(DBManager? db) async {
+    _dbManager = db;
   }
 
   static String getUsername(String autor) {
-    return usuarios[autor]?.nombreUsuario ?? "";
+    return getUsuario(autor).nombreUsuario;
   }
 
-  static Usuario getUsuario(String uuid) {
-    return usuarios[uuid]!;
-  }
+  static Usuario getUsuario(String uuid) =>
+      _dbManager == null ? usuarios[uuid]! : _dbManager!.fetchUser(uuid)!;
 
-  static Set<String> get getPendientes {
-    return usuarioActual?.reportesPendientes ?? {};
-  }
+  static Set<String> get getPendientes => _dbManager == null
+      ? ReportHandler.getReportesUsuario(uuid, false)
+      : _dbManager!.getReportesUsuario(uuid, EstadoReporte.pendiente);
 
-  static Set<String> get getAceptados {
-    return usuarioActual?.reportesAceptados ?? {};
-  }
+  static Set<String> get getAceptados => _dbManager == null
+      ? ReportHandler.getReportesUsuario(uuid, true)
+      : _dbManager!.getReportesUsuario(uuid, EstadoReporte.existente);
 }

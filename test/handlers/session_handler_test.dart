@@ -10,7 +10,7 @@ void main() {
 
     test('Login con credenciales correctas', () {
       final resultado = SessionHandler.login('admin', 'admin123');
-      
+
       expect(resultado, true);
       expect(SessionHandler.isLoggedIn, true);
       expect(SessionHandler.nombreUsuario, 'pandita_45');
@@ -19,7 +19,7 @@ void main() {
 
     test('Login con credenciales incorrectas', () {
       final resultado = SessionHandler.login('admin', 'wrongpassword');
-      
+
       expect(resultado, false);
       expect(SessionHandler.isLoggedIn, false);
       expect(SessionHandler.uuid, '');
@@ -27,7 +27,7 @@ void main() {
 
     test('Login con usuario inexistente', () {
       final resultado = SessionHandler.login('noexiste', 'password');
-      
+
       expect(resultado, false);
       expect(SessionHandler.isLoggedIn, false);
     });
@@ -35,9 +35,9 @@ void main() {
     test('Logout cierra la sesión', () {
       SessionHandler.login('admin', 'admin123');
       expect(SessionHandler.isLoggedIn, true);
-      
+
       SessionHandler.logout();
-      
+
       expect(SessionHandler.isLoggedIn, false);
       expect(SessionHandler.uuid, '');
       expect(SessionHandler.nombreUsuario, '');
@@ -45,7 +45,7 @@ void main() {
 
     test('Usuario actual retorna null cuando no hay sesión', () {
       SessionHandler.logout();
-      
+
       expect(SessionHandler.usuarioActual, null);
       expect(SessionHandler.nombreUsuario, '');
       expect(SessionHandler.correo, '');
@@ -61,7 +61,7 @@ void main() {
         numero: '+56 9 1234 5678',
         miscelaneo: 'Info adicional',
       );
-      
+
       expect(resultado, null);
       expect(SessionHandler.isUsernameAvailable('nuevoUsuario'), false);
       expect(SessionHandler.isEmailAvailable('nuevo@example.com'), false);
@@ -74,14 +74,14 @@ void main() {
         correo: 'usuario1@example.com',
         tipoUsuario: TipoUsuario.externo,
       );
-      
+
       final resultado = SessionHandler.registrarUsuario(
         nombreUsuario: 'usuario1',
         password: 'otherpassword',
         correo: 'otro@example.com',
         tipoUsuario: TipoUsuario.externo,
       );
-      
+
       expect(resultado, 'El nombre de usuario ya está en uso');
     });
 
@@ -92,14 +92,14 @@ void main() {
         correo: 'correo_duplicado@example.com',
         tipoUsuario: TipoUsuario.externo,
       );
-      
+
       final resultado = SessionHandler.registrarUsuario(
         nombreUsuario: 'usuario_correo_dup_2',
         password: 'password123',
         correo: 'correo_duplicado@example.com',
         tipoUsuario: TipoUsuario.externo,
       );
-      
+
       expect(resultado, 'El correo ya está registrado');
     });
 
@@ -110,7 +110,7 @@ void main() {
         correo: 'correo-invalido',
         tipoUsuario: TipoUsuario.externo,
       );
-      
+
       expect(resultado, 'Formato de correo inválido');
     });
 
@@ -121,7 +121,7 @@ void main() {
         correo: 'usuario_pass_corta@example.com',
         tipoUsuario: TipoUsuario.externo,
       );
-      
+
       expect(resultado, 'La contraseña debe tener al menos 6 caracteres');
     });
 
@@ -132,9 +132,9 @@ void main() {
         correo: 'test@example.com',
         tipoUsuario: TipoUsuario.externo,
       );
-      
+
       final loginExitoso = SessionHandler.login('testUser', 'test123456');
-      
+
       expect(loginExitoso, true);
       expect(SessionHandler.isLoggedIn, true);
       expect(SessionHandler.nombreUsuario, 'testUser');
@@ -158,7 +158,9 @@ void main() {
     });
 
     test('getUsername retorna nombre correcto para UUID válido', () {
-      final nombre = SessionHandler.getUsername('019a2e2f-d31c-7441-8355-62c252a55cc6');
+      final nombre = SessionHandler.getUsername(
+        '019a2e2f-d31c-7441-8355-62c252a55cc6',
+      );
       expect(nombre, 'pandita_45');
     });
 
@@ -169,7 +171,7 @@ void main() {
 
     test('Usuario admin tiene permisos de administrador', () {
       SessionHandler.login('admin', 'admin123');
-      
+
       expect(SessionHandler.isAdmin, true);
     });
 
@@ -180,22 +182,22 @@ void main() {
         correo: 'normal@example.com',
         tipoUsuario: TipoUsuario.externo,
       );
-      
+
       SessionHandler.login('usuarioNormal', 'password123');
-      
+
       expect(SessionHandler.isAdmin, false);
     });
 
     test('getPendientes retorna set vacío sin sesión', () {
       SessionHandler.logout();
-      
+
       expect(SessionHandler.getPendientes.isEmpty, true);
     });
 
     test('Cambiar usuario modifica datos correctamente', () {
       SessionHandler.login('admin', 'admin123');
       final uuid = SessionHandler.uuid;
-      
+
       final usuarioModificado = Usuario(
         nombreUsuario: 'nombreModificado',
         correo: 'modificado@udec.cl',
@@ -206,9 +208,9 @@ void main() {
         isAdmin: true,
         tipoUsuario: TipoUsuario.miembroUniversidad,
       );
-      
+
       SessionHandler.cambiarUsuario(uuid, usuarioModificado);
-      
+
       expect(SessionHandler.nombreUsuario, 'nombreModificado');
       expect(SessionHandler.correo, 'modificado@udec.cl');
     });

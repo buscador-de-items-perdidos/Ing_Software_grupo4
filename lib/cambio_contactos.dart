@@ -68,23 +68,12 @@ class _CambioContactosState extends State<CambioContactos> {
                               child: FilledButton(
                                 onPressed: () {
                                   if (_formKey24.currentState!.validate()) {
-                                    final usuarioActual =
-                                        SessionHandler.usuarioActual!;
                                     SessionHandler.cambiarUsuario(
                                       SessionHandler.uuid,
-                                      Usuario(
-                                        nombreUsuario: _usernameController.text,
-                                        correo: _correoController.text,
-                                        numero: _numeroController.text,
-                                        miscelaneo: _miscelaneoController.text,
-                                        reportesPendientes:
-                                            SessionHandler.getPendientes,
-                                        reportesAceptados:
-                                            SessionHandler.getAceptados,
-                                        isAdmin: SessionHandler.isAdmin,
-                                        tipoUsuario: usuarioActual.tipoUsuario,
-                                        matricula: usuarioActual.matricula,
-                                      ),
+                                      nombreUsuario: _usernameController.text,
+                                      correo: _correoController.text,
+                                      numero: _numeroController.text,
+                                      miscelaneo: _miscelaneoController.text,
                                     );
                                   }
                                 },

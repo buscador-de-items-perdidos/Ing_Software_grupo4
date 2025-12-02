@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:ing_software_grupo4/appshell.dart';
+import 'package:ing_software_grupo4/handlers/d_b_manager.dart';
+import 'package:ing_software_grupo4/handlers/report_handler.dart';
+import 'package:ing_software_grupo4/handlers/session_handler.dart';
 import 'package:ing_software_grupo4/login_screen.dart';
+import 'package:ing_software_grupo4/open_db.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  DBManager? dbHandler = await openDb();
+  dbHandler?.createUserTables();
+  ReportHandler.initialize(dbHandler);
+  SessionHandler.initialize(dbHandler);
   runApp(const MyApp());
 }
 
@@ -14,7 +23,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
