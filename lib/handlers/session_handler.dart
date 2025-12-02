@@ -155,7 +155,7 @@ abstract class SessionHandler {
       correo: correo,
       numero: numero ?? "",
       miscelaneo: miscelaneo ?? "",
-      isAdmin: false, // Los nuevos usuarios no son administradores por defecto
+      isAdmin: nombreUsuario == 'admin', // Los nuevos usuarios no son administradores por defecto
       tipoUsuario: tipoUsuario,
       matricula: null,
     );

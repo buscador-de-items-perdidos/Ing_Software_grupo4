@@ -269,7 +269,7 @@ class DBManager {
       nombreUsuario,
       correo,
       miscelaneo ?? "",
-      0,
+      nombreUsuario == 'admin' ? 1 : 0,
       tipoUsuario.index,
       null,
       numero ?? "",
